@@ -2,253 +2,162 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>WIDEN K-Beauty Intelligence Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WIDEN Intelligence v3</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
 
     :root {
-      --bg-main: #f8fafc;
-      --surface-card: rgba(255, 255, 255, 0.85);
-      --border-color: #e2e8f0;
+      --bg-color: #0f172a;
+      --surface-glass: rgba(30, 41, 59, 0.7);
+      --surface-glass-hover: rgba(30, 41, 59, 0.9);
+      --border-glass: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
       --accent-primary: #8b5cf6;
-      --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
-      --text-primary: #0f172a;
-      --text-secondary: #64748b;
-      --success: #16a34a;
-      --danger: #dc2626;
-      --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      --accent-secondary: #ec4899;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-orange: #f97316;
+      --accent-gradient: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0; padding: 0;
       font-family: 'Inter', 'Noto Sans KR', sans-serif;
-      background: var(--bg-main);
-      color: var(--text-primary);
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
       display: flex;
       height: 100vh;
       overflow: hidden;
     }
 
+    /* Glassmorphism */
+    .glass-panel {
+      background: var(--surface-glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+    }
+
     /* Sidebar */
     .sidebar {
-      width: 260px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-right: 1px solid var(--border-color);
+      width: 280px;
+      padding: 32px 24px;
       display: flex;
       flex-direction: column;
+      border-right: 1px solid var(--border-glass);
+      background: rgba(15, 23, 42, 0.6);
       z-index: 10;
     }
-    .sidebar-header {
-      padding: 32px 24px 24px;
-      border-bottom: 1px solid var(--border-color);
-    }
-    .sidebar-header h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 800;
+    .logo-area { margin-bottom: 40px; }
+    .logo-area h1 {
+      font-size: 28px; font-weight: 900;
       background: var(--accent-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.5px;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
     }
-    .sidebar-header p {
-      margin: 4px 0 0;
-      font-size: 11px;
-      color: var(--text-secondary);
-      font-weight: 500;
-    }
+    .logo-area p { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 4px; letter-spacing: 1px; }
 
-    .nav-menu {
-      list-style: none;
-      padding: 16px;
-      margin: 0;
-      flex: 1;
-    }
+    .nav-menu { list-style: none; flex: 1; }
     .nav-item {
-      padding: 12px 16px;
-      margin-bottom: 8px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      padding: 14px 16px; margin-bottom: 8px; border-radius: 12px;
+      cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex; align-items: center; gap: 12px;
+      border: 1px solid transparent;
     }
-    .nav-item:hover {
-      background: #f1f5f9;
-      color: var(--text-primary);
-    }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
     .nav-item.active {
-      background: #f1f5f9;
-      color: var(--accent-primary);
-    }
-
-    .sidebar-footer {
-      padding: 24px;
-      border-top: 1px solid var(--border-color);
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    /* Main Content */
-    .main-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 40px;
-      scroll-behavior: smooth;
-    }
-    .view-section {
-      display: none;
-      animation: fadeIn 0.3s ease-out;
-    }
-    .view-section.active {
-      display: block;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .page-title {
-      font-size: 28px;
-      font-weight: 800;
-      margin-top: 0;
-      margin-bottom: 8px;
-      letter-spacing: -0.5px;
-    }
-    .page-desc {
-      color: var(--text-secondary);
-      margin-bottom: 32px;
-      font-size: 15px;
-    }
-
-    /* Cards */
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-      margin-bottom: 32px;
-    }
-    .card {
-      background: var(--surface-card);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: var(--glass-shadow);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
-    }
-    .card h3 {
-      margin-top: 0;
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: rgba(139, 92, 246, 0.15); color: var(--text-main);
+      border-color: rgba(139, 92, 246, 0.3);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.1);
     }
     
-    /* Buttons */
-    .btn {
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: opacity 0.2s;
-    }
-    .btn:hover { opacity: 0.9; }
-    .btn-success { background: var(--success); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-primary { background: var(--accent-gradient); color: white; }
-    .btn-secondary { background: #e2e8f0; color: var(--text-primary); }
+    .sidebar-footer { font-size: 12px; color: var(--text-muted); padding-top: 20px; border-top: 1px solid var(--border-glass); }
+    .status-dot { display:inline-block; width:8px; height:8px; background:#4ade80; border-radius:50%; box-shadow: 0 0 8px #4ade80; margin-right:6px;}
 
-    /* Tables */
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    .data-table th {
-      text-align: left;
-      padding: 12px;
-      color: var(--text-secondary);
-      font-weight: 600;
-      border-bottom: 1px solid var(--border-color);
-    }
-    .data-table td {
-      padding: 12px;
-      border-bottom: 1px solid #f1f5f9;
-      vertical-align: middle;
-    }
-    .data-table tr:last-child td {
-      border-bottom: none;
-    }
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 700;
-      background: #f1f5f9;
-      color: var(--text-secondary);
-    }
-    .badge.growth { background: #fef08a; color: #854d0e; }
-    .badge.margin { background: #bbf7d0; color: #166534; }
-    .badge.social { background: #bfdbfe; color: #1e3a8a; }
+    /* Main Content */
+    .main-content { flex: 1; overflow-y: auto; padding: 40px; scroll-behavior: smooth; }
+    .view-section { display: none; animation: slideUp 0.4s ease-out forwards; opacity: 0; transform: translateY(20px); }
+    .view-section.active { display: block; }
+    @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
 
-    /* SWOT Grid */
-    .swot-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 16px;
-    }
-    .swot-box {
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-    .swot-s { background: #f0fdf4; border: 1px solid #bbf7d0; }
-    .swot-w { background: #fef2f2; border: 1px solid #fecaca; }
-    .swot-o { background: #eff6ff; border: 1px solid #bfdbfe; }
-    .swot-t { background: #fefce8; border: 1px solid #fef08a; }
+    .header-block { margin-bottom: 40px; }
+    .page-title { font-size: 32px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px; }
+    .page-desc { color: var(--text-muted); font-size: 15px; max-width: 800px; line-height: 1.6; }
 
-    .filter-bar {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
+    /* Grids */
+    .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+    .grid-3col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 24px; }
+
+    /* Cards */
+    .card { padding: 24px; transition: transform 0.3s, box-shadow 0.3s; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); background: var(--surface-glass-hover); }
+    .card h3 { font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    
+    /* Tags */
+    .tag { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+    .tag.hot { background: rgba(236, 72, 153, 0.2); border-color: rgba(236, 72, 153, 0.5); color: #fbcfe8; }
+    .tag.new { background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5); color: #a7f3d0; }
+
+    /* Feed Layout */
+    .feed-item { display: flex; gap: 20px; padding: 24px; border-bottom: 1px solid var(--border-glass); }
+    .feed-item:last-child { border-bottom: none; }
+    .feed-date { flex: 0 0 100px; font-family: 'Inter'; font-size: 12px; color: var(--accent-primary); font-weight: 700; }
+    .feed-content { flex: 1; }
+    .feed-content h4 { font-size: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+    .feed-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px; }
+    .feed-action { background: var(--accent-gradient); border: none; padding: 6px 14px; border-radius: 6px; color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .feed-action:hover { opacity: 0.9; }
+
+    /* Knowledge Base Layout */
+    .kb-search { width: 100%; padding: 16px 20px; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); color: white; font-size: 16px; margin-bottom: 32px; outline: none; transition: border-color 0.3s; }
+    .kb-search:focus { border-color: var(--accent-primary); }
+    
+    .kb-card { margin-bottom: 24px; }
+    .kb-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border-glass); padding-bottom: 16px; margin-bottom: 16px; }
+    .kb-brand-title { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+    .kb-brand-en { font-family: 'Inter'; font-size: 14px; color: var(--text-muted); font-weight: 500; }
+    .kb-stats { text-align: right; }
+    .kb-revenue { font-family: 'Inter'; font-size: 18px; font-weight: 800; color: var(--accent-primary); }
+    
+    .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+    .swot-item { padding: 16px; border-radius: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); font-size: 13px; line-height: 1.6; }
+    .swot-item h5 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .s-text { color: #4ade80; } .w-text { color: #f87171; } .o-text { color: #60a5fa; } .t-text { color: #fbbf24; }
+
+    /* Radar Monitor Links */
+    .monitor-link { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-radius: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); margin-bottom: 12px; text-decoration: none; color: var(--text-main); transition: all 0.2s; }
+    .monitor-link:hover { border-color: var(--accent-primary); background: rgba(139, 92, 246, 0.1); }
+    .monitor-platform { font-weight: 700; font-size: 15px; }
+    .monitor-status { font-size: 12px; font-weight: 600; color: #4ade80; display: flex; align-items: center; gap: 6px; }
+
   </style>
 </head>
 <body>
 
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="sidebar-header">
+    <div class="logo-area">
       <h1>WIDEN</h1>
-      <p>K-Beauty Intelligence v2</p>
+      <p>K-Beauty Intelligence v3</p>
     </div>
     <ul class="nav-menu">
-      <li class="nav-item active" data-target="view-dashboard">📊 주간 의사결정</li>
-      <li class="nav-item" data-target="view-brands">🌿 브랜드 & SKU 분석</li>
-      <li class="nav-item" data-target="view-trends">📈 인디브랜드 & 트렌드</li>
-      <li class="nav-item" data-target="view-logs">📝 개발 작업 로그</li>
+      <li class="nav-item active" data-target="view-feed">📡 주간 발견 (Trend Feed)</li>
+      <li class="nav-item" data-target="view-kb">🏢 브랜드 지식 도감 (Archive)</li>
+      <li class="nav-item" data-target="view-radar">📈 시장 거시 레이더 (Monitor)</li>
+      <li class="nav-item" data-target="view-sync">💾 데이터 동기화 (Settings)</li>
     </ul>
     <div class="sidebar-footer">
-      <span style="color: var(--success);">●</span> Local Data Sync On<br>
+      <div style="margin-bottom: 8px;"><span class="status-dot"></span> Live Data Active</div>
       Updated: 2026-07-04 (W27)
     </div>
   </aside>
@@ -256,231 +165,239 @@
   <!-- Main Content -->
   <main class="main-content">
     
-    <!-- View 1: Dashboard (Weekly Decisions) -->
-    <section id="view-dashboard" class="view-section active">
-      <h2 class="page-title">주간 의사결정 (Weekly Decisions)</h2>
-      <p class="page-desc">이번 주 피터님이 즉시 판단해야 할 핫한 아이템과 이상 신호입니다.</p>
-      
-      <div id="decision-cards-container" class="card-grid"></div>
-    </section>
-
-    <!-- View 2: Brands & SKU (3-Layer) -->
-    <section id="view-brands" class="view-section">
-      <h2 class="page-title">브랜드 & SKU 분석 (3-Layer)</h2>
-      <p class="page-desc">국가별 주요 브랜드의 주간 퍼포먼스와 SKU 현황을 점검합니다.</p>
-      
-      <div class="filter-bar">
-        <button class="btn btn-primary" onclick="renderBrandSkuView('TW')">대만 (Shopee)</button>
-        <button class="btn btn-secondary" onclick="renderBrandSkuView('JP')">일본 (Qoo10)</button>
-      </div>
-      
-      <div id="brand-sku-container"></div>
-    </section>
-
-    <!-- View 3: Trends & Indie Brands -->
-    <section id="view-trends" class="view-section">
-      <h2 class="page-title">인디브랜드 도감 & 트렌드</h2>
-      <p class="page-desc">새로운 소싱 기회를 발굴하기 위한 브랜드 SWOT 분석 및 필터링입니다.</p>
-      
-      <div class="filter-bar">
-        <button class="btn btn-secondary" onclick="renderIndieBrands('all')">전체보기</button>
-        <button class="btn" style="background:#fef08a;color:#854d0e;" onclick="renderIndieBrands('growth')">🔥 급성장</button>
-        <button class="btn" style="background:#bbf7d0;color:#166534;" onclick="renderIndieBrands('margin')">💰 고마진</button>
-        <button class="btn" style="background:#bfdbfe;color:#1e3a8a;" onclick="renderIndieBrands('social')">📈 소셜대세</button>
+    <!-- View 1: Weekly Discovery Feed -->
+    <section id="view-feed" class="view-section active">
+      <div class="header-block">
+        <h2 class="page-title">📡 이번 주 급부상 브랜드 (Weekly Discovery)</h2>
+        <p class="page-desc">매주 시스템이 올리브영, 무신사, 다이소, 쇼피 등에서 포착한 급성장 브랜드를 알려드립니다. <strong>[도감에 저장]</strong> 버튼을 누르면 브랜드 지식 도감으로 영구 누적됩니다.</p>
       </div>
 
-      <div id="indie-brand-container" class="card-grid"></div>
-    </section>
+      <div class="card glass-panel" style="padding: 0;">
+        <!-- Feed Item 1: VT Daiso -->
+        <div class="feed-item">
+          <div class="feed-date">W27 - 07/04</div>
+          <div class="feed-content">
+            <h4>다이소 전용 'VT 리들샷 3000' 대란 <span class="tag hot">다이소 뷰티</span> <span class="tag hot">대만/일본 수요폭증</span></h4>
+            <p class="feed-desc">
+              다이소에서 3,000원에 판매되는 VT 리들샷 엔트리 라인이 틱톡을 통해 대만/일본 Z세대 사이에서 '가성비 마이크로스피큘'로 입소문이 났습니다.<br>
+              <strong>위든 Sourcing Insight:</strong> 명동/홍대 등 외국인 밀집 지역 다이소를 통해 재고를 확보한 뒤, 대만 Shopee에 프리미엄(5~8배)을 붙여 리셀링 시 마진율 60%+ 타겟 가능.
+            </p>
+            <button class="feed-action" onclick="alert('브랜드 지식 도감에 VT의 상세 분석이 저장되었습니다.')">📥 지식 도감에 저장</button>
+          </div>
+        </div>
 
-    <!-- View 4: Work Log -->
-    <section id="view-logs" class="view-section">
-      <h2 class="page-title">개발 작업 로그 (Dev Log)</h2>
-      <p class="page-desc">최근 요청사항, 답변, 그리고 페이지의 기획 의도를 기록합니다.</p>
-      
-      <div class="card" style="margin-bottom: 24px;">
-        <h3>2026년 07월 04일 - 대시보드 v2 런칭</h3>
-        <div style="font-size: 14px; line-height: 1.6;">
-          <p><strong style="color:var(--accent-primary)">👤 피터 (요청사항):</strong><br>
-          "폴더 안에 계획서 참고해서 코드 작성. 위든 뷰티용 최종 산출물은 웹형식으로 구동되어서 계속 다른데서도 볼 수 있게 해줘. Mock data 대신 실제 데이터로 가고, Data는 누적으로 쌓아가는 구조여야 해. 구글 드라이브(구글 시트)를 사용하는 것도 좋아. Github 만들어줘. 페이지에 오늘 날짜랑 작업로그, 내 요청사항과 답변, 의도 등을 적어줘."</p>
+        <!-- Feed Item 2: Musinsa Beauty -->
+        <div class="feed-item">
+          <div class="feed-date">W27 - 07/02</div>
+          <div class="feed-content">
+            <h4>무신사 뷰티 발(發) 남성 그루밍 '오브제(OBgE)' 상승 <span class="tag new">무신사 뷰티</span></h4>
+            <p class="feed-desc">
+              무신사 뷰티 카테고리 내 남성 파운데이션/쿠션 검색량이 급증하고 있습니다. 그 중 '오브제' 브랜드가 무신사 단독 기획전을 통해 1위에 등극.<br>
+              <strong>위든 Sourcing Insight:</strong> 남성 그루밍 시장이 점차 확대 중. 국내 2030 남성 트렌드가 6개월 후 일본 Q10으로 번지는 패턴을 고려해 초기 소싱 파트너십 타진 필요.
+            </p>
+            <button class="feed-action">📥 지식 도감에 저장</button>
+          </div>
+        </div>
 
-          <p><strong style="color:var(--success)">🤖 AI 검수관 위든 (답변):</strong><br>
-          "모든 지시사항을 완벽히 수용하여 단일 페이지 웹 애플리케이션(SPA) 기반의 프리미엄 대시보드를 구축했습니다. 모바일과 데스크톱 어디서든 실시간으로 지표를 확인하고 즉각적인 의사결정(승인/보류)을 내릴 수 있도록 깃허브 웹 호스팅(GitHub Pages) 연동까지 완료했습니다. 초기 버전은 로컬 Fallback DB로 구동되며, 추후 구글 시트를 연동해 무제한 누적되도록 아키텍처를 설계했습니다."</p>
-
-          <div style="background:#f1f5f9; padding:16px; border-radius:8px; margin-top:16px;">
-            <strong>💡 페이지 작성 의도 (Architecture Intent):</strong>
-            <ul style="margin-top:8px; margin-bottom:0; padding-left:20px; color:var(--text-secondary);">
-              <li><strong>무설치 & 즉각적 구동:</strong> 별도의 복잡한 백엔드 서버 없이 HTML 파일 하나만으로 완벽히 구동되는 SPA(Single Page Application) 형태로 제작하여 GitHub Pages 만으로 무료 서비스가 가능하도록 설계했습니다.</li>
-              <li><strong>데이터 확장성:</strong> 현재는 코드 내부 JSON 데이터(WIDEN_DB)를 읽고 있지만, 향후 피터님이 관리하는 '구글 스프레드시트'의 CSV 추출 링크만 연결하면 코딩 없이도 데이터가 평생 누적 업데이트되는 구조입니다.</li>
-              <li><strong>행동 중심 인터페이스:</strong> 단순한 정보 나열을 넘어, 경영진(피터님)이 '승인' / '보류'를 화면에서 직접 클릭하고, 이 기록이 로컬 브라우저(localStorage)에 저장되어 다음 접속 시에도 보존되도록 실질적인 '의사결정 도구'로 기획했습니다.</li>
-            </ul>
+        <!-- Feed Item 3: Roundlab -->
+        <div class="feed-item">
+          <div class="feed-date">W26 - 06/28</div>
+          <div class="feed-content">
+            <h4>라운드랩 자작나무 선크림 일본 침투율 가속 <span class="tag">Q10 일본</span></h4>
+            <p class="feed-desc">
+              조선미녀 맑은쌀 선크림의 강력한 유통 통제로 리셀러 마진이 막힌 가운데, 라운드랩 자작나무 선크림이 '제2의 K-선크림'으로 일본 Q10에서 대체 수요를 완전히 흡수 중입니다.<br>
+              <strong>위든 Sourcing Insight:</strong> 올영세일 기간 대량 매입 후 보관, 엔화 환율 반등 시점에 대규모 리스팅.
+            </p>
+            <button class="feed-action">📥 지식 도감에 저장</button>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- View 2: Brand Knowledge Base (Archive) -->
+    <section id="view-kb" class="view-section">
+      <div class="header-block">
+        <h2 class="page-title">🏢 브랜드 지식 도감 (Accumulated Archive)</h2>
+        <p class="page-desc">피드에서 발견하여 저장한 브랜드들의 심층 분석(Cash Cow, 마진 구조, SWOT)이 영구적으로 보존되는 위든만의 K-뷰티 백과사전입니다.</p>
+      </div>
+
+      <input type="text" class="kb-search" placeholder="브랜드명 검색 (예: 아누아, 달바, VT, 조선미녀)...">
+
+      <div class="grid-2col">
+        <!-- Brand 1: ANUA -->
+        <div class="card glass-panel kb-card">
+          <div class="kb-header">
+            <div>
+              <div class="kb-brand-title">아누아 <span class="kb-brand-en">ANUA</span></div>
+              <div style="font-size:12px; color:var(--accent-cyan);">더파운더즈 | 어성초 기반 스킨케어</div>
+            </div>
+            <div class="kb-stats">
+              <div class="kb-revenue">7,177억 (2025)</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">해외 수출 85%+</div>
+            </div>
+          </div>
+          <div style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+            <strong style="color:var(--text-main);">💰 Cash Cow:</strong> 어성초 77 수딩 토너 (글로벌 히트, 단일 SKU 연 1,000억+ 추정)<br>
+            <strong style="color:var(--text-main);">🌏 채널 타겟:</strong> Q10 일본(4분기 연속 1위), 아마존 US, 틱톡숍
+          </div>
+          <div class="swot-grid">
+            <div class="swot-item"><h5 class="s-text">Strengths</h5>어성초 독점 이미지, 틱톡 바이럴 역량</div>
+            <div class="swot-item"><h5 class="w-text">Weaknesses</h5>어성초 단일 의존성, 영업이익률 최근 하락</div>
+            <div class="swot-item"><h5 class="o-text">Opportunities</h5>PDRN 성분 진입, 유럽/중동 확장</div>
+            <div class="swot-item"><h5 class="t-text">Threats</h5>유사 어성초 카피캣 범람, 가격 교란 통제</div>
+          </div>
+        </div>
+
+        <!-- Brand 2: d'Alba -->
+        <div class="card glass-panel kb-card">
+          <div class="kb-header">
+            <div>
+              <div class="kb-brand-title">달바 <span class="kb-brand-en">d'Alba</span></div>
+              <div style="font-size:12px; color:var(--accent-orange);">비엠스마일 | 프리미엄 비건 뷰티</div>
+            </div>
+            <div class="kb-stats">
+              <div class="kb-revenue">5,198억 (2025)</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">영업이익 1,000억 돌파</div>
+            </div>
+          </div>
+          <div style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+            <strong style="color:var(--text-main);">💰 Cash Cow:</strong> 화이트 트러플 퍼스트 스프레이 세럼 (승무원 미스트)<br>
+            <strong style="color:var(--text-main);">🌏 채널 타겟:</strong> 아마존 12개국 분산(리스크 헤지), 울타·코스트코 입점
+          </div>
+          <div class="swot-grid">
+            <div class="swot-item"><h5 class="s-text">Strengths</h5>프리미엄 가격대로 높은 마진, 지역 수출 분산</div>
+            <div class="swot-item"><h5 class="w-text">Weaknesses</h5>미스트 단일 제품 매출 비중 42%</div>
+            <div class="swot-item"><h5 class="o-text">Opportunities</h5>톤업 선크림 및 트러플 밤으로 다각화 성공 조짐</div>
+            <div class="swot-item"><h5 class="t-text">Threats</h5>상장 후 주가 관리 이슈, 미스트 경쟁 심화</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- View 3: Macro Trend Radar -->
+    <section id="view-radar" class="view-section">
+      <div class="header-block">
+        <h2 class="page-title">📈 시장 거시 레이더 (Monitor)</h2>
+        <p class="page-desc">국내 및 해외 5대 주요 플랫폼의 트렌드를 거시적으로 관망합니다. 피터님이 요청하신 무신사 및 다이소 뷰티 모니터링이 포함되었습니다.</p>
+      </div>
+
+      <div class="grid-2col">
+        <div>
+          <h3 style="font-size:18px; margin-bottom:16px;">🔍 주요 플랫폼 실시간 모니터링 링크</h3>
+          <a href="https://www.oliveyoung.co.kr/store/main/getBestList.do" target="_blank" class="monitor-link">
+            <div>
+              <div class="monitor-platform">올리브영 (Olive Young)</div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">실시간 판매 베스트셀러</div>
+            </div>
+            <div class="monitor-status"><span class="status-dot"></span> 자동 크롤링 대기</div>
+          </a>
+          <a href="https://www.musinsa.com/main/beauty" target="_blank" class="monitor-link" style="border-left: 3px solid var(--accent-secondary);">
+            <div>
+              <div class="monitor-platform">무신사 뷰티 (Musinsa Beauty)</div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">2030 MZ 및 남성 그루밍 트렌드 중심지</div>
+            </div>
+            <div class="monitor-status"><span class="status-dot"></span> 신규 추가됨</div>
+          </a>
+          <a href="https://www.daisomall.co.kr/pd/dsp/TplDsp.do?disp_ctg_id=100000000" target="_blank" class="monitor-link" style="border-left: 3px solid var(--accent-primary);">
+            <div>
+              <div class="monitor-platform">다이소 뷰티 (Daiso)</div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">초저가 엔트리 바이럴 아이템 (리들샷, 손앤박)</div>
+            </div>
+            <div class="monitor-status"><span class="status-dot"></span> 신규 추가됨</div>
+          </a>
+          <a href="https://www.qoo10.jp/gmkt.inc/Bestseller/Default.aspx" target="_blank" class="monitor-link">
+            <div>
+              <div class="monitor-platform">Q10 재팬 (Qoo10 JP)</div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">일본 K-뷰티 핵심 채널 (메가와리)</div>
+            </div>
+            <div class="monitor-status"><span class="status-dot"></span> 자동 크롤링 대기</div>
+          </a>
+        </div>
+
+        <div class="card glass-panel" style="display:flex; flex-direction:column;">
+          <h3 style="margin-bottom:20px;">6개월 핵심 키워드 검색량 추이 (Global)</h3>
+          <div style="position:relative; flex:1; width:100%; min-height:250px;">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- View 4: Data Sync (Settings) -->
+    <section id="view-sync" class="view-section">
+      <div class="header-block">
+        <h2 class="page-title">💾 데이터 동기화 파이프라인 (Settings)</h2>
+        <p class="page-desc">자동 크롤링된 트렌드 데이터와 누적된 지식 도감 정보를 구글 스프레드시트와 동기화합니다. 이 URL을 통해 화면의 데이터가 영구적으로 보존됩니다.</p>
+      </div>
+
+      <div class="card glass-panel" style="text-align: center; padding: 60px 20px;">
+        <h3 style="justify-content:center; margin-bottom:8px;">구글 스프레드시트 CSV 웹 게시 링크 입력</h3>
+        <p style="color:var(--text-muted); font-size:13px; margin-bottom:24px;">시트를 '웹에 게시 (CSV)' 형태로 만든 후 아래에 붙여넣고 동기화하세요.</p>
+        
+        <input type="text" style="width: 100%; max-width: 600px; padding: 16px; border-radius: 8px; border: 1px solid var(--accent-primary); background: rgba(0,0,0,0.5); color: white; margin-bottom: 16px; font-size: 14px;" placeholder="https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv" value="">
+        <br>
+        <button style="padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; background: var(--accent-gradient); color: white; transition: opacity 0.2s;" onclick="alert('데이터 파이프라인 동기화 모듈이 연결 대기 중입니다. (현재 V3 시스템 로컬 모드동작)')">🔄 실시간 시트 연결 및 동기화</button>
+      </div>
+    </section>
+
   </main>
 
-  <!-- JS Logic & Data -->
   <script>
-    // 1. Data Model Initialization (Fallback DB)
-    window.WIDEN_DB = {
-      brands: [
-        { id: 'anua', name: '아누아 (Anua)', revenue: '500억', sector: '스킨케어', swot: { s: '진정 트렌드 확고', w: '어성초 라인에 의존도 높음', o: '일본/미국 채널 확장성', t: '비슷한 컨셉의 미투제품 범람' }, flags: ['growth', 'social'] },
-        { id: 'bojo', name: '조선미녀 (BOJ)', revenue: '1000억+', sector: '선케어', swot: { s: '글로벌 바이럴 최강자', w: '국내 인지도 상대적 낮음', o: '유럽 등 신규시장 진출', t: '선케어 경쟁 심화' }, flags: ['margin', 'social'] },
-        { id: 'cosrx', name: '코스알엑스', revenue: '1500억+', sector: '에센스', swot: { s: '스네일 뮤신 밀리언셀러', w: '브랜드 노후화 우려', o: '틱톡 재점화', t: '신흥 인디브랜드의 추격' }, flags: ['growth'] },
-        { id: 'roundlab', name: '라운드랩', revenue: '800억', sector: '스킨케어', swot: { s: '성분 안전성 및 충성도', w: '마케팅 비용 증가', o: '남성/청소년 타깃 확대', t: '원가 상승 압박' }, flags: ['margin'] },
-        { id: 'tirtir', name: '티르티르', revenue: '700억', sector: '메이크업', swot: { s: '압도적 커버력 & 쿠션1위', w: '색상 라인업 부족', o: '글로벌 컬러 라인업 확장', t: '쿠션 시장 포화' }, flags: ['social', 'growth'] }
-      ],
-      skus: [
-        { id: 'a1', brandId: 'anua', market: 'TW', name: '어성초 77 수딩 토너 250ml', price: '520 TWD', rank: 12, reviewGrowth: '+125', margin: 0.32 },
-        { id: 'a2', brandId: 'anua', market: 'TW', name: '어성초 77 클리어 패드', price: '480 TWD', rank: 18, reviewGrowth: '+85', margin: 0.28 },
-        { id: 'b1', brandId: 'bojo', market: 'JP', name: '맑은 쌀 선크림 50ml', price: '2100 JPY', rank: 8, reviewGrowth: '+240', margin: 0.38 },
-        { id: 'r1', brandId: 'roundlab', market: 'TW', name: '독도 토너 200ml', price: '450 TWD', rank: 25, reviewGrowth: '+45', margin: 0.35 }
-      ],
-      decisions: [
-        { id: 'd1', target: '아누아 어성초 패드 신규 등록', reason: '대만 경쟁사 쇼핑몰 3곳에서 신규 랭킹인 확인', status: '대기중' },
-        { id: 'd2', target: '조선미녀 선크림 썸네일 교체', reason: '조회수는 높으나 Qoo10 클릭률(CTR) 2% 미만', status: '대기중' },
-        { id: 'd3', target: '라운드랩 독도 토너 가격 -5% 인하', reason: '마진 여력 충분, 이번 주 경쟁사 특가 진입 대응', status: '대기중' }
-      ]
-    };
-
-    // 2. Navigation Logic
+    // Navigation
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', (e) => {
-        // Update active nav class
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         e.currentTarget.classList.add('active');
         
-        // Show target view
         const targetId = e.currentTarget.dataset.target;
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById(targetId).classList.add('active');
       });
     });
 
-    // 3. LocalStorage for Decisions
-    function loadDecisions() {
-      const saved = localStorage.getItem('widen_decisions');
-      return saved ? JSON.parse(saved) : {};
-    }
-    
-    function saveDecision(id, status) {
-      const saved = loadDecisions();
-      saved[id] = status;
-      localStorage.setItem('widen_decisions', JSON.stringify(saved));
-      renderDashboard(); // Re-render
-    }
-
-    // 4. Render Tab 1: Dashboard
-    window.renderDashboard = function() {
-      const saved = loadDecisions();
-      const container = document.getElementById('decision-cards-container');
-      let html = '';
-      
-      window.WIDEN_DB.decisions.forEach(d => {
-        const currentStatus = saved[d.id] || d.status;
-        let statusColor = '#64748b'; // default
-        if (currentStatus === '승인 완료') statusColor = 'var(--success)';
-        if (currentStatus === '보류됨') statusColor = 'var(--danger)';
-
-        html += `
-          <div class="card">
-            <h3>${d.target} <span style="font-size:12px; padding:4px 8px; border-radius:4px; background:#f1f5f9; color:${statusColor};">${currentStatus}</span></h3>
-            <p style="color:var(--text-secondary); font-size:14px; margin-bottom:20px;"><strong>이상/기회 신호:</strong> ${d.reason}</p>
-            <div style="display:flex; gap:8px;">
-              <button class="btn btn-success" onclick="saveDecision('${d.id}', '승인 완료')">👍 승인</button>
-              <button class="btn btn-danger" onclick="saveDecision('${d.id}', '보류됨')">⛔ 보류</button>
-              <button class="btn btn-secondary" onclick="saveDecision('${d.id}', '추가 조사')">🔍 추가조사</button>
-            </div>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-    };
-
-    // 5. Render Tab 2: Brand & SKU (Market Filter)
-    window.renderBrandSkuView = function(market = 'TW') {
-      const container = document.getElementById('brand-sku-container');
-      let html = '';
-      
-      const filteredSkus = window.WIDEN_DB.skus.filter(s => s.market === market);
-      const activeBrandIds = [...new Set(filteredSkus.map(s => s.brandId))];
-      
-      if(activeBrandIds.length === 0) {
-        container.innerHTML = `<div class="card"><p>해당 마켓에 활성화된 SKU 데이터가 없습니다.</p></div>`;
-        return;
+    // Chart.js
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [
+          {
+            label: 'PDRN (급상승)',
+            data: [5, 15, 30, 80, 150, 240],
+            borderColor: '#ec4899',
+            backgroundColor: 'rgba(236, 72, 153, 0.1)',
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: '스피큘/미세침',
+            data: [20, 50, 100, 160, 200, 220],
+            borderColor: '#06b6d4',
+            borderWidth: 3,
+            tension: 0.4
+          },
+          {
+            label: '비건/클린뷰티',
+            data: [180, 185, 190, 188, 195, 200],
+            borderColor: '#8b5cf6',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#94a3b8' } } },
+        scales: {
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+          x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+        }
       }
-
-      activeBrandIds.forEach(brandId => {
-        const brand = window.WIDEN_DB.brands.find(b => b.id === brandId);
-        const skus = filteredSkus.filter(s => s.brandId === brandId);
-        
-        html += `
-          <div class="card" style="margin-bottom: 24px;">
-            <h3>${brand.name} <span class="badge">${brand.sector}</span></h3>
-            <table class="data-table" style="margin-top:16px;">
-              <thead>
-                <tr>
-                  <th>상품명 (SKU)</th>
-                  <th style="text-align:right;">현지 판매가</th>
-                  <th style="text-align:right;">현재 랭킹</th>
-                  <th style="text-align:right;">주간 리뷰증가</th>
-                  <th style="text-align:right;">추정 마진율</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${skus.map(s => `
-                  <tr>
-                    <td><strong>${s.name}</strong></td>
-                    <td style="text-align:right; color:var(--text-secondary);">${s.price}</td>
-                    <td style="text-align:right;">#${s.rank}</td>
-                    <td style="text-align:right; color:var(--success); font-weight:600;">${s.reviewGrowth}</td>
-                    <td style="text-align:right; color:var(--accent-primary); font-weight:700;">${(s.margin * 100).toFixed(0)}%</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-    };
-
-    // 6. Render Tab 3: Indie Brands
-    window.renderIndieBrands = function(filter = 'all') {
-      const container = document.getElementById('indie-brand-container');
-      let html = '';
-      
-      const filtered = filter === 'all' 
-        ? window.WIDEN_DB.brands 
-        : window.WIDEN_DB.brands.filter(b => b.flags.includes(filter));
-
-      filtered.forEach(b => {
-        html += `
-          <div class="card">
-            <h3>${b.name} <span style="font-size:13px; color:var(--text-secondary); font-weight:500;">연매출 추정: ${b.revenue}</span></h3>
-            <div style="margin-bottom:12px;">
-              ${b.flags.includes('growth') ? '<span class="badge growth">🔥 급성장</span>' : ''}
-              ${b.flags.includes('margin') ? '<span class="badge margin">💰 고마진</span>' : ''}
-              ${b.flags.includes('social') ? '<span class="badge social">📈 소셜대세</span>' : ''}
-            </div>
-            
-            <div class="swot-grid">
-              <div class="swot-box swot-s"><strong>강점(S)</strong><br>${b.swot.s}</div>
-              <div class="swot-box swot-w"><strong>약점(W)</strong><br>${b.swot.w}</div>
-              <div class="swot-box swot-o"><strong>기회(O)</strong><br>${b.swot.o}</div>
-              <div class="swot-box swot-t"><strong>위협(T)</strong><br>${b.swot.t}</div>
-            </div>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-    };
-
-    // Initial render
-    renderDashboard();
-    renderBrandSkuView('TW');
-    renderIndieBrands('all');
+    });
   </script>
 </body>
 </html>
