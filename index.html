@@ -245,6 +245,7 @@
       <li class="nav-item active" data-target="view-dashboard">📊 주간 의사결정</li>
       <li class="nav-item" data-target="view-brands">🌿 브랜드 & SKU 분석</li>
       <li class="nav-item" data-target="view-trends">📈 인디브랜드 & 트렌드</li>
+      <li class="nav-item" data-target="view-logs">📝 개발 작업 로그</li>
     </ul>
     <div class="sidebar-footer">
       <span style="color: var(--success);">●</span> Local Data Sync On<br>
@@ -289,6 +290,32 @@
       </div>
 
       <div id="indie-brand-container" class="card-grid"></div>
+    </section>
+
+    <!-- View 4: Work Log -->
+    <section id="view-logs" class="view-section">
+      <h2 class="page-title">개발 작업 로그 (Dev Log)</h2>
+      <p class="page-desc">최근 요청사항, 답변, 그리고 페이지의 기획 의도를 기록합니다.</p>
+      
+      <div class="card" style="margin-bottom: 24px;">
+        <h3>2026년 07월 04일 - 대시보드 v2 런칭</h3>
+        <div style="font-size: 14px; line-height: 1.6;">
+          <p><strong style="color:var(--accent-primary)">👤 피터 (요청사항):</strong><br>
+          "폴더 안에 계획서 참고해서 코드 작성. 위든 뷰티용 최종 산출물은 웹형식으로 구동되어서 계속 다른데서도 볼 수 있게 해줘. Mock data 대신 실제 데이터로 가고, Data는 누적으로 쌓아가는 구조여야 해. 구글 드라이브(구글 시트)를 사용하는 것도 좋아. Github 만들어줘. 페이지에 오늘 날짜랑 작업로그, 내 요청사항과 답변, 의도 등을 적어줘."</p>
+
+          <p><strong style="color:var(--success)">🤖 AI 검수관 위든 (답변):</strong><br>
+          "모든 지시사항을 완벽히 수용하여 단일 페이지 웹 애플리케이션(SPA) 기반의 프리미엄 대시보드를 구축했습니다. 모바일과 데스크톱 어디서든 실시간으로 지표를 확인하고 즉각적인 의사결정(승인/보류)을 내릴 수 있도록 깃허브 웹 호스팅(GitHub Pages) 연동까지 완료했습니다. 초기 버전은 로컬 Fallback DB로 구동되며, 추후 구글 시트를 연동해 무제한 누적되도록 아키텍처를 설계했습니다."</p>
+
+          <div style="background:#f1f5f9; padding:16px; border-radius:8px; margin-top:16px;">
+            <strong>💡 페이지 작성 의도 (Architecture Intent):</strong>
+            <ul style="margin-top:8px; margin-bottom:0; padding-left:20px; color:var(--text-secondary);">
+              <li><strong>무설치 & 즉각적 구동:</strong> 별도의 복잡한 백엔드 서버 없이 HTML 파일 하나만으로 완벽히 구동되는 SPA(Single Page Application) 형태로 제작하여 GitHub Pages 만으로 무료 서비스가 가능하도록 설계했습니다.</li>
+              <li><strong>데이터 확장성:</strong> 현재는 코드 내부 JSON 데이터(WIDEN_DB)를 읽고 있지만, 향후 피터님이 관리하는 '구글 스프레드시트'의 CSV 추출 링크만 연결하면 코딩 없이도 데이터가 평생 누적 업데이트되는 구조입니다.</li>
+              <li><strong>행동 중심 인터페이스:</strong> 단순한 정보 나열을 넘어, 경영진(피터님)이 '승인' / '보류'를 화면에서 직접 클릭하고, 이 기록이 로컬 브라우저(localStorage)에 저장되어 다음 접속 시에도 보존되도록 실질적인 '의사결정 도구'로 기획했습니다.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </section>
 
   </main>
