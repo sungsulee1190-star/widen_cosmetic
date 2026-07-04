@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>WIDEN K-Beauty Intelligence Dashboard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+
+    :root {
+      --bg-main: #f8fafc;
+      --surface-card: rgba(255, 255, 255, 0.85);
+      --border-color: #e2e8f0;
+      --accent-primary: #8b5cf6;
+      --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Inter', 'Noto Sans KR', sans-serif;
+      background: var(--bg-main);
+      color: var(--text-primary);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+    .sidebar-header {
+      padding: 32px 24px 24px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .sidebar-header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .sidebar-header p {
+      margin: 4px 0 0;
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .nav-menu {
+      list-style: none;
+      padding: 16px;
+      margin: 0;
+      flex: 1;
+    }
+    .nav-item {
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-item:hover {
+      background: #f1f5f9;
+      color: var(--text-primary);
+    }
+    .nav-item.active {
+      background: #f1f5f9;
+      color: var(--accent-primary);
+    }
+
+    .sidebar-footer {
+      padding: 24px;
+      border-top: 1px solid var(--border-color);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 40px;
+      scroll-behavior: smooth;
+    }
+    .view-section {
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .view-section.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-top: 0;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .page-desc {
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      font-size: 15px;
+    }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .card {
+      background: var(--surface-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--glass-shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+    }
+    .card h3 {
+      margin-top: 0;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-primary { background: var(--accent-gradient); color: white; }
+    .btn-secondary { background: #e2e8f0; color: var(--text-primary); }
+
+    /* Tables */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .data-table th {
+      text-align: left;
+      padding: 12px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .data-table td {
+      padding: 12px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: var(--text-secondary);
+    }
+    .badge.growth { background: #fef08a; color: #854d0e; }
+    .badge.margin { background: #bbf7d0; color: #166534; }
+    .badge.social { background: #bfdbfe; color: #1e3a8a; }
+
+    /* SWOT Grid */
+    .swot-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .swot-box {
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .swot-s { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .swot-w { background: #fef2f2; border: 1px solid #fecaca; }
+    .swot-o { background: #eff6ff; border: 1px solid #bfdbfe; }
+    .swot-t { background: #fefce8; border: 1px solid #fef08a; }
+
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>WIDEN</h1>
+      <p>K-Beauty Intelligence v2</p>
+    </div>
+    <ul class="nav-menu">
+      <li class="nav-item active" data-target="view-dashboard">📊 주간 의사결정</li>
+      <li class="nav-item" data-target="view-brands">🌿 브랜드 & SKU 분석</li>
+      <li class="nav-item" data-target="view-trends">📈 인디브랜드 & 트렌드</li>
+    </ul>
+    <div class="sidebar-footer">
+      <span style="color: var(--success);">●</span> Local Data Sync On<br>
+      Updated: 2026-07-04 (W27)
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    
+    <!-- View 1: Dashboard (Weekly Decisions) -->
+    <section id="view-dashboard" class="view-section active">
+      <h2 class="page-title">주간 의사결정 (Weekly Decisions)</h2>
+      <p class="page-desc">이번 주 피터님이 즉시 판단해야 할 핫한 아이템과 이상 신호입니다.</p>
+      
+      <div id="decision-cards-container" class="card-grid"></div>
+    </section>
+
+    <!-- View 2: Brands & SKU (3-Layer) -->
+    <section id="view-brands" class="view-section">
+      <h2 class="page-title">브랜드 & SKU 분석 (3-Layer)</h2>
+      <p class="page-desc">국가별 주요 브랜드의 주간 퍼포먼스와 SKU 현황을 점검합니다.</p>
+      
+      <div class="filter-bar">
+        <button class="btn btn-primary" onclick="renderBrandSkuView('TW')">대만 (Shopee)</button>
+        <button class="btn btn-secondary" onclick="renderBrandSkuView('JP')">일본 (Qoo10)</button>
+      </div>
+      
+      <div id="brand-sku-container"></div>
+    </section>
+
+    <!-- View 3: Trends & Indie Brands -->
+    <section id="view-trends" class="view-section">
+      <h2 class="page-title">인디브랜드 도감 & 트렌드</h2>
+      <p class="page-desc">새로운 소싱 기회를 발굴하기 위한 브랜드 SWOT 분석 및 필터링입니다.</p>
+      
+      <div class="filter-bar">
+        <button class="btn btn-secondary" onclick="renderIndieBrands('all')">전체보기</button>
+        <button class="btn" style="background:#fef08a;color:#854d0e;" onclick="renderIndieBrands('growth')">🔥 급성장</button>
+        <button class="btn" style="background:#bbf7d0;color:#166534;" onclick="renderIndieBrands('margin')">💰 고마진</button>
+        <button class="btn" style="background:#bfdbfe;color:#1e3a8a;" onclick="renderIndieBrands('social')">📈 소셜대세</button>
+      </div>
+
+      <div id="indie-brand-container" class="card-grid"></div>
+    </section>
+
+  </main>
+
+  <!-- JS Logic & Data -->
+  <script>
+    // 1. Data Model Initialization (Fallback DB)
+    window.WIDEN_DB = {
+      brands: [
+        { id: 'anua', name: '아누아 (Anua)', revenue: '500억', sector: '스킨케어', swot: { s: '진정 트렌드 확고', w: '어성초 라인에 의존도 높음', o: '일본/미국 채널 확장성', t: '비슷한 컨셉의 미투제품 범람' }, flags: ['growth', 'social'] },
+        { id: 'bojo', name: '조선미녀 (BOJ)', revenue: '1000억+', sector: '선케어', swot: { s: '글로벌 바이럴 최강자', w: '국내 인지도 상대적 낮음', o: '유럽 등 신규시장 진출', t: '선케어 경쟁 심화' }, flags: ['margin', 'social'] },
+        { id: 'cosrx', name: '코스알엑스', revenue: '1500억+', sector: '에센스', swot: { s: '스네일 뮤신 밀리언셀러', w: '브랜드 노후화 우려', o: '틱톡 재점화', t: '신흥 인디브랜드의 추격' }, flags: ['growth'] },
+        { id: 'roundlab', name: '라운드랩', revenue: '800억', sector: '스킨케어', swot: { s: '성분 안전성 및 충성도', w: '마케팅 비용 증가', o: '남성/청소년 타깃 확대', t: '원가 상승 압박' }, flags: ['margin'] },
+        { id: 'tirtir', name: '티르티르', revenue: '700억', sector: '메이크업', swot: { s: '압도적 커버력 & 쿠션1위', w: '색상 라인업 부족', o: '글로벌 컬러 라인업 확장', t: '쿠션 시장 포화' }, flags: ['social', 'growth'] }
+      ],
+      skus: [
+        { id: 'a1', brandId: 'anua', market: 'TW', name: '어성초 77 수딩 토너 250ml', price: '520 TWD', rank: 12, reviewGrowth: '+125', margin: 0.32 },
+        { id: 'a2', brandId: 'anua', market: 'TW', name: '어성초 77 클리어 패드', price: '480 TWD', rank: 18, reviewGrowth: '+85', margin: 0.28 },
+        { id: 'b1', brandId: 'bojo', market: 'JP', name: '맑은 쌀 선크림 50ml', price: '2100 JPY', rank: 8, reviewGrowth: '+240', margin: 0.38 },
+        { id: 'r1', brandId: 'roundlab', market: 'TW', name: '독도 토너 200ml', price: '450 TWD', rank: 25, reviewGrowth: '+45', margin: 0.35 }
+      ],
+      decisions: [
+        { id: 'd1', target: '아누아 어성초 패드 신규 등록', reason: '대만 경쟁사 쇼핑몰 3곳에서 신규 랭킹인 확인', status: '대기중' },
+        { id: 'd2', target: '조선미녀 선크림 썸네일 교체', reason: '조회수는 높으나 Qoo10 클릭률(CTR) 2% 미만', status: '대기중' },
+        { id: 'd3', target: '라운드랩 독도 토너 가격 -5% 인하', reason: '마진 여력 충분, 이번 주 경쟁사 특가 진입 대응', status: '대기중' }
+      ]
+    };
+
+    // 2. Navigation Logic
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        // Update active nav class
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        
+        // Show target view
+        const targetId = e.currentTarget.dataset.target;
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.getElementById(targetId).classList.add('active');
+      });
+    });
+
+    // 3. LocalStorage for Decisions
+    function loadDecisions() {
+      const saved = localStorage.getItem('widen_decisions');
+      return saved ? JSON.parse(saved) : {};
+    }
+    
+    function saveDecision(id, status) {
+      const saved = loadDecisions();
+      saved[id] = status;
+      localStorage.setItem('widen_decisions', JSON.stringify(saved));
+      renderDashboard(); // Re-render
+    }
+
+    // 4. Render Tab 1: Dashboard
+    window.renderDashboard = function() {
+      const saved = loadDecisions();
+      const container = document.getElementById('decision-cards-container');
+      let html = '';
+      
+      window.WIDEN_DB.decisions.forEach(d => {
+        const currentStatus = saved[d.id] || d.status;
+        let statusColor = '#64748b'; // default
+        if (currentStatus === '승인 완료') statusColor = 'var(--success)';
+        if (currentStatus === '보류됨') statusColor = 'var(--danger)';
+
+        html += `
+          <div class="card">
+            <h3>${d.target} <span style="font-size:12px; padding:4px 8px; border-radius:4px; background:#f1f5f9; color:${statusColor};">${currentStatus}</span></h3>
+            <p style="color:var(--text-secondary); font-size:14px; margin-bottom:20px;"><strong>이상/기회 신호:</strong> ${d.reason}</p>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-success" onclick="saveDecision('${d.id}', '승인 완료')">👍 승인</button>
+              <button class="btn btn-danger" onclick="saveDecision('${d.id}', '보류됨')">⛔ 보류</button>
+              <button class="btn btn-secondary" onclick="saveDecision('${d.id}', '추가 조사')">🔍 추가조사</button>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    };
+
+    // 5. Render Tab 2: Brand & SKU (Market Filter)
+    window.renderBrandSkuView = function(market = 'TW') {
+      const container = document.getElementById('brand-sku-container');
+      let html = '';
+      
+      const filteredSkus = window.WIDEN_DB.skus.filter(s => s.market === market);
+      const activeBrandIds = [...new Set(filteredSkus.map(s => s.brandId))];
+      
+      if(activeBrandIds.length === 0) {
+        container.innerHTML = `<div class="card"><p>해당 마켓에 활성화된 SKU 데이터가 없습니다.</p></div>`;
+        return;
+      }
+
+      activeBrandIds.forEach(brandId => {
+        const brand = window.WIDEN_DB.brands.find(b => b.id === brandId);
+        const skus = filteredSkus.filter(s => s.brandId === brandId);
+        
+        html += `
+          <div class="card" style="margin-bottom: 24px;">
+            <h3>${brand.name} <span class="badge">${brand.sector}</span></h3>
+            <table class="data-table" style="margin-top:16px;">
+              <thead>
+                <tr>
+                  <th>상품명 (SKU)</th>
+                  <th style="text-align:right;">현지 판매가</th>
+                  <th style="text-align:right;">현재 랭킹</th>
+                  <th style="text-align:right;">주간 리뷰증가</th>
+                  <th style="text-align:right;">추정 마진율</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${skus.map(s => `
+                  <tr>
+                    <td><strong>${s.name}</strong></td>
+                    <td style="text-align:right; color:var(--text-secondary);">${s.price}</td>
+                    <td style="text-align:right;">#${s.rank}</td>
+                    <td style="text-align:right; color:var(--success); font-weight:600;">${s.reviewGrowth}</td>
+                    <td style="text-align:right; color:var(--accent-primary); font-weight:700;">${(s.margin * 100).toFixed(0)}%</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    };
+
+    // 6. Render Tab 3: Indie Brands
+    window.renderIndieBrands = function(filter = 'all') {
+      const container = document.getElementById('indie-brand-container');
+      let html = '';
+      
+      const filtered = filter === 'all' 
+        ? window.WIDEN_DB.brands 
+        : window.WIDEN_DB.brands.filter(b => b.flags.includes(filter));
+
+      filtered.forEach(b => {
+        html += `
+          <div class="card">
+            <h3>${b.name} <span style="font-size:13px; color:var(--text-secondary); font-weight:500;">연매출 추정: ${b.revenue}</span></h3>
+            <div style="margin-bottom:12px;">
+              ${b.flags.includes('growth') ? '<span class="badge growth">🔥 급성장</span>' : ''}
+              ${b.flags.includes('margin') ? '<span class="badge margin">💰 고마진</span>' : ''}
+              ${b.flags.includes('social') ? '<span class="badge social">📈 소셜대세</span>' : ''}
+            </div>
+            
+            <div class="swot-grid">
+              <div class="swot-box swot-s"><strong>강점(S)</strong><br>${b.swot.s}</div>
+              <div class="swot-box swot-w"><strong>약점(W)</strong><br>${b.swot.w}</div>
+              <div class="swot-box swot-o"><strong>기회(O)</strong><br>${b.swot.o}</div>
+              <div class="swot-box swot-t"><strong>위협(T)</strong><br>${b.swot.t}</div>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    };
+
+    // Initial render
+    renderDashboard();
+    renderBrandSkuView('TW');
+    renderIndieBrands('all');
+  </script>
+</body>
+</html>
