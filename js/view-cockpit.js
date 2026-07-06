@@ -2,6 +2,21 @@
 // WIDEN — view-cockpit.js · 이번 주 콕핏 (Page 1)
 // ============================================================
 
+function normalizeLinks(links) {
+  if (!links) return [];
+  if (Array.isArray(links)) return links.filter(l => l && l.url);
+  return Object.entries(links)
+    .filter(([, url]) => typeof url === 'string' && url.trim())
+    .map(([label, url]) => ({ label, url }));
+}
+
+function listContent(content) {
+  if (Array.isArray(content)) {
+    return `<ul style="margin-left:16px;">${content.map(item => `<li>${item}</li>`).join('')}</ul>`;
+  }
+  return content || '정보 없음';
+}
+
 function renderCockpitView() {
   const container = document.getElementById('view-cockpit');
   if (!container) return;
@@ -15,27 +30,66 @@ function renderCockpitView() {
 
   container.innerHTML = `
     <div class="page-header">
-      <h1 class="page-title">⚡ 이번 주 콕핏</h1>
-      <p class="page-subtitle">이번 주 업로드 일정, 트렌드, 시즌 캘린더, 할 일을 한눈에 확인하세요.</p>
+      <h1 class="page-title">⚡ 오늘의 액션 콕핏</h1>
+      <p class="page-subtitle">대표 관점에서 이번 주 트렌드 신호, 해야 할 일, SKU 기회, 벤치마킹 채널을 한 화면에서 판단합니다.</p>
     </div>
 
-    <!-- Section 1: 데일리 업로드 -->
-    ${renderUploadSection(uploads, currentDay)}
+    <!-- Section 1: 운영 요약 -->
+    ${renderExecutiveSummary()}
 
-    <!-- Section 2: 이번 주 트렌드 -->
+    <!-- Section 2: 할 일 체크리스트 -->
+    ${renderActionsSection()}
+
+    <!-- Section 3: 트렌드 신호 레이더 -->
+    ${renderTrendSignalRadar()}
+
+    <!-- Section 4: 이번 주 SKU 트렌드 -->
     ${renderTrendsSection()}
 
-    <!-- Section 3: 시즌 캘린더 -->
+    <!-- Section 5: 벤치마킹 채널 -->
+    ${renderPlatformBenchmarkSection()}
+
+    <!-- Section 6: 시즌 캘린더 -->
     ${renderSeasonSection()}
 
-    <!-- Section 4: 할 일 체크리스트 -->
-    ${renderActionsSection()}
+    <!-- Section 7: 데일리 업로드 -->
+    ${renderUploadSection(uploads, currentDay)}
   `;
 
   // Bind events
   bindUploadEvents(container, uploads);
   bindToggleEvents(container);
   bindActionEvents(container);
+}
+
+function renderExecutiveSummary() {
+  const actions = DataStore.actions || [];
+  const skus = DataStore.skus || [];
+  const trends = DataStore.weeklyTrends || [];
+  const channels = DataStore.platformChannels || [];
+  const incomplete = actions.filter(a => DataStore.getActionState(a.id) !== '완료').length;
+  const qoo10Targets = channels.filter(c => c.platform && c.platform.includes('Qoo10')).length;
+  const hotSignals = trends.reduce((sum, t) => sum + ((t.whyTrending || []).length || 1), 0);
+
+  const metrics = [
+    { icon: '✅', label: '미완료 액션', value: `${incomplete}건`, note: '오늘 체크 필요' },
+    { icon: '📦', label: '추적 SKU', value: `${skus.length}개`, note: '주간/월간 누적' },
+    { icon: '🔥', label: '트렌드 신호', value: `${hotSignals}개`, note: '국내+해외+성분' },
+    { icon: '🔍', label: 'Qoo10 우선 채널', value: `${qoo10Targets}개`, note: 'Fast copycat' }
+  ];
+
+  return `
+    <div class="grid-4">
+      ${metrics.map(m => `
+        <div class="card metric-card">
+          <div class="metric-icon">${m.icon}</div>
+          <div class="metric-value">${m.value}</div>
+          <div class="metric-label">${m.label}</div>
+          <div class="metric-note">${m.note}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
 }
 
 // ── Section 1: 데일리 업로드 ──
@@ -91,7 +145,7 @@ function renderUploadDetail(day) {
     ? `<img src="${day.image}" alt="${day.skuName || ''}" style="width:120px;height:120px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--bg-subtle);border:1px solid var(--border-default);">`
     : '';
 
-  const linksHtml = (day.links || []).map(l =>
+  const linksHtml = normalizeLinks(day.links).map(l =>
     `<a href="${l.url}" target="_blank" class="ext-link">🔗 ${l.label}</a>`
   ).join('');
 
@@ -157,7 +211,65 @@ function bindChecklistEvents(container) {
   });
 }
 
-// ── Section 2: 이번 주 트렌드 ──
+// ── Section 3: 트렌드 신호 레이더 ──
+
+function renderTrendSignalRadar() {
+  const trends = DataStore.weeklyTrends || [];
+  const channels = DataStore.platformChannels || [];
+  const topTrend = trends[0];
+  const qoo10 = channels.find(c => c.platform === 'Qoo10 JP');
+  const offline = channels.find(c => c.platform === '다이소') || channels.find(c => c.platform === '올리브영');
+  const musinsa = channels.find(c => c.platform === '무신사뷰티');
+
+  const signals = [
+    {
+      title: 'SKU 급상승 신호',
+      source: topTrend ? `${topTrend.brand} · ${topTrend.name}` : '주간 트렌드',
+      evidence: topTrend ? (topTrend.whyTrending || []).slice(0, 2) : ['주간 트렌드 데이터 확인 필요'],
+      action: topTrend ? `${topTrend.name} 경쟁 페이지 3개 캡처` : 'Qoo10 상위 SKU 확인'
+    },
+    {
+      title: 'Qoo10 판매 문법',
+      source: qoo10 ? qoo10.channels.slice(0, 3).join(', ') : 'Qoo10 JP',
+      evidence: qoo10 ? qoo10.watchPoints.slice(0, 3) : ['제목', '이미지', '쿠폰'],
+      action: qoo10 ? qoo10.nextAction : '韓国コスメ 검색 상위 페이지 확인'
+    },
+    {
+      title: '오프라인 소싱 신호',
+      source: offline ? offline.platform : '명동/성수/홍대',
+      evidence: offline ? offline.watchPoints.slice(0, 3) : ['재고', '품절', '진열'],
+      action: offline ? offline.nextAction : '명동 다이소/올리브영 정찰'
+    },
+    {
+      title: '무신사뷰티 대분류 신호',
+      source: musinsa ? musinsa.channels.slice(0, 4).join(', ') : '무신사뷰티',
+      evidence: musinsa ? musinsa.watchPoints.slice(0, 3) : ['향수', '색조', '남성 그루밍'],
+      action: musinsa ? musinsa.nextAction : '향수/립/남성 그루밍 후보 확인'
+    }
+  ];
+
+  return `
+    <div class="section-divider">
+      <span class="section-divider-icon">📡</span>
+      <span class="section-divider-title">트렌드 신호 레이더</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="grid-4">
+      ${signals.map(signal => `
+        <div class="card signal-card">
+          <div class="signal-title">${signal.title}</div>
+          <div class="signal-source">${signal.source}</div>
+          <ul class="signal-evidence">
+            ${signal.evidence.map(item => `<li>${item}</li>`).join('')}
+          </ul>
+          <div class="signal-action">다음 액션: ${signal.action}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ── Section 4: 이번 주 트렌드 ──
 
 function renderTrendsSection() {
   const trends = DataStore.weeklyTrends || [];
@@ -165,22 +277,23 @@ function renderTrendsSection() {
 
   const cardsHtml = trends.map((t, idx) => {
     const tagsHtml = (t.tags || []).map(tag => {
-      const cls = tag === '트렌드' ? 'tag-trend' : tag === '스테디' ? 'tag-steady' : tag === '시즌성' ? 'tag-season' : 'tag-hot';
+      const cls = tag.includes('트렌드') ? 'tag-trend' : tag.includes('스테디') ? 'tag-steady' : tag.includes('시즌') ? 'tag-season' : 'tag-hot';
       return `<span class="tag ${cls}">${tag}</span>`;
     }).join('');
 
-    const linksHtml = (t.links || []).map(l =>
+    const linksHtml = normalizeLinks(t.links).map(l =>
       `<a href="${l.url}" target="_blank" class="ext-link">🔗 ${l.label}</a>`
     ).join('');
 
-    const img = t.image
-      ? `<img class="trend-card-image" src="${t.image}" alt="${t.name || ''}">`
+    const imageUrl = t.image || t.imageUrl;
+    const img = imageUrl
+      ? `<img class="trend-card-image" src="${imageUrl}" alt="${t.name || ''}">`
       : `<div class="trend-card-image"></div>`;
 
     const toggles = [
-      { id: `trend-why-${idx}`, label: '왜 뜨는가?', content: t.whyTrending || '정보 없음' },
-      { id: `trend-pro-${idx}`, label: '특장점', content: t.strengths || '정보 없음' },
-      { id: `trend-con-${idx}`, label: '단점/리스크', content: t.risks || '정보 없음' }
+      { id: `trend-why-${idx}`, label: '왜 뜨는가?', content: listContent(t.whyTrending) },
+      { id: `trend-pro-${idx}`, label: '특장점', content: listContent(t.strengths) },
+      { id: `trend-con-${idx}`, label: '단점/리스크', content: listContent(t.risks) }
     ];
 
     const togglesHtml = toggles.map(tgl => `
@@ -220,6 +333,52 @@ function renderTrendsSection() {
   `;
 }
 
+// ── Section 5: 플랫폼별 벤치마킹 채널 ──
+
+function renderPlatformBenchmarkSection() {
+  const channels = DataStore.platformChannels || [];
+  if (channels.length === 0) return '';
+
+  const cardsHtml = channels
+    .slice()
+    .sort((a, b) => (a.priority || 99) - (b.priority || 99))
+    .map(channel => {
+      const channelTags = (channel.channels || []).slice(0, 5).map(name =>
+        `<span class="tag tag-ingredient">${name}</span>`
+      ).join('');
+      const watchList = (channel.watchPoints || []).slice(0, 5).map(point =>
+        `<li>${point}</li>`
+      ).join('');
+
+      return `
+        <div class="card platform-card">
+          <div class="platform-card-head">
+            <div>
+              <div class="platform-priority">#${channel.priority || '-'}</div>
+              <div class="platform-name">${channel.platform || '—'}</div>
+              <div class="platform-role">${channel.role || ''}</div>
+            </div>
+            <span class="status-badge status-today">${channel.cadence || ''}</span>
+          </div>
+          <div class="platform-type">${channel.type || ''}</div>
+          <div class="mb-8">${channelTags}</div>
+          <ul class="platform-watch">${watchList}</ul>
+          <div class="signal-action">다음 액션: ${channel.nextAction || '확인 필요'}</div>
+          ${channel.url ? `<a href="${channel.url}" target="_blank" class="btn btn-outline mt-16">🔗 채널 열기</a>` : ''}
+        </div>
+      `;
+    }).join('');
+
+  return `
+    <div class="section-divider">
+      <span class="section-divider-icon">🏢</span>
+      <span class="section-divider-title">플랫폼별 벤치마킹 채널</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div class="grid-3">${cardsHtml}</div>
+  `;
+}
+
 function bindToggleEvents(container) {
   container.querySelectorAll('.toggle-header').forEach(header => {
     header.addEventListener('click', () => {
@@ -233,7 +392,7 @@ function bindToggleEvents(container) {
   });
 }
 
-// ── Section 3: 시즌 캘린더 ──
+// ── Section 6: 시즌 캘린더 ──
 
 function renderSeasonSection() {
   const cal = DataStore.seasonCalendar;
@@ -308,7 +467,7 @@ function renderSeasonSection() {
   `;
 }
 
-// ── Section 4: 할 일 체크리스트 ──
+// ── Section 2: 할 일 체크리스트 ──
 
 function renderActionsSection() {
   const actions = DataStore.actions || [];
@@ -324,7 +483,7 @@ function renderActionsSection() {
 
   const cardsHtml = actions.map(a => {
     const state = DataStore.getActionState(a.id);
-    const linksHtml = (a.links || []).map(l =>
+    const linksHtml = normalizeLinks(a.links).map(l =>
       `<a href="${l.url}" target="_blank" class="ext-link">🔗 ${l.label}</a>`
     ).join('');
 

@@ -328,6 +328,97 @@ body {
 .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 16px; }
 
 /* ============================================================
+   EXECUTIVE COCKPIT
+   ============================================================ */
+.metric-card {
+  min-height: 132px;
+}
+.metric-icon {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+.metric-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
+}
+.metric-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+.metric-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.signal-card,
+.platform-card {
+  min-height: 100%;
+}
+.signal-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+.signal-source {
+  font-size: 12px;
+  color: var(--accent-primary);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.signal-evidence,
+.platform-watch {
+  margin-left: 16px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.signal-action {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--accent-primary-light);
+  color: var(--accent-primary);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.platform-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.platform-priority {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--accent-secondary);
+  margin-bottom: 2px;
+}
+.platform-name {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+.platform-role {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+.platform-type {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+/* ============================================================
    TAGS
    ============================================================ */
 .tag {

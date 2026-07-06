@@ -33,8 +33,10 @@ function renderCopycatShops(shops) {
   if (shops.length === 0) return '';
 
   const cardsHtml = shops.map((shop, idx) => {
-    const starsHtml = '★'.repeat(shop.aesthetic || 0) + '☆'.repeat(5 - (shop.aesthetic || 0));
-    const brandsHtml = (shop.brands || []).map(b => `<span class="tag tag-ingredient">${b}</span>`).join('');
+    const aestheticScore = shop.aestheticScore || shop.aesthetic || 0;
+    const brands = shop.mainBrands || shop.brands || [];
+    const starsHtml = '★'.repeat(aestheticScore) + '☆'.repeat(5 - aestheticScore);
+    const brandsHtml = brands.map(b => `<span class="tag tag-ingredient">${b}</span>`).join('');
     const strengthsHtml = (shop.strengths || []).map(s => `<li style="color:var(--accent-green);"><span style="color:var(--text-secondary);">${s}</span></li>`).join('');
     const weaknessesHtml = (shop.weaknesses || []).map(w => `<li style="color:var(--accent-red);"><span style="color:var(--text-secondary);">${w}</span></li>`).join('');
 
@@ -44,6 +46,8 @@ function renderCopycatShops(shops) {
         <div class="card-title" style="font-size:16px;">${shop.name || '—'}</div>
         <div class="shop-card-type">${shop.type || ''}</div>
         <div class="mb-8">${brandsHtml}</div>
+        ${shop.assortment ? `<div class="shop-card-detail">🧭 구성: ${shop.assortment}</div>` : ''}
+        ${shop.marketingFeatures ? `<div class="shop-card-detail">📣 벤치마킹: ${shop.marketingFeatures}</div>` : ''}
         <div class="shop-card-stars">디자인 완성도: ${starsHtml}</div>
         ${shop.targetCustomer ? `<div class="shop-card-detail">🎯 타겟 고객: ${shop.targetCustomer}</div>` : ''}
         ${strengthsHtml ? `<div class="shop-card-detail"><strong>강점</strong><ul style="margin:4px 0 0 16px;">${strengthsHtml}</ul></div>` : ''}

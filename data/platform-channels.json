@@ -1,0 +1,74 @@
+[
+  {
+    "id": "platform-qoo10-jp",
+    "platform": "Qoo10 JP",
+    "priority": 1,
+    "type": "해외 오픈마켓",
+    "role": "Fast copycat 핵심 채널",
+    "cadence": "매주 2회",
+    "channels": ["VT 공식샵", "Anua 공식샵", "Torriden 공식샵", "OLIVE YOUNG Global", "Beauti Topping"],
+    "watchPoints": ["일본어 제목 첫 키워드", "메가와리/쿠폰", "세트 구성", "대표 이미지 강조 문구", "리뷰 반복 표현"],
+    "nextAction": "VT 리들샷, PDRN, 韓国コスメ セラム 검색 상위 페이지 5개 캡처",
+    "url": "https://www.qoo10.jp/s/韓国コスメ"
+  },
+  {
+    "id": "platform-shopee-tw",
+    "platform": "Shopee TW",
+    "priority": 2,
+    "type": "해외 오픈마켓",
+    "role": "대만 가격/번들/쿠폰 전략 확인",
+    "cadence": "격주",
+    "channels": ["K-Beauty 리셀러", "공식몰", "상위 리뷰 셀러"],
+    "watchPoints": ["중국어 제목", "쿠폰/무료배송", "묶음 구성", "판매량", "리뷰 사진"],
+    "nextAction": "Qoo10 루틴 안정 후 VT/선케어/마스크팩 중심으로 비교 시작",
+    "url": "https://shopee.tw/search?keyword=kbeauty"
+  },
+  {
+    "id": "platform-oliveyoung",
+    "platform": "올리브영",
+    "priority": 3,
+    "type": "국내 소싱/트렌드",
+    "role": "국내 베스트셀러와 세일가 확인",
+    "cadence": "주 1회",
+    "channels": ["온라인 랭킹", "명동권 대형 매장", "성수 플래그십"],
+    "watchPoints": ["랭킹", "세일가", "기획세트", "품절", "외국어 POP", "관광객 장바구니"],
+    "nextAction": "명동권 선케어/세럼/패드 매대 사진과 가격 기록",
+    "url": "https://www.oliveyoung.co.kr/store/main/getBestList.do"
+  },
+  {
+    "id": "platform-daiso",
+    "platform": "다이소",
+    "priority": 4,
+    "type": "오프라인 저가 소싱",
+    "role": "가격차 큰 엔트리 SKU 발굴",
+    "cadence": "주 1회",
+    "channels": ["명동역점", "홍대권 매장", "관광객 밀집 매장"],
+    "watchPoints": ["3000원 뷰티템", "재고", "품절", "진열 확대", "소형 디바이스/툴"],
+    "nextAction": "VT 리들샷류, 손앤박, 저가 색조/뷰티툴 재고 확인",
+    "url": "https://www.daiso.co.kr/cs/shop"
+  },
+  {
+    "id": "platform-musinsa-beauty",
+    "platform": "무신사뷰티",
+    "priority": 5,
+    "type": "국내 트렌드",
+    "role": "MZ/남성 그루밍/향수/색조 신호 확인",
+    "cadence": "주 1회",
+    "channels": ["뷰티 랭킹", "향수", "남성 그루밍", "색조"],
+    "watchPoints": ["대분류별 인기", "남성 커버 제품", "인디 향수", "브랜드 기획전"],
+    "nextAction": "향수/립/남성 그루밍 상위 SKU를 SKU 후보로 추가",
+    "url": "https://www.musinsa.com/main/beauty"
+  },
+  {
+    "id": "platform-social",
+    "platform": "TikTok / Instagram / YouTube",
+    "priority": 6,
+    "type": "콘텐츠 신호",
+    "role": "고객 언어와 바이럴 포인트 수집",
+    "cadence": "격주",
+    "channels": ["일본 뷰티 리뷰어", "대만 K-Beauty 콘텐츠", "숏폼 리뷰"],
+    "watchPoints": ["반복 댓글", "전후 비교", "성분 표현", "불만/클레임", "영상 후킹 문장"],
+    "nextAction": "VT/토리든/조선미녀 관련 일본어 리뷰 콘텐츠 10개 수집",
+    "url": "https://www.youtube.com/results?search_query=韓国コスメ+レビュー"
+  }
+]

@@ -11,6 +11,7 @@ const DataStore = {
   ingredients: [],
   countries: [],
   copycatShops: [],
+  platformChannels: [],
   sourcingRoutes: [],
 
   // ── Load all JSON data ──
@@ -24,6 +25,7 @@ const DataStore = {
       ingredients: 'data/ingredients.json',
       countries: 'data/countries.json',
       copycatShops: 'data/copycat-shops.json',
+      platformChannels: 'data/platform-channels.json',
       sourcingRoutes: 'data/sourcing-routes.json',
     };
 
