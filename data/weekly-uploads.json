@@ -1,0 +1,149 @@
+[
+  {
+    "day": "mon",
+    "dayLabel": "월",
+    "skuId": "sku-vt-riddle-shot-100",
+    "name": "VT 리들샷 100",
+    "brand": "VT Cosmetics",
+    "category": "세럼/앰플",
+    "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0020/A00000020964711ko.jpg",
+    "domesticPrice": 23000,
+    "domesticSource": "올리브영",
+    "qoo10Price": 3500,
+    "estimatedMargin": "5~10%",
+    "reason": "Qoo10 JP 검색량 1위, 틱톡 바이럴 지속 중",
+    "status": "completed",
+    "links": {
+      "product": "https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000209647",
+      "qoo10Search": "https://www.qoo10.jp/s/VT+リドルショット",
+      "competitor": "https://www.qoo10.jp/s/VT+リドルショット+100"
+    },
+    "checklist": ["제품 사진 촬영/수집", "상세페이지 제작", "가격/쿠폰 설정", "Qoo10 등록"]
+  },
+  {
+    "day": "tue",
+    "dayLabel": "화",
+    "skuId": "sku-beauty-of-joseon-sunscreen",
+    "name": "조선미녀 맑은쌀 선크림",
+    "brand": "조선미녀",
+    "category": "선크림",
+    "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0019/A00000019847601ko.jpg",
+    "domesticPrice": 18000,
+    "domesticSource": "올리브영",
+    "qoo10Price": 2800,
+    "estimatedMargin": "5~10%",
+    "reason": "여름 시즌 선크림 수요 피크, Qoo10 JP 선크림 카테고리 상위 노출",
+    "status": "completed",
+    "links": {
+      "product": "https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000198476",
+      "qoo10Search": "https://www.qoo10.jp/s/ビューティーオブジョソン+日焼け止め",
+      "competitor": "https://www.qoo10.jp/s/韓国+日焼け止め"
+    },
+    "checklist": ["제품 사진 촬영/수집", "상세페이지 제작", "가격/쿠폰 설정", "Qoo10 등록"]
+  },
+  {
+    "day": "wed",
+    "dayLabel": "수",
+    "skuId": "sku-anua-heartleaf-77-toner",
+    "name": "아누아 어성초 77 수딩 토너",
+    "brand": "Anua",
+    "category": "토너",
+    "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0018/A00000018931204ko.jpg",
+    "domesticPrice": 25000,
+    "domesticSource": "올리브영",
+    "qoo10Price": 2500,
+    "estimatedMargin": "5~10%",
+    "reason": "여름 진정 토너 시즌 수요, 일본 @cosme 랭킹 상위",
+    "status": "completed",
+    "links": {
+      "product": "https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000189312",
+      "qoo10Search": "https://www.qoo10.jp/s/アヌア+ドクダミ+トナー",
+      "competitor": "https://www.qoo10.jp/s/韓国+トナー+鎮静"
+    },
+    "checklist": ["제품 사진 촬영/수집", "상세페이지 제작", "가격/쿠폰 설정", "Qoo10 등록"]
+  },
+  {
+    "day": "thu",
+    "dayLabel": "목",
+    "skuId": "sku-numbuzin-no3-toner",
+    "name": "넘버즈인 3번 결광 에센스 토너",
+    "brand": "넘버즈인",
+    "category": "토너",
+    "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0020/A00000020178903ko.jpg",
+    "domesticPrice": 15000,
+    "domesticSource": "올리브영",
+    "qoo10Price": 2200,
+    "estimatedMargin": "10~15%",
+    "reason": "글루타치온 트렌드 급상승, 경쟁 셀러 적어 선점 기회",
+    "status": "today",
+    "links": {
+      "product": "https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000201789",
+      "qoo10Search": "https://www.qoo10.jp/s/ナンバーズイン+3番+トナー",
+      "competitor": "https://www.qoo10.jp/s/グルタチオン+韓国コスメ"
+    },
+    "checklist": ["제품 사진 촬영/수집", "상세페이지 제작", "가격/쿠폰 설정", "Qoo10 등록"]
+  },
+  {
+    "day": "fri",
+    "dayLabel": "금",
+    "skuId": "sku-tirtir-mask-fit-red-cushion",
+    "name": "티르티르 마스크 핏 레드 쿠션",
+    "brand": "TIRTIR",
+    "category": "베이스",
+    "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0021/A00000021083405ko.jpg",
+    "domesticPrice": 22000,
+    "domesticSource": "올리브영",
+    "qoo10Price": 3300,
+    "estimatedMargin": "8~12%",
+    "reason": "미국 틱톡 바이럴 → 일본 역수입 트렌드, 색조 카테고리 주목",
+    "status": "upcoming",
+    "links": {
+      "product": "https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000210834",
+      "qoo10Search": "https://www.qoo10.jp/s/ティルティル+マスクフィット+クッション",
+      "competitor": "https://www.qoo10.jp/s/韓国+クッションファンデ"
+    },
+    "checklist": ["제품 사진 촬영/수집", "상세페이지 제작", "가격/쿠폰 설정", "Qoo10 등록"]
+  },
+  {
+    "day": "sat",
+    "dayLabel": "토",
+    "skuId": "sku-torriden-dive-in-serum",
+    "name": "토리든 다이브인 저분자 히알루론산 세럼",
+    "brand": "Torriden",
+    "category": "세럼/앰플",
+    "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0019/A00000019285506ko.jpg",
+    "domesticPrice": 18000,
+    "domesticSource": "올리브영",
+    "qoo10Price": 2800,
+    "estimatedMargin": "8~12%",
+    "reason": "여름 가벼운 수분 세럼 수요, 일본 드럭스토어 입점 시너지",
+    "status": "upcoming",
+    "links": {
+      "product": "https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000192855",
+      "qoo10Search": "https://www.qoo10.jp/s/トリデン+ダイブイン+セラム",
+      "competitor": "https://www.qoo10.jp/s/韓国+ヒアルロン酸+セラム"
+    },
+    "checklist": ["제품 사진 촬영/수집", "상세페이지 제작", "가격/쿠폰 설정", "Qoo10 등록"]
+  },
+  {
+    "day": "sun",
+    "dayLabel": "일",
+    "skuId": "sku-cosrx-snail-96-essence",
+    "name": "COSRX 스네일 96 뮤신 에센스",
+    "brand": "COSRX",
+    "category": "에센스",
+    "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0014/A00000014553107ko.jpg",
+    "domesticPrice": 16000,
+    "domesticSource": "올리브영",
+    "qoo10Price": 2500,
+    "estimatedMargin": "8~12%",
+    "reason": "글로벌 스테디셀러, 아마존 US 1위 경력으로 일본에서도 인지도 높음",
+    "status": "upcoming",
+    "links": {
+      "product": "https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000145531",
+      "qoo10Search": "https://www.qoo10.jp/s/COSRX+カタツムリ+エッセンス",
+      "competitor": "https://www.qoo10.jp/s/COSRX+韓国コスメ"
+    },
+    "checklist": ["제품 사진 촬영/수집", "상세페이지 제작", "가격/쿠폰 설정", "Qoo10 등록"]
+  }
+]

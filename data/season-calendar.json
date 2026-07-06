@@ -1,0 +1,41 @@
+{
+  "currentMonth": {
+    "month": "7월",
+    "year": 2026,
+    "categories": [
+      {"icon": "🌞", "name": "선크림/자외선 차단", "metric": "+62%", "direction": "up"},
+      {"icon": "💧", "name": "수분 진정 토너/패드", "metric": "+38%", "direction": "up"},
+      {"icon": "🧊", "name": "쿨링 미스트", "metric": "+55%", "direction": "up"},
+      {"icon": "💦", "name": "클렌징 (모공 관리)", "metric": "꾸준", "direction": "stable"}
+    ],
+    "links": {
+      "naverDatalab": "https://datalab.naver.com/keyword/trendSearch.naver",
+      "googleTrends": "https://trends.google.com/trends/explore?geo=JP&q=korean+skincare"
+    }
+  },
+  "upcoming": {
+    "period": "8~9월",
+    "categories": [
+      {"icon": "🍂", "name": "가을 환절기 진정 크림", "note": "8월 중순부터 수요 ↑"},
+      {"icon": "💄", "name": "가을 컬러 립 (브릭/와인)", "note": "8월 말부터 검색 ↑"},
+      {"icon": "🌿", "name": "레티놀/각질 케어", "note": "9월 피부 리뉴얼 시즌"},
+      {"icon": "🎁", "name": "추석 선물 세트", "note": "8월 초 기획 시작"}
+    ],
+    "tip": "일본은 한국보다 시즌 전환이 2~3주 느림. 대만은 아열대라 여름 제품 수요가 10월까지 지속."
+  },
+  "lastYear": {
+    "period": "2025년 7~8월",
+    "rankings": [
+      {"rank": 1, "icon": "🧴", "name": "선크림 (조선미녀 맑은쌀)", "note": "Qoo10 JP 선크림 1위"},
+      {"rank": 2, "icon": "💧", "name": "토너패드 (아누아 77)", "note": "여름 진정 수요 폭발"},
+      {"rank": 3, "icon": "🧊", "name": "수분 세럼 (토리든 다이브인)", "note": "가벼운 텍스처 선호"},
+      {"rank": 4, "icon": "💄", "name": "틴트 (롬앤 쥬시래스팅)", "note": "여름 컬러 인기"},
+      {"rank": 5, "icon": "🫧", "name": "클렌징 오일 (마녀공장)", "note": "자외선차단제 세정 수요"}
+    ],
+    "links": {
+      "naverDatalab": "https://datalab.naver.com/keyword/trendSearch.naver",
+      "googleTrends": "https://trends.google.com/trends/explore?date=2025-07-01+2025-08-31&geo=JP&q=korean+skincare",
+      "qoo10Best": "https://www.qoo10.jp/gmkt.inc/Bestsellers/"
+    }
+  }
+}
