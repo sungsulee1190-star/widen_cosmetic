@@ -30,7 +30,7 @@ function renderCockpitView() {
 
   container.innerHTML = `
     <div class="page-header">
-      <h1 class="page-title">⚡ 오늘의 액션 콕핏</h1>
+      <h1 class="page-title">⚡ 이번주 할일</h1>
       <p class="page-subtitle">대표 관점에서 이번 주 트렌드 신호, 해야 할 일, SKU 기회, 벤치마킹 채널을 한 화면에서 판단합니다.</p>
     </div>
 

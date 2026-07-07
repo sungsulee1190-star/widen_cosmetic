@@ -12,7 +12,7 @@ function renderWikiView() {
 
   container.innerHTML = `
     <div class="page-header">
-      <h1 class="page-title">🧪 성분 위키</h1>
+      <h1 class="page-title">🧪 성분/트렌드</h1>
       <p class="page-subtitle">K-뷰티 핵심 성분 정보, 국가별 적합도, 안전/위험 표현을 확인하세요.</p>
     </div>
 
@@ -111,8 +111,8 @@ function renderCountryView() {
 
   container.innerHTML = `
     <div class="page-header">
-      <h1 class="page-title">🌏 국가별 주의사항</h1>
-      <p class="page-subtitle">일본, 대만 등 타겟 국가의 규제 및 판매 시 주의사항을 확인하세요.</p>
+      <h1 class="page-title">🌏 국가별 규제</h1>
+      <p class="page-subtitle">일본, 대만 등 타겟 국가의 규제와 내 SKU에 걸릴 수 있는 표현 리스크를 확인하세요.</p>
     </div>
 
     <div class="grid-2" id="country-grid">

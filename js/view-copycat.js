@@ -10,8 +10,8 @@ function renderCopycatView() {
 
   container.innerHTML = `
     <div class="page-header">
-      <h1 class="page-title">🔍 Qoo10 Copycat 보드</h1>
-      <p class="page-subtitle">Qoo10 JP 상위 편집샵 벤치마킹, 검색어 바로가기, MD 리포트 분석 도구</p>
+      <h1 class="page-title">🔍 벤치마킹샵</h1>
+      <p class="page-subtitle">Qoo10 JP 상위 편집샵과 공식샵을 바로 열고, 판매 페이지 성공공식을 분석합니다.</p>
     </div>
 
     <!-- Section 1: 벤치마킹 편집샵 -->

@@ -10,8 +10,8 @@ function renderReferenceView() {
 
   container.innerHTML = `
     <div class="page-header">
-      <h1 class="page-title">📋 경쟁사 / 인플루언서 레퍼런스</h1>
-      <p class="page-subtitle">Qoo10 JP 주요 경쟁 셀러와 인플루언서 분석 레퍼런스를 관리하세요.</p>
+      <h1 class="page-title">📋 경쟁페이지 분석</h1>
+      <p class="page-subtitle">경쟁사 판매페이지의 제목, 이미지, 색감, 배치, 상세 문구를 분석해 성공공식으로 저장합니다.</p>
     </div>
 
     <!-- Section 1: 경쟁사 레퍼런스 -->
@@ -201,7 +201,7 @@ function renderLinksView() {
 
   container.innerHTML = `
     <div class="page-header">
-      <h1 class="page-title">🔗 Notion / Drive DB</h1>
+      <h1 class="page-title">🔗 데이터 관리</h1>
       <p class="page-subtitle">프로젝트 데이터베이스 및 파일 저장소 바로가기</p>
     </div>
 
