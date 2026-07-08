@@ -60,7 +60,11 @@ function renderSkuView() {
   updateSkuScores(container);
 }
 
-function buildSkuRecommendations(skus) {
+function detectMarketFromPlatform(platform) {
+  return platform === 'Shopee TW' ? 'taiwan' : 'japan';
+}
+
+function buildSkuRecommendations(skus, market = 'japan') {
   if (typeof TrendEngine === 'undefined') return [];
 
   return TrendEngine.buildRecommendations({
@@ -69,8 +73,7 @@ function buildSkuRecommendations(skus) {
     trendSignals: DataStore.trendSignals || [],
     trendVerifications: DataStore.trendVerifications || [],
     trendScoreRules: DataStore.trendScoreRules || [],
-    week: '2026-W27',
-    market: 'japan'
+    market
   });
 }
 
@@ -82,6 +85,19 @@ function pickInitialSku(skus, recommendations) {
 function findRecommendationForSku(sku, recommendations = buildSkuRecommendations(DataStore.skus || [])) {
   if (!sku) return null;
   return recommendations.find(item => item.skuId === sku.id) || null;
+}
+
+function getSkuPlatforms(sku) {
+  const platforms = [sku.domesticSource, 'Qoo10 JP'];
+  (DataStore.trendSignals || []).forEach(signal => {
+    const relatedToSku = (signal.relatedSkuIds || []).includes(sku.id)
+      || signal.skuName === sku.name
+      || signal.brand === sku.brand
+      || (sku.ingredientTags || []).includes(signal.ingredient);
+    if (relatedToSku && signal.platform) platforms.push(signal.platform);
+  });
+  if (sku.shopeeSearchUrl) platforms.push('Shopee TW');
+  return [...new Set(platforms.filter(Boolean))];
 }
 
 function renderCategoryRail() {
@@ -290,7 +306,7 @@ function renderSkuCards(skus, recommendations = []) {
            data-brand="${(sku.brand || '').toLowerCase()}"
            data-category="${sku.majorCategory}"
            data-status="${sku.status || ''}"
-           data-platforms="${[sku.domesticSource, 'Qoo10 JP'].filter(Boolean).join('|')}"
+           data-platforms="${getSkuPlatforms(sku).join('|')}"
            data-week="${sku.weeklyHistory.map(w => w.week).join('|')}"
            data-score="0">
         ${img}
@@ -489,8 +505,14 @@ function syncSkuDetailWithFilters(container) {
     return;
   }
 
+  const platform = container.querySelector('#sku-filter-platform')?.value || '전체';
+  const market = detectMarketFromPlatform(platform);
   const sku = (DataStore.skus || []).find(item => item.id === firstVisibleCard.dataset.skuId);
-  if (sku) detail.innerHTML = renderProductDetailPanel(sku);
+  if (sku) {
+    const recommendations = buildSkuRecommendations(DataStore.skus || [], market);
+    const recommendation = findRecommendationForSku(sku, recommendations);
+    detail.innerHTML = renderProductDetailPanel(sku, recommendation);
+  }
 }
 
 function applySkuFilters(container) {

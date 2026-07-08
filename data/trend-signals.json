@@ -42,5 +42,27 @@
     "relatedIngredientIds": ["ing-hyaluronic-acid"],
     "relatedBrandIds": [],
     "nextVerificationAction": "Shopee TW에서 판매량/가격대 확인"
+  },
+  {
+    "id": "sig-snail-cosrx-shopee-tw-2026w27",
+    "observedAt": "2026-07-08",
+    "signalType": "marketplaceProduct",
+    "market": "taiwan",
+    "platform": "Shopee TW",
+    "keyword": "蝸牛精華 保濕",
+    "brand": "COSRX",
+    "skuName": "COSRX 달팽이 92 올인원 크림",
+    "ingredient": "달팽이 분비물 여과물",
+    "category": "스킨케어",
+    "sourceUrl": "https://shopee.tw/search?keyword=cosrx+snail",
+    "sourceTitle": "Shopee TW COSRX snail search",
+    "evidenceGrade": "B",
+    "confidence": 72,
+    "freshnessDays": 14,
+    "rawObservation": "Shopee TW 검색 상위 노출, 복수 셀러 반복 등장, 리뷰 4.8 이상",
+    "relatedSkuIds": ["sku-cosrx-snail-96-essence"],
+    "relatedIngredientIds": [],
+    "relatedBrandIds": [],
+    "nextVerificationAction": "Shopee TW 판매량 상위 3개 상세페이지 캡처 및 가격대 기록"
   }
 ]

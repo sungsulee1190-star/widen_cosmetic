@@ -13,6 +13,7 @@ const store = read('js/data-store.js');
 const app = read('js/app.js');
 const trendSignals = JSON.parse(read('data/trend-signals.json'));
 const verifications = JSON.parse(read('data/trend-verifications.json'));
+const skus = JSON.parse(read('data/sku-list.json'));
 
 assert.match(cockpit, /renderTrendSignalRadar/, 'cockpit renders trend signal radar');
 assert.match(cockpit, /renderPlatformBenchmarkSection/, 'cockpit renders platform benchmark channels');
@@ -29,6 +30,7 @@ assert.match(app, /renderCountryView/, 'country view stays routable');
 assert.match(html, /이번주 할일/, 'sidebar uses intuitive weekly tasks menu name');
 assert.match(html, /카테고리\/제품/, 'sidebar uses intuitive category/product menu name');
 assert.match(html, /벤치마킹샵/, 'sidebar uses intuitive benchmark shop menu name');
+assert.match(html, /Withen Cosmetic Division/, 'header uses the Withen Cosmetic Division title');
 assert.match(html, /js\/trend-engine\.js/, 'trend engine is loaded before views');
 assert.match(style, /\.sidebar\.collapsed \.nav-section-label/, 'collapsed sidebar hides section labels');
 assert.match(trendEngine, /buildRecommendations/, 'trend engine builds SKU recommendations');
@@ -45,6 +47,7 @@ assert.match(skuView, /TrendEngine\.buildRecommendations/, 'SKU view uses trend 
 assert.match(skuView, /scoreBreakdown/, 'SKU detail renders recommendation score breakdown');
 assert.match(skuView, /missingEvidence/, 'SKU detail renders missing evidence');
 assert.match(skuView, /nextAction/, 'SKU detail renders next verification action');
+assert.match(skuView, /getSkuPlatforms/, 'SKU cards derive platforms from linked trend signals');
 assert.match(skuView, /onerror=/, 'SKU images render a fallback when the external image fails');
 assert.ok(
   trendSignals.every(item => item.id && item.observedAt && item.evidenceGrade && item.freshnessDays),
@@ -57,6 +60,11 @@ assert.ok(
 assert.ok(
   trendSignals.some(item => ['A', 'B'].includes(item.evidenceGrade)),
   'at least one high-grade evidence signal exists'
+);
+const skuIds = new Set(skus.map(item => item.id));
+assert.ok(
+  trendSignals.every(signal => (signal.relatedSkuIds || []).every(id => skuIds.has(id))),
+  'trend signals only reference existing SKU IDs'
 );
 assert.doesNotMatch(skuView, /const selectedSku = skus\[0\]/, 'SKU detail must not stay pinned to first SKU');
 assert.doesNotMatch(skuView, /VT 리들샷 100.*renderProductDetailPanel/, 'detail recommendation must not be pinned to VT');

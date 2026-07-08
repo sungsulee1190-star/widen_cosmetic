@@ -2,13 +2,23 @@
 // WIDEN — trend-engine.js · Trend signal scoring
 // ============================================================
 
+function getCurrentISOWeek() {
+  const date = new Date();
+  const dayOfWeek = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - dayOfWeek);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  const weekNumber = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+  return `${date.getUTCFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
+}
+
 const TrendEngine = {
   buildRecommendations({
     skus = [],
     ingredients = [],
     trendSignals = [],
     trendVerifications = [],
-    week = '2026-W27',
+    trendScoreRules = [],
+    week = getCurrentISOWeek(),
     market = 'japan'
   }) {
     return skus.map(sku => {
@@ -110,7 +120,7 @@ const TrendEngine = {
 
   pickRecommendation(trendScore, missingEvidence, sku) {
     if (missingEvidence.includes('A/B 등급 근거 없음') || missingEvidence.includes('검증 로그 없음')) return 'verifyMore';
-    if ((sku.estimatedMargin || '').startsWith('5')) return 'watch';
+    if (parseInt(sku.estimatedMargin || '0', 10) < 8) return 'watch';
     if (trendScore >= 75) return 'testReady';
     if (trendScore >= 55) return 'watch';
     return 'block';
