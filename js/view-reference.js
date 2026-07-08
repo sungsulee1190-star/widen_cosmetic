@@ -33,19 +33,31 @@ function renderCompetitorSection() {
       name: 'K-Beauty Official',
       platform: 'Qoo10 JP',
       observations: ['세트 구성 중심 판매 전략', '쿠폰 + 타임세일 적극 활용', '리뷰 수 3,000+ 확보'],
-      link: 'https://www.qoo10.jp'
+      link: 'https://www.qoo10.jp/shop/oliveyoungglobal'
     },
     {
       name: 'Seoul Cosmetics JP',
       platform: 'Qoo10 JP',
       observations: ['신제품 빠른 입점 (출시 후 1주 이내)', '일본어 네이티브 상세페이지', '인플루언서 콜라보 기획전'],
-      link: 'https://www.qoo10.jp'
+      link: 'https://www.qoo10.jp/shop/beautitopping'
     },
     {
       name: 'OLIVE YOUNG Global',
       platform: 'Qoo10 JP / 자사몰',
       observations: ['올리브영 랭킹 활용 마케팅', '대량 SKU 운영 (500+)', '공식 브랜드 인증 강조'],
-      link: 'https://www.qoo10.jp'
+      link: 'https://www.qoo10.jp/shop/oliveyoungglobal'
+    },
+    {
+      name: 'Shopee TW K-Beauty Search',
+      platform: 'Shopee TW',
+      observations: ['대만 가격/번들 기준 확인', '중국어 제목 키워드 수집', '무료배송·쿠폰 구조 비교'],
+      link: 'https://shopee.tw/search?keyword=kbeauty%20韓國美妝'
+    },
+    {
+      name: 'Amazon JP Korean Beauty',
+      platform: 'Amazon JP',
+      observations: ['리뷰 사진과 별점 분포 확인', 'FBA/공식 셀러 여부 확인', '일본 소비자 클레임 표현 수집'],
+      link: 'https://www.amazon.co.jp/s?k=%E9%9F%93%E5%9B%BD%E3%82%B3%E3%82%B9%E3%83%A1'
     }
   ];
 

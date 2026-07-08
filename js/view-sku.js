@@ -33,7 +33,9 @@ function renderSkuView() {
   if (!container) return;
 
   const skus = DataStore.skus || [];
-  const selectedSku = skus[0];
+  const recommendations = buildSkuRecommendations(skus);
+  const selectedSku = pickInitialSku(skus, recommendations);
+  const selectedRecommendation = findRecommendationForSku(selectedSku, recommendations);
 
   container.innerHTML = `
     <div class="page-header">
@@ -46,16 +48,40 @@ function renderSkuView() {
     ${renderPopularityScalePanel()}
 
     <div id="sku-detail-panel">
-      ${selectedSku ? renderProductDetailPanel(selectedSku) : ''}
+      ${selectedSku ? renderProductDetailPanel(selectedSku, selectedRecommendation) : ''}
     </div>
 
     <div class="grid-3" id="sku-grid">
-      ${renderSkuCards(skus)}
+      ${renderSkuCards(skus, recommendations)}
     </div>
   `;
 
   bindSkuEvents(container);
   updateSkuScores(container);
+}
+
+function buildSkuRecommendations(skus) {
+  if (typeof TrendEngine === 'undefined') return [];
+
+  return TrendEngine.buildRecommendations({
+    skus,
+    ingredients: DataStore.ingredients || [],
+    trendSignals: DataStore.trendSignals || [],
+    trendVerifications: DataStore.trendVerifications || [],
+    trendScoreRules: DataStore.trendScoreRules || [],
+    week: '2026-W27',
+    market: 'japan'
+  });
+}
+
+function pickInitialSku(skus, recommendations) {
+  const topRecommendation = recommendations[0];
+  return skus.find(item => item.id === topRecommendation?.skuId) || skus[0];
+}
+
+function findRecommendationForSku(sku, recommendations = buildSkuRecommendations(DataStore.skus || [])) {
+  if (!sku) return null;
+  return recommendations.find(item => item.skuId === sku.id) || null;
 }
 
 function renderCategoryRail() {
@@ -239,13 +265,14 @@ function getCurrentWeights(container) {
   return weights;
 }
 
-function renderSkuCards(skus) {
+function renderSkuCards(skus, recommendations = []) {
   if (skus.length === 0) {
     return '<p class="text-center" style="grid-column:1/-1;color:var(--text-muted);padding:40px;">제품 데이터가 없습니다.</p>';
   }
 
   return skus.map(original => {
     const sku = normalizeSku(original);
+    const recommendation = findRecommendationForSku(sku, recommendations);
     const isFav = DataStore.isFavorite(sku.id);
     const statusClass = sku.status === '트렌드' ? 'tag-trend'
       : sku.status === '스테디' ? 'tag-steady'
@@ -254,9 +281,7 @@ function renderSkuCards(skus) {
     const linksHtml = sku.links.slice(0, 3).map(l =>
       `<a href="${l.url}" target="_blank" class="ext-link" onclick="event.stopPropagation();">🔗 ${l.label}</a>`
     ).join('');
-    const img = sku.image
-      ? `<img class="sku-card-image" src="${sku.image}" alt="${sku.name || ''}">`
-      : `<div class="sku-card-image"></div>`;
+    const img = renderSkuImage(sku, 'sku-card-image');
 
     return `
       <div class="card sku-card"
@@ -283,7 +308,7 @@ function renderSkuCards(skus) {
           <span class="sku-card-price-value">${sku.qoo10PriceText}</span>
         </div>
         <div class="sku-score-row">
-          <span class="sku-score-badge">인기점수 <b data-score-label="${sku.id}">0</b></span>
+          <span class="sku-score-badge">인기점수 <b data-score-label="${sku.id}">${recommendation?.trendScore || 0}</b></span>
           <span class="tag ${statusClass}">${sku.status || '관찰'}</span>
         </div>
         <div class="sku-card-links">${linksHtml}</div>
@@ -296,7 +321,7 @@ function renderSkuCards(skus) {
   }).join('');
 }
 
-function renderProductDetailPanel(originalSku) {
+function renderProductDetailPanel(originalSku, recommendation = findRecommendationForSku(originalSku)) {
   const sku = normalizeSku(originalSku);
   const historyHtml = sku.weeklyHistory.map(item => `
     <div class="detail-history-item">
@@ -312,7 +337,7 @@ function renderProductDetailPanel(originalSku) {
   return `
     <div class="card product-detail-panel">
       <div class="product-detail-media">
-        ${sku.image ? `<img src="${sku.image}" alt="${sku.name || ''}">` : '<div></div>'}
+        ${renderSkuImage(sku, 'product-detail-image')}
       </div>
       <div class="product-detail-body">
         <div class="product-detail-eyebrow">${sku.brand || ''} · ${sku.majorCategory}</div>
@@ -322,6 +347,7 @@ function renderProductDetailPanel(originalSku) {
           ${sku.domesticSource || '국내 채널'} 소싱, Qoo10 경쟁 페이지를 함께 추적합니다.
         </p>
         <div class="product-detail-links">${linksHtml}</div>
+        ${renderRecommendationEvidence(recommendation)}
         <div class="detail-grid">
           <div>
             <h3>장점</h3>
@@ -339,6 +365,36 @@ function renderProductDetailPanel(originalSku) {
       </div>
     </div>
   `;
+}
+
+function renderRecommendationEvidence(recommendation) {
+  if (!recommendation) return '';
+
+  const breakdown = Object.entries(recommendation.scoreBreakdown || {})
+    .map(([key, value]) => `<span class="tag tag-ingredient">${key}: ${value}</span>`)
+    .join('');
+  const missing = (recommendation.missingEvidence || [])
+    .map(item => `<li>${item}</li>`)
+    .join('');
+
+  return `
+    <div class="recommendation-evidence">
+      <h3>추천 근거</h3>
+      <div class="sku-score-row">${breakdown}</div>
+      <p class="product-detail-summary">${recommendation.recommendationReason}</p>
+      ${missing ? `<h3>부족한 근거</h3><ul>${missing}</ul>` : ''}
+      <h3>다음 검증 액션</h3>
+      <p class="product-detail-summary">${recommendation.nextAction}</p>
+    </div>
+  `;
+}
+
+function renderSkuImage(sku, className) {
+  if (!sku.image) {
+    return `<div class="${className} image-fallback">이미지 확인 필요</div>`;
+  }
+
+  return `<img class="${className}" src="${sku.image}" alt="${sku.name || ''}" onerror="this.outerHTML='<div class=&quot;${className} image-fallback&quot;>이미지 확인 필요</div>'">`;
 }
 
 function bindSkuEvents(container) {
@@ -414,6 +470,29 @@ function updateSkuScores(container) {
   });
 }
 
+function syncSkuDetailWithFilters(container) {
+  const detail = container.querySelector('#sku-detail-panel');
+  if (!detail) return;
+
+  const firstVisibleCard = container.querySelector('.sku-card:not(.hidden)');
+  if (!firstVisibleCard) {
+    detail.innerHTML = `
+      <div class="card product-detail-panel product-detail-empty">
+        <div class="product-detail-media"><div class="image-fallback">제품 없음</div></div>
+        <div class="product-detail-body">
+          <div class="product-detail-eyebrow">필터 결과</div>
+          <h2>조건에 맞는 추천 제품이 없습니다</h2>
+          <p class="product-detail-summary">이 카테고리는 아직 SKU DB에 제품이 부족합니다. 소싱 후보를 추가하면 이 영역에 바로 추천 제품이 표시됩니다.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const sku = (DataStore.skus || []).find(item => item.id === firstVisibleCard.dataset.skuId);
+  if (sku) detail.innerHTML = renderProductDetailPanel(sku);
+}
+
 function applySkuFilters(container) {
   const query = (container.querySelector('#sku-search')?.value || '').toLowerCase().trim();
   const activeCategory = container.querySelector('.category-pill.active')?.dataset.category || '전체';
@@ -441,4 +520,6 @@ function applySkuFilters(container) {
 
     card.classList.toggle('hidden', !visible);
   });
+
+  syncSkuDetailWithFilters(container);
 }

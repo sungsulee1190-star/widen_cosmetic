@@ -1,0 +1,35 @@
+[
+  {
+    "id": "rule-evidence-grade",
+    "name": "근거 등급",
+    "weight": 25,
+    "appliesTo": "trendSignal",
+    "positiveCondition": "A/B 등급 근거는 높은 신뢰도 부여",
+    "negativeCondition": "D 등급 내부 메모는 추천 승격 불가",
+    "maxScore": 100,
+    "stalePenalty": 20,
+    "explanation": "공식몰, 플랫폼 상세페이지, 캡처 근거를 SNS/메모보다 높게 평가한다."
+  },
+  {
+    "id": "rule-freshness",
+    "name": "데이터 신선도",
+    "weight": 20,
+    "appliesTo": "trendSignal",
+    "positiveCondition": "observedAt + freshnessDays가 오늘 이후",
+    "negativeCondition": "신선도 기간이 지난 신호",
+    "maxScore": 100,
+    "stalePenalty": 30,
+    "explanation": "랭킹/가격/오프라인 재고 신호는 시간이 지나면 감점한다."
+  },
+  {
+    "id": "rule-market-fit",
+    "name": "국가 적합도",
+    "weight": 20,
+    "appliesTo": "skuIngredientMarket",
+    "positiveCondition": "성분 DB의 국가 적합도가 4 이상",
+    "negativeCondition": "규제 리스크 또는 낮은 적합도",
+    "maxScore": 100,
+    "stalePenalty": 0,
+    "explanation": "일본/대만 시장별 성분 적합도를 추천 점수에 반영한다."
+  }
+]

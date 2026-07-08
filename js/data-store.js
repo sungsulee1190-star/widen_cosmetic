@@ -13,6 +13,9 @@ const DataStore = {
   copycatShops: [],
   platformChannels: [],
   sourcingRoutes: [],
+  trendSignals: [],
+  trendVerifications: [],
+  trendScoreRules: [],
 
   // ── Load all JSON data ──
   async load() {
@@ -27,6 +30,9 @@ const DataStore = {
       copycatShops: 'data/copycat-shops.json',
       platformChannels: 'data/platform-channels.json',
       sourcingRoutes: 'data/sourcing-routes.json',
+      trendSignals: 'data/trend-signals.json',
+      trendVerifications: 'data/trend-verifications.json',
+      trendScoreRules: 'data/trend-score-rules.json',
     };
 
     const entries = Object.entries(files);
