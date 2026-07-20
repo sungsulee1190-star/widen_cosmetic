@@ -105,14 +105,14 @@ function renderUploadSection(uploads, currentDay) {
       : u.status === 'today'
         ? '<span class="status-badge status-today">오늘</span>'
         : '<span class="status-badge status-upcoming">예정</span>';
-    const thumb = u.thumbnail
-      ? `<img class="timeline-day-thumb" src="${u.thumbnail}" alt="${u.skuName || ''}">`
+    const thumb = u.imageUrl
+      ? `<img class="timeline-day-thumb" src="${u.imageUrl}" alt="${u.name || ''}">`
       : `<div class="timeline-day-thumb"></div>`;
     return `
       <div class="timeline-day ${isActive ? 'active' : ''} ${statusClass}" data-day="${u.day}">
         <div class="timeline-day-label">${dayLabels[u.day] || u.day}</div>
         ${thumb}
-        <div class="timeline-day-name">${(u.skuName || '—').substring(0, 8)}</div>
+        <div class="timeline-day-name">${(u.name || '—').substring(0, 8)}</div>
         ${statusBadge}
       </div>`;
   }).join('');
@@ -133,35 +133,44 @@ function renderUploadSection(uploads, currentDay) {
 function renderUploadDetail(day) {
   if (!day) return '';
   const checks = DataStore.getUploadChecks(day.day);
-  const checklistItems = (day.checklist || [
-    { key: 'photo', label: '상품 사진 촬영 완료' },
-    { key: 'title', label: '제목 키워드 최적화' },
-    { key: 'price', label: '가격 설정 확인' },
-    { key: 'description', label: '상세페이지 등록' },
-    { key: 'coupon', label: '쿠폰/프로모션 설정' }
-  ]);
+  let checklistItems = day.checklist || [];
+  if (checklistItems.length > 0 && typeof checklistItems[0] === 'string') {
+    checklistItems = checklistItems.map((label, idx) => ({ key: 'check-' + idx, label }));
+  }
+  if (checklistItems.length === 0) {
+    checklistItems = [
+      { key: 'photo', label: '상품 사진 촬영 완료' },
+      { key: 'title', label: '제목 키워드 최적화' },
+      { key: 'price', label: '가격 설정 확인' },
+      { key: 'description', label: '상세페이지 등록' },
+      { key: 'coupon', label: '쿠폰/프로모션 설정' }
+    ];
+  }
 
-  const img = day.image
-    ? `<img src="${day.image}" alt="${day.skuName || ''}" style="width:120px;height:120px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--bg-subtle);border:1px solid var(--border-default);">`
+  const img = day.imageUrl
+    ? `<img src="${day.imageUrl}" alt="${day.name || ''}" style="width:120px;height:120px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--bg-subtle);border:1px solid var(--border-default);">`
     : '';
 
   const linksHtml = normalizeLinks(day.links).map(l =>
     `<a href="${l.url}" target="_blank" class="ext-link">🔗 ${l.label}</a>`
   ).join('');
 
+  const formattedDomestic = day.domesticPrice ? '₩' + Number(day.domesticPrice).toLocaleString('ko-KR') : '—';
+  const formattedQoo10 = day.qoo10Price ? '¥' + Number(day.qoo10Price).toLocaleString('ja-JP') : '—';
+
   return `
     <div class="card" style="display:flex;gap:20px;margin-bottom:20px;">
       ${img}
       <div style="flex:1;">
         <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">${day.category || ''}</div>
-        <div style="font-size:16px;font-weight:700;color:var(--text-main);margin-bottom:6px;">${day.skuName || '—'}</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text-main);margin-bottom:6px;">${day.name || '—'}</div>
         <div class="sku-card-prices">
           <span class="sku-card-price-label">국내가</span>
-          <span class="sku-card-price-value">${day.domesticPrice || '—'}</span>
+          <span class="sku-card-price-value">${formattedDomestic}</span>
           <span class="sku-card-price-label">Qoo10가</span>
-          <span class="sku-card-price-value">${day.qoo10Price || '—'}</span>
+          <span class="sku-card-price-value">${formattedQoo10}</span>
         </div>
-        ${day.margin ? `<span class="sku-card-margin" style="background:var(--accent-green-light);color:var(--accent-green);">마진 ${day.margin}</span>` : ''}
+        ${day.estimatedMargin ? `<span class="sku-card-margin" style="background:var(--accent-green-light);color:var(--accent-green);">마진 ${day.estimatedMargin}</span>` : ''}
         ${day.reason ? `<p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">📝 ${day.reason}</p>` : ''}
         <div style="margin-top:8px;">${linksHtml}</div>
       </div>
@@ -401,8 +410,8 @@ function renderSeasonSection() {
   const cards = [];
 
   // Card 1: 지금 뜨는 카테고리
-  if (cal.current) {
-    const itemsHtml = (cal.current.items || []).map(item => `
+  if (cal.currentMonth) {
+    const itemsHtml = (cal.currentMonth.categories || []).map(item => `
       <div class="season-item">
         <span class="season-icon">${item.icon || '📦'}</span>
         <span class="season-name">${item.name || ''}</span>
@@ -412,7 +421,7 @@ function renderSeasonSection() {
     cards.push(`
       <div class="card">
         <div class="card-title">🔥 지금 뜨는 카테고리</div>
-        <div class="card-meta">${cal.current.period || ''}</div>
+        <div class="card-meta">${cal.currentMonth.year || ''}년 ${cal.currentMonth.month || ''}</div>
         ${itemsHtml}
       </div>
     `);
@@ -420,7 +429,7 @@ function renderSeasonSection() {
 
   // Card 2: 준비할 카테고리
   if (cal.upcoming) {
-    const itemsHtml = (cal.upcoming.items || []).map(item => `
+    const itemsHtml = (cal.upcoming.categories || []).map(item => `
       <div class="season-item">
         <span class="season-icon">${item.icon || '📦'}</span>
         <span class="season-name">${item.name || ''}</span>
@@ -439,9 +448,9 @@ function renderSeasonSection() {
 
   // Card 3: 작년 이맘때
   if (cal.lastYear) {
-    const itemsHtml = (cal.lastYear.items || []).map((item, i) => `
+    const itemsHtml = (cal.lastYear.rankings || []).map((item, i) => `
       <div class="season-item">
-        <span class="season-icon" style="font-weight:700;color:var(--text-muted);">${i + 1}</span>
+        <span class="season-icon" style="font-weight:700;color:var(--text-muted);">${item.rank || i + 1}</span>
         <span class="season-name">${item.name || ''}</span>
         ${item.link ? `<a href="${item.link}" target="_blank" class="ext-link">링크</a>` : ''}
       </div>

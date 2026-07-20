@@ -1215,3 +1215,68 @@ body {
 .gap-8 { gap: 8px; }
 .gap-12 { gap: 12px; }
 .hidden { display: none !important; }
+
+/* ============================================================
+   MISSING CLASSES & RESPONSIVE DESIGN (HOTFIX 260720)
+   ============================================================ */
+
+/* Metric Card */
+.metric-card { padding: 16px; background: var(--surface-card); border-radius: 12px; border: 1px solid var(--border-default); display: flex; align-items: center; gap: 16px; }
+.metric-icon { font-size: 24px; padding: 12px; background: var(--bg-subtle); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.metric-value { font-size: 24px; font-weight: 800; color: var(--text-main); line-height: 1.2; }
+.metric-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px; }
+.metric-note { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* Signal Card */
+.signal-card { padding: 16px; background: var(--surface-card); border-radius: 12px; border: 1px solid var(--border-default); }
+.signal-title { font-size: 14px; font-weight: 800; color: var(--accent-primary); margin-bottom: 8px; }
+.signal-source { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+.signal-evidence { font-size: 12px; color: var(--text-secondary); padding-left: 12px; border-left: 2px solid var(--accent-primary-light); margin-bottom: 8px; }
+
+/* Platform Card */
+.platform-card { padding: 16px; background: var(--surface-card); border-radius: 12px; border: 1px solid var(--border-default); }
+.platform-watch { font-size: 12px; color: var(--text-secondary); background: var(--bg-subtle); padding: 8px; border-radius: 8px; margin-top: 12px; }
+
+/* Category Rail & Scale Panel */
+.category-rail { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; scrollbar-width: none; }
+.category-rail::-webkit-scrollbar { display: none; }
+.category-pill { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-default); background: var(--surface-card); color: var(--text-main); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: var(--transition-fast); display: flex; align-items: center; gap: 6px; }
+.category-pill:hover { background: var(--bg-subtle); }
+.category-pill.active { background: var(--text-main); color: var(--surface-base); border-color: var(--text-main); }
+.scale-panel { background: var(--surface-card); border-radius: 12px; border: 1px solid var(--border-default); padding: 16px; margin-bottom: 20px; }
+.scale-grid { display: flex; flex-direction: column; gap: 12px; }
+.scale-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.scale-row span { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.scale-row strong { font-size: 13px; color: var(--text-main); }
+.scale-row em { font-size: 11px; color: var(--text-muted); font-style: normal; }
+.scale-row input[type=range] { flex: 1; max-width: 120px; }
+.scale-row b { width: 32px; text-align: right; font-size: 12px; color: var(--accent-primary); }
+
+/* ============================================================
+   RESPONSIVE DESIGN (MEDIA QUERIES)
+   ============================================================ */
+@media (max-width: 1024px) {
+  .app-container { flex-direction: column; }
+  .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-default); display: flex; overflow-x: auto; padding: 10px; }
+  .sidebar-header { margin-bottom: 0; margin-right: 20px; padding: 0; display: flex; align-items: center; border-bottom: none; min-width: max-content; }
+  .nav-menu { display: flex; gap: 10px; flex-direction: row; margin: 0; }
+  .nav-item { padding: 8px 12px; border-radius: 20px; white-space: nowrap; margin-bottom: 0; }
+  .main-content { padding: 20px; height: auto; }
+  
+  .grid-7 { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .grid-7 { grid-template-columns: repeat(2, 1fr); }
+  .filter-bar { flex-direction: column; }
+  .search-input { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .grid-7 { grid-template-columns: 1fr; }
+  .sku-card-prices { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .visit-form { grid-template-columns: 1fr; }
+}
