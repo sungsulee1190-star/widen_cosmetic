@@ -1,0 +1,6 @@
+.codex-cli/
+.codex-home/
+.npm-cache/
+.omc/
+.superpowers/
+node_modules/

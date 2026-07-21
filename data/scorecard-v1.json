@@ -1,0 +1,99 @@
+{
+  "version": "scorecard-v1",
+  "name": "K-Beauty 상품 평가 기준표 v1",
+  "updatedAt": "2026-07-22",
+  "presets": {
+    "beginner": { "name": "초보자형 (기본)", "description": "공급 안정성·가격 경쟁력·운영 위험을 중시" },
+    "balanced": { "name": "균형형", "description": "수요·콘텐츠·공급의 균형적 반영" },
+    "aggressive": { "name": "공격형", "description": "검색 상승 및 소셜 확산성 집중" },
+    "japan": { "name": "일본 집중형", "description": "Qoo10 Japan / Rakuten 신호 집중" },
+    "taiwan": { "name": "대만 집중형", "description": "Qoo10 Taiwan / momo 신호 집중" }
+  },
+  "criteria": [
+    {
+      "id": "target_demand",
+      "name": "목표 국가 수요 (랭킹/판매)",
+      "weight": 20,
+      "minScore": 0,
+      "maxScore": 5,
+      "zeroRule": "확인 근거 없음",
+      "fiveRule": "목표 국가 주요 플랫폼 랭킹 상위 노출"
+    },
+    {
+      "id": "review_persistence",
+      "name": "리뷰 및 판매 지속성",
+      "weight": 10,
+      "minScore": 0,
+      "maxScore": 5,
+      "zeroRule": "리뷰 및 이력 미흡",
+      "fiveRule": "최근 및 과거 축적 리뷰 유효 및 고평가"
+    },
+    {
+      "id": "search_trend",
+      "name": "검색 수요 (Trends)",
+      "weight": 10,
+      "minScore": 0,
+      "maxScore": 5,
+      "zeroRule": "검색량 감소 또는 정보 없음",
+      "fiveRule": "Google Trends 상승세 또는 12개월 안정"
+    },
+    {
+      "id": "supply_feasibility",
+      "name": "공급 가능성 (국내 조달)",
+      "weight": 10,
+      "minScore": 0,
+      "maxScore": 5,
+      "zeroRule": "공급처 불명확 및 수급 불안정",
+      "fiveRule": "올리브영/다이소/도매처 재고 및 가격 확인 완료"
+    },
+    {
+      "id": "price_competitiveness",
+      "name": "가격 경쟁력 (마진율)",
+      "weight": 10,
+      "minScore": 0,
+      "maxScore": 5,
+      "zeroRule": "배송비/수수료 고려 시 마진 부적합",
+      "fiveRule": "현지 시세 대비 조달가 여유 충분"
+    },
+    {
+      "id": "social_potential",
+      "name": "소셜 확산 가능성",
+      "weight": 10,
+      "minScore": 0,
+      "maxScore": 5,
+      "zeroRule": "시각적 셀링포인트 부족",
+      "fiveRule": "Shorts/TikTok/Reels 소재 풍부"
+    },
+    {
+      "id": "detail_page_difficulty",
+      "name": "상세페이지 제작 난이도",
+      "weight": 10,
+      "minScore": 0,
+      "maxScore": 5,
+      "zeroRule": "번역/설명 복잡 및 소스 부족",
+      "fiveRule": "핵심 USP 명확 및 번역/이미지 제작 용이"
+    },
+    {
+      "id": "repurchase_potential",
+      "name": "재구매/비계절성",
+      "weight": 10,
+      "minScore": 0,
+      "maxScore": 5,
+      "zeroRule": "단발성 이슈 또는 강한 계절성",
+      "fiveRule": "일상적 사용 카테고리 및 높은 재구매율"
+    },
+    {
+      "id": "operational_risk",
+      "name": "운영 위험 (규제/클레임)",
+      "weight": 10,
+      "minScore": 0,
+      "maxScore": 5,
+      "zeroRule": "약기법/성분 규제 위험 또는 무통관 소지",
+      "fiveRule": "규제 검토 완료 및 클레임 가능성 낮음"
+    }
+  ],
+  "decisionThresholds": {
+    "recommended": 80,
+    "hold": 50
+  }
+}

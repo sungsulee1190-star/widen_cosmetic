@@ -30,33 +30,37 @@ function renderCockpitView() {
 
   container.innerHTML = `
     <div class="page-header">
-      <h1 class="page-title">⚡ 이번주 할일</h1>
-      <p class="page-subtitle">대표 관점에서 이번 주 트렌드 신호, 해야 할 일, SKU 기회, 벤치마킹 채널을 한 화면에서 판단합니다.</p>
+      <h1 class="page-title">⚡ 이번주 콕핏 & 의사결정 보드</h1>
+      <p class="page-subtitle">대표 관점에서 주간 후보 교차검증(scorecard-v1), 트렌드 신호, 할 일, 벤치마킹 채널을 한 화면에서 판단합니다.</p>
     </div>
 
     <!-- Section 1: 운영 요약 -->
     ${renderExecutiveSummary()}
 
-    <!-- Section 2: 할 일 체크리스트 -->
+    <!-- Section 2: 주간 상품 의사결정 보드 (scorecard-v1) -->
+    ${renderDecisionBoardSection()}
+
+    <!-- Section 3: 할 일 체크리스트 -->
     ${renderActionsSection()}
 
-    <!-- Section 3: 트렌드 신호 레이더 -->
+    <!-- Section 4: 트렌드 신호 레이더 -->
     ${renderTrendSignalRadar()}
 
-    <!-- Section 4: 이번 주 SKU 트렌드 -->
+    <!-- Section 5: 이번 주 SKU 트렌드 -->
     ${renderTrendsSection()}
 
-    <!-- Section 5: 벤치마킹 채널 -->
+    <!-- Section 6: 벤치마킹 채널 -->
     ${renderPlatformBenchmarkSection()}
 
-    <!-- Section 6: 시즌 캘린더 -->
+    <!-- Section 7: 시즌 캘린더 -->
     ${renderSeasonSection()}
 
-    <!-- Section 7: 데일리 업로드 -->
+    <!-- Section 8: 데일리 업로드 -->
     ${renderUploadSection(uploads, currentDay)}
   `;
 
   // Bind events
+  bindDecisionBoardEvents(container);
   bindUploadEvents(container, uploads);
   bindToggleEvents(container);
   bindActionEvents(container);
@@ -574,3 +578,229 @@ function updateActionBadge() {
   const el = document.getElementById('badge-actions');
   if (el) el.textContent = incompleteActions || '';
 }
+
+// ── Section: 주간 상품 의사결정 보드 (scorecard-v1) ──
+
+function renderDecisionBoardSection() {
+  const candidates = DataStore.getCandidates();
+  const criteria = (DataStore.scorecard && DataStore.scorecard.criteria) ? DataStore.scorecard.criteria : [
+    { id: 'target_demand', name: '목표 국가 수요', weight: 20 },
+    { id: 'review_persistence', name: '리뷰/지속성', weight: 10 },
+    { id: 'search_trend', name: '검색 수요', weight: 10 },
+    { id: 'supply_feasibility', name: '국내 조달', weight: 10 },
+    { id: 'price_competitiveness', name: '가격 경쟁력', weight: 10 },
+    { id: 'social_potential', name: '소셜 가능성', weight: 10 },
+    { id: 'detail_page_difficulty', name: '상세페이지 제작', weight: 10 },
+    { id: 'repurchase_potential', name: '재구매/비계절성', weight: 10 },
+    { id: 'operational_risk', name: '운영 위험', weight: 10 }
+  ];
+
+  const countryFlags = { JP: '🇯🇵 일본', TW: '🇹🇼 대만', KR: '🇰🇷 한국' };
+
+  const candidateCardsHtml = candidates.map(cand => {
+    const scores = cand.scores || {};
+    const totalScore = DataStore.calculateCandidateScore(scores);
+
+    const evidenceCount = (cand.evidence || []).length;
+    const isCrossVerified = evidenceCount >= 2;
+    const evidenceBadge = isCrossVerified
+      ? `<span class="status-badge status-done">✅ 교차검증 완료 (${evidenceCount}개 출처)</span>`
+      : `<span class="status-badge status-hold">⚠️ 출처 근거 부족 (${evidenceCount}개)</span>`;
+
+    const decisionBadgeClass = cand.decision === '추천'
+      ? 'status-done'
+      : cand.decision === '보류'
+        ? 'status-hold'
+        : cand.decision === '탈락'
+          ? 'status-incomplete'
+          : 'status-today';
+
+    const formattedTargetPrice = cand.currency === 'JPY' ? `¥${Number(cand.targetPrice).toLocaleString()}` : `${cand.targetPrice} ${cand.currency}`;
+    const formattedDomesticCost = `₩${Number(cand.domesticCost).toLocaleString()}`;
+
+    const evidenceListHtml = (cand.evidence || []).map(ev => `
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">
+        📌 <strong>[${ev.type}]</strong> ${ev.source}: 
+        ${ev.url ? `<a href="${ev.url}" target="_blank" class="ext-link">${ev.label}</a>` : ev.label}
+      </div>
+    `).join('');
+
+    const scoreInputsHtml = criteria.map(crit => {
+      const val = scores[crit.id] !== undefined ? scores[crit.id] : 3;
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px dashed var(--border-default);">
+          <span style="color:var(--text-main);">${crit.name} <small style="color:var(--text-muted);">(${crit.weight}%)</small></span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <select class="cand-score-select" data-cand-id="${cand.id}" data-crit-id="${crit.id}" style="padding:2px 6px;border-radius:4px;font-size:12px;border:1px solid var(--border-default);background:var(--bg-card);">
+              <option value="0" ${val == 0 ? 'selected' : ''}>0점 (부적합)</option>
+              <option value="1" ${val == 1 ? 'selected' : ''}>1점 (미흡)</option>
+              <option value="2" ${val == 2 ? 'selected' : ''}>2점 (보통 이하)</option>
+              <option value="3" ${val == 3 ? 'selected' : ''}>3점 (보통)</option>
+              <option value="4" ${val == 4 ? 'selected' : ''}>4점 (우수)</option>
+              <option value="5" ${val == 5 ? 'selected' : ''}>5점 (최우수)</option>
+            </select>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="card decision-cand-card mb-20" data-cand-id="${cand.id}" style="border-left: 4px solid ${totalScore >= 80 ? 'var(--accent-green)' : totalScore >= 50 ? '#d97706' : 'var(--accent-red)'};">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span class="status-badge status-today">${countryFlags[cand.country] || cand.country}</span>
+              <span style="font-size:12px;color:var(--text-muted);">${cand.category}</span>
+              ${evidenceBadge}
+            </div>
+            <h3 style="font-size:16px;font-weight:700;color:var(--text-main);margin:0;">${cand.name}</h3>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:22px;font-weight:800;color:${totalScore >= 80 ? 'var(--accent-green)' : totalScore >= 50 ? '#d97706' : 'var(--accent-red)'};">
+              ${totalScore}점 <small style="font-size:12px;font-weight:normal;color:var(--text-muted);">/ 100점</small>
+            </div>
+            <span class="status-badge ${decisionBadgeClass}" id="badge-decision-${cand.id}">${cand.decision || '검증 중'}</span>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:16px;font-size:13px;background:var(--bg-subtle);padding:10px;border-radius:8px;margin-bottom:12px;">
+          <div><strong>조달 원가:</strong> ${formattedDomesticCost}</div>
+          <div><strong>목표 판매가:</strong> ${formattedTargetPrice}</div>
+          <div><strong>수집 주차:</strong> ${cand.week || '최신'} (${cand.collectedAt || ''})</div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text-main);margin-bottom:4px;">🔍 교차검증 근거 (Evidence):</div>
+          ${evidenceListHtml || '<div style="font-size:12px;color:var(--text-muted);">등록된 근거 URL이 없습니다.</div>'}
+        </div>
+
+        <div class="toggle-section" style="margin-bottom:12px;">
+          <div class="toggle-header" data-toggle="toggle-score-${cand.id}">
+            <span class="toggle-arrow">▶</span>
+            <span style="font-weight:600;">📊 9항목 세부 평가표 (scorecard-v1)</span>
+          </div>
+          <div class="toggle-content" id="toggle-score-${cand.id}">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
+              ${scoreInputsHtml}
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg-subtle);padding:12px;border-radius:8px;">
+          <div style="font-size:13px;font-weight:700;margin-bottom:6px;">⚖️ 최종 판단 및 결정 사유</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <button class="btn btn-decision ${cand.decision === '추천' ? 'active' : ''}" data-cand-id="${cand.id}" data-decision="추천" style="background:${cand.decision === '추천' ? '#16a34a' : 'var(--bg-card)'};color:${cand.decision === '추천' ? '#fff' : 'var(--text-main)'};border:1px solid #16a34a;">🟢 추천 (Pass)</button>
+            <button class="btn btn-decision ${cand.decision === '보류' ? 'active' : ''}" data-cand-id="${cand.id}" data-decision="보류" style="background:${cand.decision === '보류' ? '#d97706' : 'var(--bg-card)'};color:${cand.decision === '보류' ? '#fff' : 'var(--text-main)'};border:1px solid #d97706;">🟡 보류 (Hold)</button>
+            <button class="btn btn-decision ${cand.decision === '탈락' ? 'active' : ''}" data-cand-id="${cand.id}" data-decision="탈락" style="background:${cand.decision === '탈락' ? '#dc2626' : 'var(--bg-card)'};color:${cand.decision === '탈락' ? '#fff' : 'var(--text-main)'};border:1px solid #dc2626;">🔴 탈락 (Reject)</button>
+          </div>
+          <input type="text" class="input-cand-reason" data-cand-id="${cand.id}" value="${cand.reason || ''}" placeholder="판단 근거 사유 한 문장 입력 (예: Qoo10 Japan 랭킹 노출 및 원가율 우수)" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid var(--border-default);font-size:13px;background:var(--bg-card);">
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="section-divider">
+      <span class="section-divider-icon">🏆</span>
+      <span class="section-divider-title">주간 상품 의사결정 보드 (scorecard-v1)</span>
+      <span class="section-divider-line"></span>
+    </div>
+    <div style="background:var(--bg-card);padding:16px;border-radius:12px;border:1px solid var(--border-default);margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span style="font-size:13px;color:var(--text-secondary);">
+          기준 버전: <strong>scorecard-v1</strong> (일본 5개, 대만 5개 주간 후보 교차검증)
+        </span>
+        <button class="btn btn-outline" id="btn-add-candidate" style="font-size:12px;">➕ 새 후보 직접 등록</button>
+      </div>
+      <div id="decision-candidate-list">${candidateCardsHtml}</div>
+    </div>
+  `;
+}
+
+function bindDecisionBoardEvents(container) {
+  const candidates = DataStore.getCandidates();
+
+  // Score dropdown change
+  container.querySelectorAll('.cand-score-select').forEach(sel => {
+    sel.addEventListener('change', (e) => {
+      const candId = e.target.dataset.candId;
+      const critId = e.target.dataset.critId;
+      const val = Number(e.target.value);
+
+      const cand = candidates.find(c => c.id === candId);
+      if (cand) {
+        if (!cand.scores) cand.scores = {};
+        cand.scores[critId] = val;
+        DataStore.saveCandidate(cand);
+
+        // Re-render cockpit view to reflect updated total score
+        renderCockpitView();
+      }
+    });
+  });
+
+  // Decision buttons click
+  container.querySelectorAll('.btn-decision').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const candId = e.target.dataset.candId;
+      const decision = e.target.dataset.decision;
+
+      const cand = candidates.find(c => c.id === candId);
+      if (cand) {
+        cand.decision = decision;
+        DataStore.saveCandidate(cand);
+        renderCockpitView();
+      }
+    });
+  });
+
+  // Reason text change
+  container.querySelectorAll('.input-cand-reason').forEach(inp => {
+    inp.addEventListener('change', (e) => {
+      const candId = e.target.dataset.candId;
+      const reason = e.target.value;
+
+      const cand = candidates.find(c => c.id === candId);
+      if (cand) {
+        cand.reason = reason;
+        DataStore.saveCandidate(cand);
+      }
+    });
+  });
+
+  // Add new candidate button
+  const addBtn = container.querySelector('#btn-add-candidate');
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      const name = prompt('수집된 새 상품명을 입력하세요 (예: 조선미녀 인삼 에센스 150ml):');
+      if (!name || !name.trim()) return;
+
+      const country = prompt('목표 국가를 선택하세요 (JP: 일본, TW: 대만):', 'JP') || 'JP';
+      const newCand = {
+        id: 'cand-' + Date.now(),
+        name: name.trim(),
+        country: country.toUpperCase(),
+        category: '신규수집/검증대기',
+        domesticCost: 10000,
+        targetPrice: 2000,
+        currency: country.toUpperCase() === 'TW' ? 'TWD' : 'JPY',
+        collectedAt: new Date().toISOString().split('T')[0],
+        week: '2026-W29',
+        evidence: [
+          { type: '수집 출처', source: '수동 입력', url: '', label: '사용자 직접 수집 등록' }
+        ],
+        scores: {
+          target_demand: 3, review_persistence: 3, search_trend: 3,
+          supply_feasibility: 3, price_competitiveness: 3, social_potential: 3,
+          detail_page_difficulty: 3, repurchase_potential: 3, operational_risk: 3
+        },
+        decision: '검증 중',
+        reason: '새로 등록된 상품 후보. 교차검증 진행 필요'
+      };
+
+      DataStore.saveCandidate(newCand);
+      renderCockpitView();
+    });
+  }
+}
+

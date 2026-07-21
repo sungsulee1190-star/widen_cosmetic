@@ -1256,12 +1256,47 @@ body {
    RESPONSIVE DESIGN (MEDIA QUERIES)
    ============================================================ */
 @media (max-width: 1024px) {
-  .app-container { flex-direction: column; }
-  .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-default); display: flex; overflow-x: auto; padding: 10px; }
-  .sidebar-header { margin-bottom: 0; margin-right: 20px; padding: 0; display: flex; align-items: center; border-bottom: none; min-width: max-content; }
-  .nav-menu { display: flex; gap: 10px; flex-direction: row; margin: 0; }
-  .nav-item { padding: 8px 12px; border-radius: 20px; white-space: nowrap; margin-bottom: 0; }
-  .main-content { padding: 20px; height: auto; }
+  body { flex-direction: column; overflow-y: auto; height: auto; }
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-default);
+    display: flex;
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+  .logo-area { margin-bottom: 0; padding: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; }
+  .sidebar-toggle { display: none; }
+  .sidebar-footer { display: none; }
+  
+  .nav-section-label { display: none !important; }
+  .nav-menu {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    width: 100%;
+  }
+  .nav-menu::-webkit-scrollbar { display: none; }
+  .nav-item {
+    padding: 8px 16px;
+    border-radius: 20px;
+    white-space: nowrap;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+  .main-content {
+    padding: 16px;
+    height: auto;
+    overflow: visible;
+  }
   
   .grid-7 { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
@@ -1270,13 +1305,13 @@ body {
 }
 
 @media (max-width: 768px) {
-  .grid-7 { grid-template-columns: repeat(2, 1fr); }
-  .filter-bar { flex-direction: column; }
+  .grid-7 { grid-template-columns: repeat(4, 1fr); }
+  .filter-bar { flex-direction: column; align-items: stretch !important; gap: 8px; }
   .search-input { width: 100%; }
 }
 
 @media (max-width: 480px) {
-  .grid-7 { grid-template-columns: 1fr; }
+  .grid-7 { grid-template-columns: repeat(2, 1fr); }
   .sku-card-prices { flex-direction: column; align-items: flex-start; gap: 4px; }
   .visit-form { grid-template-columns: 1fr; }
 }
