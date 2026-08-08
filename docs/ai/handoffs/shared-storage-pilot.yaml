@@ -1,8 +1,19 @@
+schema_version: "1.0"
+workflow_version: "1.0"
 task_id: shared-storage-pilot
 state: ANTIGRAVITY_REVIEW_REQUIRED
 goal: Chrome, Edge, mobile에서 같은 사용자 계정의 변경 상태를 공유한다.
+importance: P1
+difficulty: 4
+recommended_models:
+  plan: Claude-high
+  implementation: Antigravity-high
+  first_verification: Antigravity-high
+  second_verification: GPT-high
 branch: codex-trend-intelligence-loop
 checkout: widen_cosmetic-live
+plan_document: docs/ai/plans/2026-08-08-global-workflow.md
+verification_document: docs/ai/verification/shared-storage-pilot-antigravity.md
 supabase_project: Withen_Cosmetic
 scope:
   - Supabase passwordless authentication

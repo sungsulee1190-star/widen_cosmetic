@@ -1,0 +1,22 @@
+schema_version: "1.0"
+task_id: replace-with-task-id
+state: ANTIGRAVITY_REVIEW_REQUIRED
+goal: one-sentence-user-outcome
+branch: codex/replace-with-branch
+base_commit: replace-with-sha
+implementation_commit: replace-with-sha
+changed_files:
+  - path/to/file
+completed_checks:
+  - command-or-browser-check
+known_risks:
+  - UNVERIFIED external dependency or residual risk
+next_action: One executable sentence for the next agent.
+handover_order:
+  - user_interview
+  - claude_plan
+  - antigravity_implementation
+  - antigravity_first_verification
+  - gpt_second_verification
+  - learning_reverse_design
+

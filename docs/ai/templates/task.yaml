@@ -1,0 +1,29 @@
+task_id: replace-with-kebab-case-id
+title: replace-with-user-facing-goal
+importance: P1
+difficulty: 3
+risk: ux
+owner_decision: what-the-user-must-decide
+user_outcome: observable-result-for-the-user
+scope:
+  in:
+    - one
+  out:
+    - unrelated-refactor
+acceptance:
+  - observable-check-one
+  - observable-check-two
+repository:
+  branch: codex/replace-with-branch
+  base: main
+recommended_models:
+  interview: GPT-or-Claude-medium
+  plan: Claude-high
+  implementation: Antigravity-high
+  first_verification: Antigravity-high
+  second_verification: GPT-high
+artifacts:
+  plan: docs/ai/plans/replace-with-plan.md
+  handoff: docs/ai/handoffs/replace-with-handoff.yaml
+  verification: docs/ai/verification/replace-with-verification.md
+

@@ -1,0 +1,37 @@
+project_id: widen_cosmetic
+display_name: WIDEN K-Beauty SKU Dashboard
+workflow_version: "1.0"
+owner: Sungsu Lee
+repository: sungsulee1190-star/widen_cosmetic
+production_branch: main
+pilot_branch: codex-trend-intelligence-loop
+runtime:
+  type: static-javascript
+  entrypoint: index.html
+  local_server: python -m http.server 4173
+commands:
+  test:
+    - node tests/auth-session.test.mjs
+    - node tests/app-storage.test.mjs
+    - node tests/dashboard-static.test.mjs
+    - node tests/scorecard-v1.test.mjs
+  lint: null
+  build: null
+data:
+  remote_provider: Supabase
+  project: Withen_Cosmetic
+  table: app_state
+  access_model: owner-scoped RLS
+  local_fallback: localStorage
+deployment:
+  provider: Vercel
+  production_url: unverified
+  preview_url: required-for-authenticated-browser-check
+workflow_defaults:
+  interview: user-led
+  planning: Claude
+  implementation: Antigravity
+  first_verification: Antigravity
+  second_verification: GPT
+  learning: GPT with user review
+
