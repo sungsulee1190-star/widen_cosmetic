@@ -18,3 +18,11 @@
 - Owner: Sungsu Lee
 - Revisit when: Actual cost, latency, or failure data shows the routing matrix needs tuning.
 
+## 2026-08-08 - Use Orca as the single orchestrator
+
+- Context: Orca and Paseo are both available, but running two workspace managers would duplicate ownership and increase handoff ambiguity.
+- Decision: Use Orca as the primary orchestrator. Keep Paseo optional and inactive for this workflow.
+- Alternatives considered: Run both together; use Paseo as the primary; manage every stage manually.
+- Why: Orca is the chosen worktree, terminal, handoff, artifact, and automation surface. The repository contract remains portable even when Orca CLI is unavailable.
+- Owner: Sungsu Lee
+- Revisit when: Orca CLI is connected and its stage-transition automation has completed one successful end-to-end run.

@@ -2,6 +2,7 @@ schema_version: "1.0"
 workflow_version: "1.0"
 task_id: shared-storage-pilot
 state: ANTIGRAVITY_REVIEW_REQUIRED
+orchestrator: Orca
 goal: Chrome, Edge, mobile에서 같은 사용자 계정의 변경 상태를 공유한다.
 importance: P1
 difficulty: 4

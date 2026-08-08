@@ -31,7 +31,7 @@
 - 설정: [`project.yaml`](project.yaml)
 - 전체 흐름: [`WORKFLOW.md`](WORKFLOW.md)
 - 모델 선택: [`model-routing.md`](model-routing.md)
+- Orca 운영 매뉴얼: [`2026-08-08-orca-중심-글로벌-ai-작업방식-운영매뉴얼.md`](2026-08-08-orca-중심-글로벌-ai-작업방식-운영매뉴얼.md)
 - 현재 파일럿 Handoff: [`handoffs/shared-storage-pilot.yaml`](handoffs/shared-storage-pilot.yaml)
 
 새 저장소에는 이 프로젝트의 `tools/init-ai-workflow.ps1`를 실행해 같은 계약을 설치합니다.
-

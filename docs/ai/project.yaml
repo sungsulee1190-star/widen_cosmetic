@@ -5,6 +5,11 @@ owner: Sungsu Lee
 repository: sungsulee1190-star/widen_cosmetic
 production_branch: main
 pilot_branch: codex-trend-intelligence-loop
+orchestration:
+  primary: Orca
+  secondary: none
+  handoff_signal: docs/ai/handoffs/*.yaml state
+  automatic_transition: unverified-until-orca-cli-is-connected
 runtime:
   type: static-javascript
   entrypoint: index.html
@@ -34,4 +39,3 @@ workflow_defaults:
   first_verification: Antigravity
   second_verification: GPT
   learning: GPT with user review
-
