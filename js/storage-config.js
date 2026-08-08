@@ -1,7 +1,7 @@
-// Fill these with the public Supabase project URL and anon key to enable cross-browser sync.
-// When left blank, the dashboard keeps using local browser fallback storage.
+// These are publishable client values. RLS and Auth protect the data; never put a
+// Supabase service_role or secret key in this file.
 window.WIDEN_STORAGE_CONFIG = {
-  supabaseUrl: '',
-  supabaseAnonKey: '',
+  supabaseUrl: 'https://wjqyxwzlrztnzmphbsxe.supabase.co',
+  supabaseAnonKey: 'sb_publishable_AzdIJdfq-kMwawNf1u2PXQ_TsT77cHM',
   tableName: 'app_state',
 };

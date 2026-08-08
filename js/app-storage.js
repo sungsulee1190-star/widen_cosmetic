@@ -8,6 +8,7 @@
     'widen-upload-checks',
     'widen-favorites',
     'widen-visit-logs',
+    'widen-candidates',
   ];
 
   const DEFAULTS = {
@@ -15,10 +16,13 @@
     'widen-upload-checks': {},
     'widen-favorites': [],
     'widen-visit-logs': [],
+    'widen-candidates': [],
   };
 
   const cache = {};
   let remoteAdapter = null;
+  let status = 'LOCAL_FALLBACK';
+  let lastError = null;
 
   function clone(value) {
     return JSON.parse(JSON.stringify(value));
@@ -46,19 +50,22 @@
   }
 
   function createSupabaseAdapter(config) {
+    const auth = window.WidenAuth;
     const clientFactory = window.supabase && window.supabase.createClient;
-    if (!config?.supabaseUrl || !config?.supabaseAnonKey || !clientFactory) {
+    const ownerId = auth?.getUserId?.();
+    if (!config?.supabaseUrl || !config?.supabaseAnonKey || !clientFactory || !ownerId) {
       return null;
     }
 
     const tableName = config.tableName || 'app_state';
-    const client = clientFactory(config.supabaseUrl, config.supabaseAnonKey);
+    const client = auth?.getClient?.() || clientFactory(config.supabaseUrl, config.supabaseAnonKey);
 
     return {
       async readMany(keys) {
         const { data, error } = await client
           .from(tableName)
           .select('id,value')
+          .eq('owner_id', ownerId)
           .in('id', keys);
 
         if (error) throw error;
@@ -72,6 +79,7 @@
         const { error } = await client
           .from(tableName)
           .upsert({
+            owner_id: ownerId,
             id: key,
             value,
             updated_at: new Date().toISOString(),
@@ -83,15 +91,33 @@
   }
 
   async function load(options = {}) {
+    if (!options.remote && window.WidenAuth?.init) {
+      try {
+        await window.WidenAuth.init();
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    const config = window.WIDEN_STORAGE_CONFIG || {};
+    const hasRemoteConfig = Boolean(config.supabaseUrl && config.supabaseAnonKey);
     remoteAdapter = options.remote || createSupabaseAdapter(window.WIDEN_STORAGE_CONFIG);
     const remoteValues = {};
 
     if (remoteAdapter) {
       try {
         Object.assign(remoteValues, await remoteAdapter.readMany(SHARED_KEYS));
+        status = 'SYNCED';
+        lastError = null;
       } catch (error) {
+        status = 'LOCAL_FALLBACK';
+        lastError = error;
         console.warn('Shared storage remote load failed; using local fallback.', error);
       }
+    } else {
+      status = hasRemoteConfig && !window.WidenAuth?.getUserId?.()
+        ? 'AUTH_REQUIRED'
+        : 'LOCAL_FALLBACK';
     }
 
     SHARED_KEYS.forEach((key) => {
@@ -114,6 +140,8 @@
 
     if (remoteAdapter) {
       remoteAdapter.write(key, cache[key]).catch((error) => {
+        status = 'LOCAL_FALLBACK';
+        lastError = error;
         console.warn(`Shared storage remote write failed for ${key}; kept local fallback.`, error);
       });
     }
@@ -125,4 +153,9 @@
     get,
     set,
   };
+
+  Object.defineProperties(window.AppStorage, {
+    status: { enumerable: true, get: () => status },
+    lastError: { enumerable: true, get: () => lastError },
+  });
 })();

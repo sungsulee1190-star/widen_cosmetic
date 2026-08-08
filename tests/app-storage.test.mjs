@@ -44,21 +44,26 @@ await context.AppStorage.load({
         'widen-upload-checks',
         'widen-favorites',
         'widen-visit-logs',
+        'widen-candidates',
       ]);
       return {
         'widen-action-states': { action_1: '완료' },
         'widen-favorites': ['sku_1'],
+        'widen-candidates': [{ id: 'remote-1', name: 'Remote SKU' }],
       };
     },
     async write() {},
   },
 });
 
+assert.equal(context.AppStorage.status, 'SYNCED', 'remote load exposes synced status');
+
 const dataStore = vm.runInContext('DataStore', context);
 
 assert.equal(dataStore.getActionState('action_1'), '완료', 'remote action state is readable through DataStore');
 assert.equal(dataStore.getActionState('missing'), '미완료', 'missing action state uses default');
 assert.equal(dataStore.isFavorite('sku_1'), true, 'remote favorite state is readable through DataStore');
+assert.equal(dataStore.getCandidates()[0].id, 'remote-1', 'remote candidate state is readable through DataStore');
 
 dataStore.setUploadCheck('mon', 'photo', true);
 assert.equal(JSON.stringify(dataStore.getUploadChecks('mon')), '{"photo":true}', 'upload checks persist through shared storage');

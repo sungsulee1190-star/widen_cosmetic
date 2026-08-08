@@ -1,0 +1,36 @@
+task_id: shared-storage-pilot
+state: ANTIGRAVITY_REVIEW_REQUIRED
+goal: Chrome, Edge, mobile에서 같은 사용자 계정의 변경 상태를 공유한다.
+branch: codex-trend-intelligence-loop
+checkout: widen_cosmetic-live
+supabase_project: Withen_Cosmetic
+scope:
+  - Supabase passwordless authentication
+  - owner-scoped app_state table with RLS
+  - AppStorage remote sync with localStorage fallback
+  - missing menu/static data error visibility
+  - responsive mobile overflow fix
+shared_keys:
+  - widen-action-states
+  - widen-upload-checks
+  - widen-favorites
+  - widen-visit-logs
+  - widen-candidates
+completed_checks:
+  - node tests/auth-session.test.mjs
+  - node tests/app-storage.test.mjs
+  - node tests/dashboard-static.test.mjs
+  - node tests/scorecard-v1.test.mjs
+  - local browser initial load and menu navigation
+  - local mobile width check at 390x844
+risks:
+  - production Vercel URL and Supabase redirect allowlist are not confirmed in this session
+  - same-account Chrome/Edge sync needs a real authenticated browser session
+  - collection-level key writes are last-write-wins under concurrent edits
+next_action: Antigravity 1차 검증 후 현재 대화에 '검증 시작: shared-storage-pilot' 입력
+handover_order:
+  - user_interview
+  - claude_plan
+  - antigravity_implementation
+  - antigravity_first_verification
+  - gpt_second_verification

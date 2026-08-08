@@ -70,6 +70,16 @@
 
   <!-- ========== MAIN CONTENT ========== -->
   <main class="main-content" id="main-content">
+    <div class="sync-bar" id="sync-bar" role="status" aria-live="polite">
+      <span class="sync-state" id="sync-state">로컬 저장 모드</span>
+      <span class="sync-detail" id="sync-detail">브라우저에만 저장됩니다.</span>
+      <form class="auth-form hidden" id="auth-form">
+        <label class="sr-only" for="auth-email">이메일</label>
+        <input id="auth-email" type="email" autocomplete="email" placeholder="이메일" required>
+        <button type="submit">로그인 링크 받기</button>
+      </form>
+      <button class="auth-logout hidden" id="auth-logout" type="button">로그아웃</button>
+    </div>
     <section id="view-cockpit" class="view-section active"></section>
     <section id="view-sku" class="view-section"></section>
     <section id="view-copycat" class="view-section"></section>
@@ -83,6 +93,7 @@
   <!-- ========== SCRIPTS ========== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/storage-config.js"></script>
+  <script src="js/auth-session.js"></script>
   <script src="js/app-storage.js"></script>
   <script src="js/data-store.js"></script>
   <script src="js/trend-engine.js"></script>

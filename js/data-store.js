@@ -17,6 +17,7 @@ const DataStore = {
   trendVerifications: [],
   trendScoreRules: [],
   scorecard: null,
+  loadErrors: [],
 
   async load() {
     const files = {
@@ -37,13 +38,19 @@ const DataStore = {
     };
 
     const entries = Object.entries(files);
-    const results = await Promise.all(
-      entries.map(([, url]) =>
-        fetch(url).then(r => r.json()).catch(() => null)
-      )
-    );
-    entries.forEach(([key], i) => {
-      this[key] = results[i] || (key === 'seasonCalendar' ? {} : []);
+    this.loadErrors = [];
+    const results = await Promise.all(entries.map(async ([key, url]) => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Data request failed: ${response.status}`);
+        return { key, value: await response.json() };
+      } catch (error) {
+        this.loadErrors.push({ key, url, message: error.message });
+        return { key, value: null };
+      }
+    }));
+    results.forEach(({ key, value }) => {
+      this[key] = value || (key === 'seasonCalendar' ? {} : []);
     });
 
     if (window.AppStorage) {
