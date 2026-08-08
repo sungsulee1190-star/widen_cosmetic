@@ -1,0 +1,25 @@
+project_id: replace-with-project-id
+display_name: replace-with-project-name
+workflow_version: "1.0"
+owner: replace-with-owner
+repository: owner/repository
+production_branch: main
+runtime:
+  type: replace-with-runtime
+  entrypoint: replace-with-entrypoint
+commands:
+  test: []
+  lint: null
+  build: null
+deployment:
+  provider: replace-with-provider
+  production_url: unverified
+  preview_url: unverified
+workflow_defaults:
+  interview: user-led
+  planning: Claude
+  implementation: Antigravity
+  first_verification: Antigravity
+  second_verification: GPT
+  learning: GPT with user review
+

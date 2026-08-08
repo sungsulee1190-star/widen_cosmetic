@@ -18,10 +18,10 @@ if (-not (Test-Path -LiteralPath $targetRoot)) {
 
 $copyPlan = @(
     @{ Source = 'templates/ai-workflow/AGENTS.md'; Destination = 'AGENTS.md' },
-    @{ Source = 'docs/ai/README.md'; Destination = 'docs/ai/README.md' },
-    @{ Source = 'docs/ai/WORKFLOW.md'; Destination = 'docs/ai/WORKFLOW.md' },
-    @{ Source = 'docs/ai/model-routing.md'; Destination = 'docs/ai/model-routing.md' },
-    @{ Source = 'docs/ai/project.yaml'; Destination = 'docs/ai/project.yaml.example' },
+    @{ Source = 'templates/ai-workflow/docs/ai/README.md'; Destination = 'docs/ai/README.md' },
+    @{ Source = 'templates/ai-workflow/docs/ai/WORKFLOW.md'; Destination = 'docs/ai/WORKFLOW.md' },
+    @{ Source = 'templates/ai-workflow/docs/ai/model-routing.md'; Destination = 'docs/ai/model-routing.md' },
+    @{ Source = 'templates/ai-workflow/docs/ai/project.yaml'; Destination = 'docs/ai/project.yaml.example' },
     @{ Source = 'docs/ai/templates'; Destination = 'docs/ai/templates' }
 )
 
@@ -56,4 +56,3 @@ if (-not (Test-Path -LiteralPath $projectFile)) {
 }
 
 Write-Output "AI Work OS initialized at $targetRoot"
-
