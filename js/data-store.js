@@ -13,6 +13,7 @@ const DataStore = {
   copycatShops: [],
   platformChannels: [],
   sourcingRoutes: [],
+  observations: [],
 
   // ── Load all JSON data ──
   async load() {
@@ -27,6 +28,7 @@ const DataStore = {
       copycatShops: 'data/copycat-shops.json',
       platformChannels: 'data/platform-channels.json',
       sourcingRoutes: 'data/sourcing-routes.json',
+      observations: 'data/observations.json',
     };
 
     const entries = Object.entries(files);
@@ -37,6 +39,27 @@ const DataStore = {
     );
     entries.forEach(([key], i) => {
       this[key] = results[i];
+    });
+  },
+
+  // ── SKU 레코드 (SkuCatalog.createRecords) ──
+  // 모든 화면은 SKU를 이것으로 조회한다. 방문 기록이 바뀌면 다시 만들어지도록 매번 생성(데이터가 작음).
+  skuRecords() {
+    const visits = this.getVisitLogs().map(log => ({
+      skuId: log.skuId,
+      sku: log.sku,
+      date: log.date,
+      kind: 'offline-visit',
+      source: [log.route, log.store].filter(Boolean).join(' · '),
+      summary: [log.stock, log.price && `현장가 ${log.price}`, log.memo].filter(Boolean).join(' · ')
+    }));
+    return SkuCatalog.createRecords({
+      skus: this.skus,
+      uploads: this.weeklyUploads,
+      trends: this.weeklyTrends,
+      actions: this.actions,
+      ingredients: this.ingredients,
+      observations: [...(this.observations || []), ...visits]
     });
   },
 

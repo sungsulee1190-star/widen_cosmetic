@@ -4,6 +4,7 @@
 // ============================================================
 
 const skuViewState = {
+  records: null,
   products: [],
   weights: { ...SkuCatalog.DEFAULT_WEIGHTS },
   scores: {},
@@ -15,7 +16,8 @@ function renderSkuView() {
   const container = document.getElementById('view-sku');
   if (!container) return;
 
-  skuViewState.products = (DataStore.skus || []).map(SkuCatalog.normalizeSku);
+  skuViewState.records = DataStore.skuRecords();
+  skuViewState.products = skuViewState.records.list();
   skuViewState.selectedId = skuViewState.products[0]?.id || null;
 
   container.innerHTML = `
@@ -57,7 +59,7 @@ function renderCategoryRail() {
 
 function renderProductControls() {
   const esc = SkuCatalog.escapeHtml;
-  const weeks = SkuCatalog.weekOptions(skuViewState.products);
+  const weeks = skuViewState.records.weeks();
   return `
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>
@@ -178,15 +180,28 @@ function renderSkuCards(products) {
 function renderProductDetailPanel(sku) {
   const esc = SkuCatalog.escapeHtml;
   const score = skuViewState.scores[sku.id];
-  const historyHtml = sku.weeklyHistory.length
-    ? sku.weeklyHistory.map(item => `
+  const { records } = skuViewState;
+  const history = records.history(sku.id);
+  const timeline = records.timeline(sku.id);
+  const linked = records.linked(sku.id);
+
+  const windowsHtml = history.windows.map(w => `
+    <div class="history-window">
+      <span>${w.label}</span>
+      <b>${w.count}</b>
+      <em>${w.weeks}주 관찰</em>
+    </div>
+  `).join('');
+  const historyHtml = timeline.length
+    ? timeline.slice(0, 8).map(item => `
         <div class="detail-history-item">
-          <strong>${esc(item.week)}</strong>
-          <span>${esc(item.signal || '')}</span>
-          <p>${esc(item.summary || '')}</p>
+          <strong>${esc(item.date)}</strong>
+          <span>${esc(OBSERVATION_LABELS[item.kind] || item.kind || '기록')}</span>
+          <p>${esc([item.source, item.summary].filter(Boolean).join(' — '))}</p>
         </div>
       `).join('')
-    : '<p class="detail-history-empty">아직 기록된 주차별 추천/관찰 이력이 없습니다. 데이터(weeklyHistory)를 추가하면 여기에 표시됩니다.</p>';
+    : '<p class="detail-history-empty">아직 날짜가 있는 관찰 기록이 없습니다. 오프라인 소싱에서 이 SKU를 골라 방문 기록을 남기면 여기에 쌓입니다.</p>';
+  const linkedHtml = renderLinkedRecords(linked);
   const prosHtml = sku.pros.map(item => `<li>${esc(item)}</li>`).join('');
   const consHtml = sku.cons.map(item => `<li>${esc(item)}</li>`).join('');
   const linksHtml = sku.links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener" class="btn btn-outline">🔗 ${esc(l.label)}</a>`).join('');
@@ -222,10 +237,41 @@ function renderProductDetailPanel(sku) {
           </div>
         </div>
         <div class="detail-history">
-          <h3>주차별 추천/관찰 이력</h3>
+          <h3>기간별 기록 <span class="history-signal">${esc(history.signal)}</span></h3>
+          <div class="history-windows">${windowsHtml}</div>
           ${historyHtml}
         </div>
+        ${linkedHtml}
       </div>
+    </div>
+  `;
+}
+
+const OBSERVATION_LABELS = {
+  'offline-visit': '현장 확인',
+  'weekly-pick': '주간 추천',
+  'trend': '트렌드',
+  'note': '메모'
+};
+
+function renderLinkedRecords(linked) {
+  const esc = SkuCatalog.escapeHtml;
+  const groups = [
+    ['📤 이번 주 업로드', linked.uploads.map(u => `${u.dayLabel || u.day}요일 · ${u.reason || ''}`)],
+    ['🔥 주간 트렌드', linked.trends.map(t => (t.whyTrending || [])[0] || t.name)],
+    ['✅ 할 일', linked.actions.map(a => a.task)],
+    ['🧪 성분', linked.ingredients.map(i => i.name)]
+  ].filter(([, items]) => items.length);
+  if (!groups.length) return '';
+  return `
+    <div class="detail-linked">
+      <h3>연결된 기록</h3>
+      ${groups.map(([title, items]) => `
+        <div class="detail-linked-group">
+          <strong>${title}</strong>
+          <ul>${items.map(item => `<li>${esc(item)}</li>`).join('')}</ul>
+        </div>
+      `).join('')}
     </div>
   `;
 }

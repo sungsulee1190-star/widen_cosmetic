@@ -96,7 +96,12 @@ function renderVisitForm(routes) {
         </div>
         <div class="visit-form-group">
           <label>SKU</label>
-          <input type="text" id="visit-sku" placeholder="확인한 SKU">
+          <select id="visit-sku">
+            <option value="">SKU 선택 (선택하면 제품 기록에 쌓임)</option>
+            ${DataStore.skuRecords().list().map(sku =>
+              `<option value="${SkuCatalog.escapeHtml(sku.id)}">${SkuCatalog.escapeHtml(sku.name)}</option>`
+            ).join('')}
+          </select>
         </div>
         <div class="visit-form-group">
           <label>가격</label>
@@ -128,30 +133,37 @@ function renderVisitForm(routes) {
 
 // ── 최근 방문 기록 ──
 
-function renderVisitLogs() {
+function visitLogsHtml() {
+  const esc = SkuCatalog.escapeHtml;
+  const records = DataStore.skuRecords();
   const logs = DataStore.getVisitLogs();
+  if (logs.length === 0) {
+    return '<p style="color:var(--text-muted);font-size:13px;padding:16px 0;">아직 방문 기록이 없습니다.</p>';
+  }
+  return logs.map(log => {
+    const stockColor = log.stock === '품절' ? 'var(--accent-red)' : log.stock === '소량' ? 'var(--accent-orange)' : 'var(--accent-green)';
+    // skuId가 있으면 레코드 이름, 옛 기록(자유 텍스트)은 이름으로 연결 시도
+    const sku = records.get(log.skuId) || records.resolve(log.sku);
+    const skuLabel = sku ? `📦 ${sku.name}` : (log.sku || '');
+    return `
+      <div class="visit-log-item">
+        <span class="visit-log-date">${esc(log.date || '—')}</span>
+        <span style="font-weight:600;color:var(--text-main);min-width:80px;">${esc(log.route || '')}</span>
+        <span style="min-width:80px;">${esc(log.store || '')}</span>
+        <span style="flex:1;">${esc(skuLabel)}</span>
+        <span style="font-weight:600;color:${stockColor};">${esc(log.stock || '')}</span>
+      </div>`;
+  }).join('');
+}
 
-  const logsHtml = logs.length === 0
-    ? '<p style="color:var(--text-muted);font-size:13px;padding:16px 0;">아직 방문 기록이 없습니다.</p>'
-    : logs.map(log => {
-        const stockColor = log.stock === '품절' ? 'var(--accent-red)' : log.stock === '소량' ? 'var(--accent-orange)' : 'var(--accent-green)';
-        return `
-          <div class="visit-log-item">
-            <span class="visit-log-date">${log.date || '—'}</span>
-            <span style="font-weight:600;color:var(--text-main);min-width:80px;">${log.route || ''}</span>
-            <span style="min-width:80px;">${log.store || ''}</span>
-            <span style="flex:1;">${log.sku || ''}</span>
-            <span style="font-weight:600;color:${stockColor};">${log.stock || ''}</span>
-          </div>`;
-      }).join('');
-
+function renderVisitLogs() {
   return `
     <div class="section-divider">
       <span class="section-divider-icon">📊</span>
       <span class="section-divider-title">최근 방문 기록</span>
       <span class="section-divider-line"></span>
     </div>
-    <div class="card" id="visit-logs-container">${logsHtml}</div>
+    <div class="card" id="visit-logs-container">${visitLogsHtml()}</div>
   `;
 }
 
@@ -169,11 +181,13 @@ function bindSourcingEvents(container, routes) {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
+    const skuSelect = form.querySelector('#visit-sku');
     const log = {
       date: form.querySelector('#visit-date').value,
       route: form.querySelector('#visit-route').value,
       store: form.querySelector('#visit-store').value,
-      sku: form.querySelector('#visit-sku').value,
+      skuId: skuSelect.value,
+      sku: skuSelect.value ? skuSelect.selectedOptions[0].textContent : '',
       price: form.querySelector('#visit-price').value,
       stock: form.querySelector('#visit-stock').value,
       memo: form.querySelector('#visit-memo').value,
@@ -191,19 +205,6 @@ function bindSourcingEvents(container, routes) {
 
     // Re-render visit logs section
     const logsContainer = container.querySelector('#visit-logs-container');
-    if (logsContainer) {
-      const logs = DataStore.getVisitLogs();
-      logsContainer.innerHTML = logs.map(l => {
-        const stockColor = l.stock === '품절' ? 'var(--accent-red)' : l.stock === '소량' ? 'var(--accent-orange)' : 'var(--accent-green)';
-        return `
-          <div class="visit-log-item">
-            <span class="visit-log-date">${l.date || '—'}</span>
-            <span style="font-weight:600;color:var(--text-main);min-width:80px;">${l.route || ''}</span>
-            <span style="min-width:80px;">${l.store || ''}</span>
-            <span style="flex:1;">${l.sku || ''}</span>
-            <span style="font-weight:600;color:${stockColor};">${l.stock || ''}</span>
-          </div>`;
-      }).join('');
-    }
+    if (logsContainer) logsContainer.innerHTML = visitLogsHtml();
   });
 }

@@ -27,6 +27,6 @@ assert.match(skuView, /renderProductDetailPanel/, 'SKU page renders product deta
 assert.match(skuCatalog, /imageUrl/, 'SKU page reads imageUrl data field');
 assert.match(skuCatalog, /qoo10SearchUrl/, 'SKU page links Qoo10 search data field');
 
-assert.match(html, /js\/sku-catalog\.js[\s\S]*js\/view-sku\.js/, 'sku catalog loads before SKU view');
+assert.match(html, /js\/sku-catalog\.js[\s\S]*js\/data-store\.js[\s\S]*js\/view-sku\.js/, 'sku catalog loads before DataStore and views');
 
 console.log('dashboard static checks passed');

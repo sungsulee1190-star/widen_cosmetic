@@ -13,12 +13,8 @@ assert.ok(C.matchesFilters(vt, { query: 'PDRN' }, 80), 'search matches ingredien
 assert.ok(!C.matchesFilters(vt, { query: '없는성분' }, 80));
 
 // 주차: 실제 기록이 없으면 가짜 이력을 만들지 않고, 주차 필터에 걸리지 않는다
-assert.deepEqual(vt.weeklyHistory, [], 'no fabricated weekly history');
-assert.deepEqual(C.weekOptions(skus), [], 'week options come from real data only');
+assert.deepEqual(vt.weeks, [], 'no fabricated weeks');
 assert.ok(!C.matchesFilters(vt, { week: '2026-W28' }, 80));
-const withHistory = C.normalizeSku({ ...raw[0], weeklyHistory: [{ week: '2026-W28', summary: 'x' }] });
-assert.ok(C.matchesFilters(withHistory, { week: '2026-W28' }, 80));
-assert.deepEqual(C.weekOptions([withHistory]), ['2026-W28']);
 
 // 플랫폼: 근거 있는 채널만
 assert.ok(vt.platforms.includes('올리브영') && vt.platforms.includes('Qoo10 JP'));

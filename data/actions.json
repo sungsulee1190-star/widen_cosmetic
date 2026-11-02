@@ -8,7 +8,10 @@
     "links": {
       "qoo10": "https://www.qoo10.jp/s/VT+リドルショット",
       "drive": ""
-    }
+    },
+    "skuIds": [
+      "sku-vt-riddle-shot-100"
+    ]
   },
   {
     "id": "act-002",
@@ -19,7 +22,9 @@
     "links": {
       "qoo10": "",
       "drive": ""
-    }
+    },
+    "scope": "all",
+    "skuIds": []
   },
   {
     "id": "act-003",
@@ -30,7 +35,10 @@
     "links": {
       "qoo10": "https://www.qoo10.jp/s/ビューティーオブジョソン+日焼け止め",
       "drive": ""
-    }
+    },
+    "skuIds": [
+      "sku-beauty-of-joseon-sunscreen"
+    ]
   },
   {
     "id": "act-004",
@@ -41,7 +49,11 @@
     "links": {
       "qoo10": "",
       "drive": ""
-    }
+    },
+    "skuIds": [
+      "sku-vt-riddle-shot-100",
+      "sku-numbuzin-no3-toner"
+    ]
   },
   {
     "id": "act-005",
@@ -52,7 +64,9 @@
     "links": {
       "qoo10": "https://www.qoo10.jp/s/韓国コスメ",
       "drive": ""
-    }
+    },
+    "scope": "all",
+    "skuIds": []
   },
   {
     "id": "act-006",
@@ -63,7 +77,12 @@
     "links": {
       "qoo10": "",
       "drive": ""
-    }
+    },
+    "skuIds": [
+      "sku-vt-riddle-shot-100",
+      "sku-torriden-dive-in-serum",
+      "sku-beauty-of-joseon-sunscreen"
+    ]
   },
   {
     "id": "act-007",
@@ -74,6 +93,8 @@
     "links": {
       "qoo10": "",
       "drive": ""
-    }
+    },
+    "scope": "all",
+    "skuIds": []
   }
 ]

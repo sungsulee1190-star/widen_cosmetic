@@ -29,22 +29,47 @@ function renderWikiView() {
   bindWikiEvents(container);
 }
 
+const COUNTRY_META = {
+  japan: { flag: '🇯🇵', country: '일본' },
+  taiwan: { flag: '🇹🇼', country: '대만' }
+};
+
+function suitabilityEntries(suitability) {
+  if (!suitability) return [];
+  if (Array.isArray(suitability)) {
+    return suitability.map(s => ({ flag: s.flag || '', country: s.country || '', stars: clampStars(s.stars) }));
+  }
+  return Object.entries(suitability).map(([key, stars]) => ({
+    ...(COUNTRY_META[key] || { flag: '', country: key }),
+    stars: clampStars(stars)
+  }));
+}
+
+function clampStars(value) {
+  return Math.max(0, Math.min(5, Math.round(Number(value) || 0)));
+}
+
 function renderIngredientCards(ingredients) {
+  const records = DataStore.skuRecords();
   if (ingredients.length === 0) {
     return '<p class="text-center" style="grid-column:1/-1;color:var(--text-muted);padding:40px;">성분 데이터가 없습니다.</p>';
   }
 
   return ingredients.map(ing => {
-    // Suitability stars
-    const suitabilityHtml = (ing.suitability || []).map(s => {
-      const stars = '★'.repeat(s.stars || 0) + '☆'.repeat(5 - (s.stars || 0));
-      return `<span class="wiki-suitability-item">${s.flag || ''} ${s.country || ''} ${stars}</span>`;
+    // Suitability stars — 데이터는 {japan: 5, taiwan: 4} 형태 (배열 형태도 허용)
+    const suitabilityHtml = suitabilityEntries(ing.suitability).map(s => {
+      const stars = '★'.repeat(s.stars) + '☆'.repeat(5 - s.stars);
+      return `<span class="wiki-suitability-item">${s.flag} ${s.country} ${stars}</span>`;
     }).join('');
 
-    // Representative SKUs
-    const skusHtml = (ing.representativeSkus || []).map(s =>
-      `<span class="tag tag-ingredient">${s}</span>`
-    ).join('');
+    // Representative SKUs — SKU 레코드에 연결된 것은 이름으로, 미등록은 흐리게
+    const linkedIds = new Set(ing.representativeSkuIds || []);
+    const linkedNames = new Set([...linkedIds].map(id => records.get(id)?.name).filter(Boolean));
+    const skusHtml = [
+      ...[...linkedNames].map(name => `<span class="tag tag-ingredient">📦 ${name}</span>`),
+      ...(ing.representativeSkus || []).filter(n => !records.resolve(n)).map(n =>
+        `<span class="tag" style="opacity:.6;" title="SKU 목록에 없는 제품">${n} (미등록)</span>`)
+    ].join('');
 
     // Safe expressions
     const safeHtml = (ing.safeExpressions || []).map(expr =>
@@ -56,8 +81,10 @@ function renderIngredientCards(ingredients) {
       `<span style="display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:var(--accent-red-light);color:var(--accent-red);margin:2px;">${expr}</span>`
     ).join('');
 
-    const qoo10Link = ing.qoo10SearchKeyword
-      ? `<a href="https://www.qoo10.jp/s/${encodeURIComponent(ing.qoo10SearchKeyword)}" target="_blank" class="ext-link mt-8">🔍 Qoo10 검색</a>`
+    const qoo10Url = ing.qoo10SearchUrl
+      || (ing.qoo10SearchKeyword ? `https://www.qoo10.jp/s/${encodeURIComponent(ing.qoo10SearchKeyword)}` : '');
+    const qoo10Link = SkuCatalog.safeUrl(qoo10Url)
+      ? `<a href="${SkuCatalog.escapeHtml(qoo10Url)}" target="_blank" rel="noopener" class="ext-link mt-8">🔍 Qoo10 검색</a>`
       : '';
 
     return `

@@ -2,6 +2,7 @@
   {
     "id": "trend-001",
     "name": "VT 리들샷 100",
+    "skuId": "sku-vt-riddle-shot-100",
     "brand": "VT Cosmetics",
     "category": "세럼/앰플",
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0020/A00000020964711ko.jpg",
@@ -31,6 +32,7 @@
   {
     "id": "trend-002",
     "name": "넘버즈인 3번 결광 에센스 토너",
+    "skuId": "sku-numbuzin-no3-toner",
     "brand": "넘버즈인",
     "category": "토너",
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0020/A00000020178903ko.jpg",
@@ -60,6 +62,7 @@
   {
     "id": "trend-003",
     "name": "조선미녀 맑은쌀 선크림",
+    "skuId": "sku-beauty-of-joseon-sunscreen",
     "brand": "조선미녀",
     "category": "선크림",
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0019/A00000019847601ko.jpg",
