@@ -7,6 +7,7 @@ const cockpit = read('js/view-cockpit.js');
 const html = read('index.html');
 const style = read('css/style.css');
 const skuView = read('js/view-sku.js');
+const skuCatalog = read('js/sku-catalog.js');
 const store = read('js/data-store.js');
 const app = read('js/app.js');
 
@@ -23,7 +24,9 @@ assert.match(style, /\.sidebar\.collapsed \.nav-section-label/, 'collapsed sideb
 assert.match(skuView, /renderCategoryRail/, 'SKU page renders horizontal category rail');
 assert.match(skuView, /renderPopularityScalePanel/, 'SKU page renders adjustable popularity scale panel');
 assert.match(skuView, /renderProductDetailPanel/, 'SKU page renders product detail panel');
-assert.match(skuView, /imageUrl/, 'SKU page reads imageUrl data field');
-assert.match(skuView, /qoo10SearchUrl/, 'SKU page links Qoo10 search data field');
+assert.match(skuCatalog, /imageUrl/, 'SKU page reads imageUrl data field');
+assert.match(skuCatalog, /qoo10SearchUrl/, 'SKU page links Qoo10 search data field');
+
+assert.match(html, /js\/sku-catalog\.js[\s\S]*js\/view-sku\.js/, 'sku catalog loads before SKU view');
 
 console.log('dashboard static checks passed');
