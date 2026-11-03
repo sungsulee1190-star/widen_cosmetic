@@ -202,8 +202,10 @@ function renderLinksView() {
   container.innerHTML = `
     <div class="page-header">
       <h1 class="page-title">🔗 데이터 관리</h1>
-      <p class="page-subtitle">프로젝트 데이터베이스 및 파일 저장소 바로가기</p>
+      <p class="page-subtitle">작업 기록 저장 위치, 프로젝트 데이터베이스 및 파일 저장소 바로가기</p>
     </div>
+
+    ${renderWorkspaceCard()}
 
     <div class="grid-2">
       <!-- Notion Card -->
@@ -263,4 +265,6 @@ function renderLinksView() {
       </p>
     </div>
   `;
+
+  bindWorkspaceCard(container);
 }

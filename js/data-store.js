@@ -40,6 +40,7 @@ const DataStore = {
     entries.forEach(([key], i) => {
       this[key] = results[i];
     });
+    await this.openWorkLog();
   },
 
   // ── SKU 레코드 (SkuCatalog.createRecords) ──
@@ -63,52 +64,73 @@ const DataStore = {
     });
   },
 
-  // ── Action states (LocalStorage) ──
-  getActionState(actionId) {
-    const states = JSON.parse(localStorage.getItem('widen-action-states') || '{}');
-    return states[actionId] || '미완료';
-  },
-  setActionState(actionId, state) {
-    const states = JSON.parse(localStorage.getItem('widen-action-states') || '{}');
-    states[actionId] = state;
-    localStorage.setItem('widen-action-states', JSON.stringify(states));
+  // ── 작업 기록 (WorkLog) ──
+  // 할 일 상태 · 업로드 체크 · 즐겨찾기 · 방문 기록은 모두 work-log.js의 WorkLog를 거친다.
+  // 저장 위치(local/supabase)는 workspaceSettings()가 정한다. 아래 메서드는 화면용 얇은 위임.
+  workLog: null,
+  workLogStatus: { backend: 'local', error: null },
+
+  workspaceSettings() {
+    const base = (typeof window !== 'undefined' && window.WIDEN_WORKSPACE) || { backend: 'local', supabase: {} };
+    let override = {};
+    try { override = JSON.parse(localStorage.getItem('widen-workspace') || '{}'); } catch { override = {}; }
+    return {
+      backend: override.backend || base.backend || 'local',
+      supabase: { ...(base.supabase || {}), ...(override.supabase || {}) },
+      author: override.author || ''
+    };
   },
 
-  // ── Upload checklist (LocalStorage) ──
-  getUploadChecks(day) {
-    const checks = JSON.parse(localStorage.getItem('widen-upload-checks') || '{}');
-    return checks[day] || {};
-  },
-  setUploadCheck(day, key, checked) {
-    const checks = JSON.parse(localStorage.getItem('widen-upload-checks') || '{}');
-    if (!checks[day]) checks[day] = {};
-    checks[day][key] = checked;
-    localStorage.setItem('widen-upload-checks', JSON.stringify(checks));
+  saveWorkspaceSettings(settings) {
+    localStorage.setItem('widen-workspace', JSON.stringify(settings));
   },
 
-  // ── Favorites (LocalStorage) ──
-  getFavorites() {
-    return JSON.parse(localStorage.getItem('widen-favorites') || '[]');
-  },
-  toggleFavorite(skuId) {
-    const favs = this.getFavorites();
-    const idx = favs.indexOf(skuId);
-    if (idx === -1) favs.push(skuId);
-    else favs.splice(idx, 1);
-    localStorage.setItem('widen-favorites', JSON.stringify(favs));
-  },
-  isFavorite(skuId) {
-    return this.getFavorites().includes(skuId);
+  // 저장 실패를 상태로 남기고 사이드바에 알린다
+  watchWorkLog(log) {
+    log.onChange(event => {
+      if (event.type !== 'error') return;
+      this.workLogStatus = { ...this.workLogStatus, error: `저장 실패: ${event.error.message}` };
+      if (typeof updateWorkspaceStatus === 'function') updateWorkspaceStatus();
+    });
+    return log;
   },
 
-  // ── Visit logs (LocalStorage) ──
-  getVisitLogs() {
-    return JSON.parse(localStorage.getItem('widen-visit-logs') || '[]');
+  async openWorkLog() {
+    const settings = this.workspaceSettings();
+    const local = WorkLog.localAdapter(localStorage);
+
+    // 옛 기능별 localStorage 키 → 작업 기록으로 한 번만 옮김
+    if (localStorage.getItem('widen-work-log') === null) {
+      const legacy = WorkLog.legacyEntries(localStorage);
+      localStorage.setItem('widen-work-log', JSON.stringify(legacy));
+    }
+
+    if (settings.backend === 'supabase' && settings.supabase.url && settings.supabase.key) {
+      const log = this.watchWorkLog(WorkLog.create(WorkLog.supabaseAdapter(settings.supabase), { by: settings.author }));
+      try {
+        await log.load();
+        this.workLog = log;
+        this.workLogStatus = { backend: 'supabase', error: null };
+        return;
+      } catch (error) {
+        // 공유 저장소에 못 붙으면 이 브라우저 기록으로 계속 (상태는 화면에 표시)
+        this.workLogStatus = { backend: 'local', error: `공유 저장소 연결 실패 — 이 브라우저에만 저장 중 (${error.message})` };
+      }
+    } else {
+      this.workLogStatus = { backend: 'local', error: null };
+    }
+    const log = this.watchWorkLog(WorkLog.create(local, { by: settings.author }));
+    await log.load();
+    this.workLog = log;
   },
-  addVisitLog(log) {
-    const logs = this.getVisitLogs();
-    log.id = Date.now().toString();
-    logs.unshift(log);
-    localStorage.setItem('widen-visit-logs', JSON.stringify(logs));
-  },
+
+  getActionState(actionId) { return this.workLog.actionState(actionId); },
+  setActionState(actionId, state) { this.workLog.setActionState(actionId, state); },
+  getUploadChecks(day) { return this.workLog.uploadChecks(day); },
+  setUploadCheck(day, key, checked) { this.workLog.setUploadCheck(day, key, checked); },
+  getFavorites() { return this.workLog.favorites(); },
+  toggleFavorite(skuId) { this.workLog.toggleFavorite(skuId); },
+  isFavorite(skuId) { return this.workLog.isFavorite(skuId); },
+  getVisitLogs() { return this.workLog.visits(); },
+  addVisitLog(log) { this.workLog.addVisit(log); },
 };

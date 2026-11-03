@@ -28,5 +28,7 @@ assert.match(skuCatalog, /imageUrl/, 'SKU page reads imageUrl data field');
 assert.match(skuCatalog, /qoo10SearchUrl/, 'SKU page links Qoo10 search data field');
 
 assert.match(html, /js\/sku-catalog\.js[\s\S]*js\/data-store\.js[\s\S]*js\/view-sku\.js/, 'sku catalog loads before DataStore and views');
+assert.match(html, /js\/work-log\.js[\s\S]*js\/workspace-config\.js[\s\S]*js\/data-store\.js/, 'work log and config load before DataStore');
+assert.ok(existsSync('supabase/migrations/001_work_log.sql'), 'shared work_log migration exists');
 
 console.log('dashboard static checks passed');
