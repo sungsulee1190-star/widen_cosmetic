@@ -58,7 +58,9 @@ function updateWorkspaceStatus() {
   const el = document.getElementById('workspace-status');
   if (!el) return;
   const { backend, error } = DataStore.workLogStatus;
-  el.textContent = error ? '⚠️ 공유 저장소 연결 실패' : backend === 'supabase' ? '👥 팀 공유 저장' : '💻 이 브라우저에 저장';
+  el.textContent = error ? (/접속 코드/.test(error) ? '🔑 접속 코드 필요' : '⚠️ 공유 저장소 연결 실패')
+    : backend === 'server' ? '👥 WIDEN 서버에 저장'
+    : backend === 'supabase' ? '👥 Supabase에 저장' : '💻 이 브라우저에 저장';
   el.title = error || '';
 }
 

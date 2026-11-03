@@ -4,6 +4,7 @@
 // 현재 상태 = kind+key별 가장 최근 항목. 저장 방식은 adapter 뒤에 숨긴다:
 //   localAdapter    — 이 브라우저의 localStorage (기본)
 //   memoryAdapter   — 테스트용
+//   serverAdapter   — 팀 공유 (맥미니 등에서 돌리는 server/server.mjs, /api/work-log)
 //   supabaseAdapter — 팀 공유 (Supabase REST, 테이블 work_log)
 // 브라우저에서는 전역 WorkLog, Node 테스트에서는 module.exports.
 // ============================================================
@@ -41,6 +42,27 @@
         const entries = read();
         entries.push(entry);
         storage.setItem(storageKey, JSON.stringify(entries));
+      }
+    };
+  }
+
+  // WIDEN 서버(server/server.mjs). baseUrl ''이면 대시보드를 연 같은 주소.
+  function serverAdapter({ baseUrl = '', token = '', fetchImpl } = {}) {
+    const doFetch = fetchImpl || root.fetch.bind(root);
+    const endpoint = `${String(baseUrl).replace(/\/$/, '')}/api/work-log`;
+    const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+    return {
+      name: 'server',
+      shared: true,
+      async load() {
+        const res = await doFetch(endpoint, { headers, cache: 'no-store' });
+        if (res.status === 401) throw new Error('접속 코드가 틀렸습니다 (401)');
+        if (!res.ok) throw new Error(`서버 기록 불러오기 실패 (${res.status})`);
+        return res.json();
+      },
+      async append(entry) {
+        const res = await doFetch(endpoint, { method: 'POST', headers, body: JSON.stringify(entry) });
+        if (!res.ok) throw new Error(`서버 저장 실패 (${res.status})`);
       }
     };
   }
@@ -171,7 +193,7 @@
     };
   }
 
-  const WorkLog = { KINDS, create, memoryAdapter, localAdapter, supabaseAdapter, legacyEntries };
+  const WorkLog = { KINDS, create, memoryAdapter, localAdapter, serverAdapter, supabaseAdapter, legacyEntries };
   root.WorkLog = WorkLog;
   if (typeof module !== 'undefined' && module.exports) module.exports = WorkLog;
 })(typeof window !== 'undefined' ? window : globalThis);

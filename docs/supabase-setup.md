@@ -1,5 +1,7 @@
 # 팀 공유 저장소(Supabase) 연결
 
+> 기본 팀 공유 경로는 맥미니의 WIDEN 서버다 (`docs/mac-mini-server.md`). Supabase는 맥미니를 쓸 수 없을 때의 대안.
+
 작업 기록(할 일 상태 · 업로드 체크 · 즐겨찾기 · 방문 기록)을 팀이 함께 보려면:
 
 1. Supabase 프로젝트의 SQL Editor에서 `supabase/migrations/001_work_log.sql`을 실행한다.

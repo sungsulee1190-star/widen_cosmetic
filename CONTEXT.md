@@ -11,4 +11,5 @@
 - **인기점수** — 6개 요소(플랫폼 랭킹, 반응, 예상 판매량, 오프라인 신호, 마진, 경쟁 강도)를 사용자가 정한 비중으로 합친 0–100 점수.
 - **할 일 범위** — 할 일(`actions.json`)은 `skuIds`로 대상 SKU를 가리키거나 `scope: "all"`로 전 SKU를 가리킨다.
 - **작업 기록(work log)** — 사람이 대시보드에서 한 일: 할 일 상태, 업로드 체크, 즐겨찾기, 방문 기록. `WorkLog`(js/work-log.js)가 관리하며 모든 변경은 **append-only 항목** `{ id, kind, key, data, at, by }`으로 쌓인다. 현재 상태 = kind+key별 가장 최근 항목. 지우거나 고치지 않으므로 누가 언제 바꿨는지 남는다.
-- **저장 위치(adapter)** — 작업 기록을 어디에 두는가. `local`(이 브라우저 localStorage, 기본) 또는 `supabase`(팀 공유, 테이블 `work_log`). '데이터 관리' 화면에서 바꾼다. 공유 저장소에 연결하지 못하면 이 브라우저에 저장하고 사이드바에 경고를 띄운다.
+- **저장 위치(adapter)** — 작업 기록을 어디에 두는가. `auto`(기본: 대시보드를 연 주소에 WIDEN 서버가 있으면 공유, 없으면 이 브라우저), `server`(WIDEN 서버, 예: 맥미니 — `server/server.mjs`, 파일 `var/work-log.jsonl`), `supabase`, `local`(이 브라우저 localStorage). '데이터 관리' 화면에서 바꾼다. 공유 저장소에 연결하지 못하면 이 브라우저에 저장하고 사이드바에 경고를 띄운다.
+- **WIDEN 서버** — 대시보드 파일을 내보내고 `/api/work-log`로 작업 기록을 받는 의존성 없는 Node 서버. 팀 공유의 기본 경로. 접속 코드(`WIDEN_TOKEN`)를 설정하면 그 코드를 아는 사람만 기록을 읽고 쓴다. 설치: `docs/mac-mini-server.md`.

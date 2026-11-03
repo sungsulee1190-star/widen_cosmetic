@@ -71,11 +71,12 @@ const DataStore = {
   workLogStatus: { backend: 'local', error: null },
 
   workspaceSettings() {
-    const base = (typeof window !== 'undefined' && window.WIDEN_WORKSPACE) || { backend: 'local', supabase: {} };
+    const base = (typeof window !== 'undefined' && window.WIDEN_WORKSPACE) || { backend: 'auto' };
     let override = {};
     try { override = JSON.parse(localStorage.getItem('widen-workspace') || '{}'); } catch { override = {}; }
     return {
-      backend: override.backend || base.backend || 'local',
+      backend: override.backend || base.backend || 'auto',
+      server: { url: '', token: '', ...(base.server || {}), ...(override.server || {}) },
       supabase: { ...(base.supabase || {}), ...(override.supabase || {}) },
       author: override.author || ''
     };
@@ -95,6 +96,18 @@ const DataStore = {
     return log;
   },
 
+  // 이 주소에서 WIDEN 서버가 응답하는지 (python http.server·파일로 열면 false)
+  async probeServer(baseUrl = '') {
+    try {
+      const res = await fetch(`${String(baseUrl).replace(/\/$/, '')}/api/health`, { cache: 'no-store' });
+      if (!res.ok) return false;
+      const body = await res.json();
+      return body && body.ok === true;
+    } catch {
+      return false;
+    }
+  },
+
   async openWorkLog() {
     const settings = this.workspaceSettings();
     const local = WorkLog.localAdapter(localStorage);
@@ -105,16 +118,32 @@ const DataStore = {
       localStorage.setItem('widen-work-log', JSON.stringify(legacy));
     }
 
-    if (settings.backend === 'supabase' && settings.supabase.url && settings.supabase.key) {
-      const log = this.watchWorkLog(WorkLog.create(WorkLog.supabaseAdapter(settings.supabase), { by: settings.author }));
+    // 공유 저장소 후보: 'server'(맥미니 등) · 'supabase' · 'auto'(대시보드를 연 주소에 WIDEN 서버가 있으면 사용)
+    let shared = null;
+    let label = '';
+    if (settings.backend === 'server' || settings.backend === 'auto') {
+      const probe = settings.backend === 'auto' ? await this.probeServer(settings.server.url) : true;
+      if (probe) { shared = WorkLog.serverAdapter({ baseUrl: settings.server.url, token: settings.server.token }); label = 'server'; }
+    } else if (settings.backend === 'supabase' && settings.supabase.url && settings.supabase.key) {
+      shared = WorkLog.supabaseAdapter(settings.supabase); label = 'supabase';
+    }
+
+    if (shared) {
+      const log = this.watchWorkLog(WorkLog.create(shared, { by: settings.author }));
       try {
         await log.load();
         this.workLog = log;
-        this.workLogStatus = { backend: 'supabase', error: null };
+        this.workLogStatus = { backend: label, error: null };
         return;
       } catch (error) {
         // 공유 저장소에 못 붙으면 이 브라우저 기록으로 계속 (상태는 화면에 표시)
-        this.workLogStatus = { backend: 'local', error: `공유 저장소 연결 실패 — 이 브라우저에만 저장 중 (${error.message})` };
+        const needsCode = /401/.test(error.message);
+        this.workLogStatus = {
+          backend: 'local',
+          error: needsCode
+            ? `WIDEN 서버에 접속 코드가 필요합니다 — 아래에 접속 코드를 넣고 '저장하고 다시 연결'을 누르세요. (그 전까지는 이 브라우저에만 저장)`
+            : `공유 저장소 연결 실패 — 이 브라우저에만 저장 중 (${error.message})`
+        };
       }
     } else {
       this.workLogStatus = { backend: 'local', error: null };
