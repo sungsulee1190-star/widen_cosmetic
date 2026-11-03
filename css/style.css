@@ -227,6 +227,7 @@ body {
   margin-top: 8px;
 }
 .sidebar-footer-text {
+  display: block;
   font-size: 11px;
   color: var(--text-muted);
   transition: var(--transition-fast);
@@ -917,6 +918,46 @@ body {
   color: var(--text-secondary);
   line-height: 1.5;
 }
+.detail-history-empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 9px 0;
+  border-top: 1px solid var(--bg-subtle);
+}
+.product-detail-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.product-detail-metrics b {
+  color: var(--text-main);
+  margin-left: 4px;
+}
+.category-pill-count {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
+.category-pill.is-empty {
+  opacity: 0.55;
+  box-shadow: none;
+}
+.sku-result-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 4px 0 10px;
+}
+.scale-warning {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--accent-red);
+}
 
 /* ============================================================
    TREND CARD (Page 1 Section 2)
@@ -1206,3 +1247,121 @@ body {
 .gap-8 { gap: 8px; }
 .gap-12 { gap: 12px; }
 .hidden { display: none !important; }
+.history-signal {
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-primary-light);
+  color: var(--accent-primary);
+}
+.history-windows {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.history-window {
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.history-window b {
+  display: block;
+  font-size: 18px;
+  color: var(--text-main);
+}
+.history-window em {
+  font-style: normal;
+}
+.detail-linked {
+  margin-top: 16px;
+}
+.detail-linked h3 {
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.detail-linked-group {
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.detail-linked-group ul {
+  margin: 4px 0 0 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ── 작업 기록 저장소 (데이터 관리) ── */
+.workspace-badge {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.workspace-badge.is-shared {
+  background: var(--accent-green-light);
+  color: var(--accent-green);
+}
+.workspace-error {
+  font-size: 12px;
+  color: var(--accent-red);
+  background: var(--accent-red-light);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+.workspace-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  margin-bottom: 16px;
+}
+.workspace-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.workspace-form .full { grid-column: 1 / -1; }
+.workspace-form input,
+.workspace-form select {
+  padding: 8px 10px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-main);
+  background: var(--surface-card);
+}
+.workspace-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.workspace-message {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.workspace-entry {
+  display: grid;
+  grid-template-columns: 120px 90px 1fr auto;
+  gap: 10px;
+  font-size: 12px;
+  padding: 6px 0;
+  border-top: 1px solid var(--bg-subtle);
+  color: var(--text-secondary);
+}
+.workspace-entry em { font-style: normal; }
+@media (max-width: 720px) {
+  .workspace-form { grid-template-columns: 1fr; }
+  .workspace-entry { grid-template-columns: 1fr 1fr; }
+}

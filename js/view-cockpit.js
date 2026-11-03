@@ -10,6 +10,33 @@ function normalizeLinks(links) {
     .map(([label, url]) => ({ label, url }));
 }
 
+// 업로드 계획 + SKU 레코드 → 화면용 객체
+function withSku(upload, records) {
+  const sku = records.get(upload.skuId);
+  return {
+    ...upload,
+    sku,
+    skuName: sku ? sku.name : `(연결 안 됨: ${upload.skuId})`,
+    image: sku ? sku.image : '',
+    category: sku ? `${sku.majorCategory} · ${sku.category || ''}` : '',
+    domesticPrice: sku ? sku.domesticPriceText : '—',
+    qoo10Price: sku ? sku.qoo10PriceText : '—',
+    margin: sku ? sku.margin : ''
+  };
+}
+
+// 체크리스트는 문자열 배열 또는 {key,label} 배열 모두 허용
+function checklistItemsFor(day) {
+  const items = day.checklist || [
+    { key: 'photo', label: '상품 사진 촬영 완료' },
+    { key: 'title', label: '제목 키워드 최적화' },
+    { key: 'price', label: '가격 설정 확인' },
+    { key: 'description', label: '상세페이지 등록' },
+    { key: 'coupon', label: '쿠폰/프로모션 설정' }
+  ];
+  return items.map((item, i) => typeof item === 'string' ? { key: `item-${i}`, label: item } : item);
+}
+
 function listContent(content) {
   if (Array.isArray(content)) {
     return `<ul style="margin-left:16px;">${content.map(item => `<li>${item}</li>`).join('')}</ul>`;
@@ -21,8 +48,9 @@ function renderCockpitView() {
   const container = document.getElementById('view-cockpit');
   if (!container) return;
 
-  // Determine current day
-  const uploads = DataStore.weeklyUploads || [];
+  // Determine current day — 업로드는 skuId만 갖고, 제품 정보는 SKU 레코드에서 가져온다
+  const records = DataStore.skuRecords();
+  const uploads = (DataStore.weeklyUploads || []).map(u => withSku(u, records));
   let currentDay = uploads.find(u => u.status === 'today');
   if (!currentDay && uploads.length > 0) {
     currentDay = uploads.find(u => u.day === 'thu') || uploads[0];
@@ -38,7 +66,7 @@ function renderCockpitView() {
     ${renderExecutiveSummary()}
 
     <!-- Section 2: 할 일 체크리스트 -->
-    ${renderActionsSection()}
+    ${renderActionsSection(records)}
 
     <!-- Section 3: 트렌드 신호 레이더 -->
     ${renderTrendSignalRadar()}
@@ -105,8 +133,8 @@ function renderUploadSection(uploads, currentDay) {
       : u.status === 'today'
         ? '<span class="status-badge status-today">오늘</span>'
         : '<span class="status-badge status-upcoming">예정</span>';
-    const thumb = u.thumbnail
-      ? `<img class="timeline-day-thumb" src="${u.thumbnail}" alt="${u.skuName || ''}">`
+    const thumb = u.image
+      ? `<img class="timeline-day-thumb" src="${u.image}" alt="${u.skuName || ''}">`
       : `<div class="timeline-day-thumb"></div>`;
     return `
       <div class="timeline-day ${isActive ? 'active' : ''} ${statusClass}" data-day="${u.day}">
@@ -133,13 +161,7 @@ function renderUploadSection(uploads, currentDay) {
 function renderUploadDetail(day) {
   if (!day) return '';
   const checks = DataStore.getUploadChecks(day.day);
-  const checklistItems = (day.checklist || [
-    { key: 'photo', label: '상품 사진 촬영 완료' },
-    { key: 'title', label: '제목 키워드 최적화' },
-    { key: 'price', label: '가격 설정 확인' },
-    { key: 'description', label: '상세페이지 등록' },
-    { key: 'coupon', label: '쿠폰/프로모션 설정' }
-  ]);
+  const checklistItems = checklistItemsFor(day);
 
   const img = day.image
     ? `<img src="${day.image}" alt="${day.skuName || ''}" style="width:120px;height:120px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--bg-subtle);border:1px solid var(--border-default);">`
@@ -469,7 +491,7 @@ function renderSeasonSection() {
 
 // ── Section 2: 할 일 체크리스트 ──
 
-function renderActionsSection() {
+function renderActionsSection(records) {
   const actions = DataStore.actions || [];
   if (actions.length === 0) return '';
 
@@ -499,7 +521,7 @@ function renderActionsSection() {
             ${optionsHtml}
           </select>
         </div>
-        ${a.targetSku ? `<div style="font-size:13px;margin-bottom:4px;">📦 <strong>${a.targetSku}</strong></div>` : ''}
+        ${actionTargetHtml(a, records)}
         ${a.channel ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">📢 ${a.channel}</div>` : ''}
         ${a.purpose ? `<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">🎯 ${a.purpose}</div>` : ''}
         <div>${linksHtml}</div>
@@ -528,6 +550,17 @@ function renderActionsSection() {
     <div class="filter-tabs" id="action-filter-tabs">${tabsHtml}</div>
     <div id="action-cards">${cardsHtml}</div>
   `;
+}
+
+// 할 일의 대상 SKU: skuIds → 레코드 이름. 연결이 없으면 원래 텍스트.
+function actionTargetHtml(action, records) {
+  const esc = SkuCatalog.escapeHtml;
+  let label = action.targetSku || '';
+  if (action.scope === 'all') label = '전 SKU';
+  else if ((action.skuIds || []).length) {
+    label = action.skuIds.map(id => records.get(id)?.name || id).join(' / ');
+  }
+  return label ? `<div style="font-size:13px;margin-bottom:4px;">📦 <strong>${esc(label)}</strong></div>` : '';
 }
 
 function bindActionEvents(container) {

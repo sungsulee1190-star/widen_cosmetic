@@ -23,6 +23,17 @@ function navigate(viewId) {
   if (navItem) navItem.classList.add('active');
   // Call view renderer
   if (VIEW_RENDERERS[viewId]) VIEW_RENDERERS[viewId]();
+  // 팀 공유 모드: 다른 사람이 남긴 기록을 받아와 바뀐 게 있으면 다시 그린다
+  const log = DataStore.workLog;
+  if (log && log.shared) {
+    const before = log.entries().length;
+    log.load().then(() => {
+      if (log.entries().length !== before && VIEW_RENDERERS[viewId]) {
+        VIEW_RENDERERS[viewId]();
+        updateBadges();
+      }
+    }).catch(() => {});
+  }
   localStorage.setItem('widen-last-view', viewId);
 }
 
@@ -42,6 +53,17 @@ function updateBadges() {
   if (el3) el3.textContent = DataStore.copycatShops.length || '';
 }
 
+// 사이드바 하단: 작업 기록이 어디에 저장되는지
+function updateWorkspaceStatus() {
+  const el = document.getElementById('workspace-status');
+  if (!el) return;
+  const { backend, error } = DataStore.workLogStatus;
+  el.textContent = error ? (/접속 코드/.test(error) ? '🔑 접속 코드 필요' : '⚠️ 공유 저장소 연결 실패')
+    : backend === 'server' ? '👥 WIDEN 서버에 저장'
+    : backend === 'supabase' ? '👥 Supabase에 저장' : '💻 이 브라우저에 저장';
+  el.title = error || '';
+}
+
 async function initApp() {
   await DataStore.load();
   // Sidebar toggle
@@ -55,6 +77,7 @@ async function initApp() {
   });
   // Badges
   updateBadges();
+  updateWorkspaceStatus();
   // Restore last view
   const lastView = localStorage.getItem('widen-last-view') || 'view-cockpit';
   navigate(lastView);
