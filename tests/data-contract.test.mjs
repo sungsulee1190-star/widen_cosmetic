@@ -10,7 +10,7 @@ const json = (p) => JSON.parse(readFileSync(p, 'utf8'));
 // ── 1. utils.js 순수 함수 ──
 const ctx = {};
 vm.createContext(ctx);
-vm.runInContext(readFileSync('js/utils.js', 'utf8') + '\n;Object.assign(globalThis,{esc,safeUrl,stars,parseMarginRange,normalizeLinks,localDateISO,todayDayKey});', ctx);
+vm.runInContext(readFileSync('js/utils.js', 'utf8') + '\n;Object.assign(globalThis,{esc,safeUrl,stars,parseMarginRange,normalizeLinks,localDateISO,todayDayKey,matchesQuery});', ctx);
 
 assert.equal(ctx.esc('<img onerror="x">'), '&lt;img onerror=&quot;x&quot;&gt;', 'esc escapes HTML');
 assert.equal(ctx.safeUrl('javascript:alert(1)'), '', 'safeUrl blocks javascript:');
@@ -26,6 +26,15 @@ assert.deepEqual(
 );
 assert.equal(ctx.localDateISO(new Date(2026, 0, 2, 1, 0)), '2026-01-02', 'local date, not UTC');
 assert.equal(ctx.todayDayKey(new Date(2026, 10, 10)), 'tue');
+
+// 검색 규칙
+const hay = 'VT 리들샷 100 VT Cosmetics 세럼/앰플 스킨케어 트렌드 스피큘 PDRN';
+assert.ok(ctx.matchesQuery(hay, 'pdrn'), 'case-insensitive');
+assert.ok(ctx.matchesQuery(hay, 'ＰＤＲＮ'), 'full-width normalized');
+assert.ok(ctx.matchesQuery(hay, 'VT PDRN'), 'multi-word AND');
+assert.ok(!ctx.matchesQuery(hay, 'VT 레티놀'), 'AND: every word must match');
+assert.ok(ctx.matchesQuery(hay, '리들샷100'), 'space-insensitive');
+assert.ok(ctx.matchesQuery(hay, '  '), 'blank query matches all');
 
 // ── 2. JSON 구조 ──
 const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);

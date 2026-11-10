@@ -30,25 +30,25 @@ function renderSourcingView() {
 // ── 소싱 루트 카드 ──
 
 function renderRouteCards(routes) {
-  if (routes.length === 0) return '';
+  if (routes.length === 0) return `<div class="section-divider"><span class="section-divider-icon">🗺️</span><span class="section-divider-title">소싱 루트</span><span class="section-divider-line"></span></div>` + emptyState('소싱 루트 데이터가 없습니다. data/sourcing-routes.json 을 확인하세요. (방문 기록은 아래에서 계속 추가할 수 있습니다)');
 
   const cardsHtml = routes.map(route => {
     const storesHtml = (route.stores || []).map(store => `
       <div style="padding:6px 0;border-bottom:1px solid var(--bg-subtle);font-size:13px;">
-        <strong>${store.name || ''}</strong>
-        ${store.focus ? `<span style="color:var(--text-muted);font-size:12px;"> — ${store.focus}</span>` : ''}
+        <strong>${esc(store.name || '')}</strong>
+        ${store.focus ? `<span style="color:var(--text-muted);font-size:12px;"> — ${esc(store.focus)}</span>` : ''}
       </div>
     `).join('');
 
     const checksHtml = (route.checkItems || []).map(item =>
-      `<li style="font-size:12px;color:var(--text-secondary);line-height:1.8;">${item}</li>`
+      `<li style="font-size:12px;color:var(--text-secondary);line-height:1.8;">${esc(item)}</li>`
     ).join('');
 
     return `
       <div class="card">
-        <div class="card-title">${route.icon || '📍'} ${route.name || '—'}</div>
-        ${route.purpose ? `<div class="card-meta">🎯 ${route.purpose}</div>` : ''}
-        ${route.frequency ? `<div class="card-meta">📅 방문 주기: ${route.frequency}</div>` : ''}
+        <div class="card-title">${esc(route.icon || '📍')} ${esc(route.name || '—')}</div>
+        ${route.purpose ? `<div class="card-meta">🎯 ${esc(route.purpose)}</div>` : ''}
+        ${route.frequency ? `<div class="card-meta">📅 방문 주기: ${esc(route.frequency)}</div>` : ''}
         <div class="mt-8">${storesHtml}</div>
         ${checksHtml ? `<div class="mt-8"><strong style="font-size:12px;color:var(--text-muted);">체크 항목</strong><ul style="margin:4px 0 0 16px;">${checksHtml}</ul></div>` : ''}
       </div>`;

@@ -6,7 +6,7 @@
 
 function listContent(content) {
   if (Array.isArray(content)) {
-    return `<ul style="margin-left:16px;">${content.map(item => `<li>${item}</li>`).join('')}</ul>`;
+    return `<ul style="margin-left:16px;">${content.map(item => `<li>${esc(item)}</li>`).join('')}</ul>`;
   }
   return content || '정보 없음';
 }
@@ -62,28 +62,45 @@ function renderExecutiveSummary() {
   const trends = DataStore.weeklyTrends || [];
   const channels = DataStore.platformChannels || [];
   const incomplete = DataStore.countOpenActions();
-  const qoo10Targets = channels.filter(c => c.platform && c.platform.includes('Qoo10')).length;
-  const hotSignals = trends.reduce((sum, t) => sum + ((t.whyTrending || []).length || 1), 0);
+  // 요약 숫자의 뜻을 실제 계산과 일치시킴
+  //  - 예전 'Qoo10 우선 채널' 은 플랫폼 이름에 Qoo10 이 들어간 개수(=항상 1)라 의미가 없었음
+  //    → Qoo10 JP 에서 실제로 벤치마킹할 샵 수로 변경
+  //  - 예전 '트렌드 신호 / 국내+해외+성분' 은 실제로는 트렌드 SKU 들의 '왜 뜨는가' 근거 개수 합계였음 → 이름·설명 수정
+  //  - '추적 SKU / 주간/월간 누적' 은 월간 데이터가 없음 → 출처를 그대로 표기
+  const qoo10 = channels.find(c => (c.platform || '').includes('Qoo10'));
+  const qoo10Shops = qoo10 ? (qoo10.channels || []).length : 0;
+  const trendReasons = trends.reduce((sum, t) => sum + (t.whyTrending || []).length, 0);
 
   const metrics = [
     { icon: '✅', label: '남은 액션', value: `${incomplete}건`, note: '미완료 + 진행중' },
-    { icon: '📦', label: '추적 SKU', value: `${skus.length}개`, note: '주간/월간 누적' },
-    { icon: '🔥', label: '트렌드 신호', value: `${hotSignals}개`, note: '국내+해외+성분' },
-    { icon: '🔍', label: 'Qoo10 우선 채널', value: `${qoo10Targets}개`, note: 'Fast copycat' }
+    { icon: '📦', label: '추적 SKU', value: `${skus.length}개`, note: 'sku-list.json 등록 기준' },
+    { icon: '🔥', label: '이번 주 트렌드 SKU', value: `${trends.length}개`, note: `상승 근거 ${trendReasons}건` },
+    { icon: '🔍', label: 'Qoo10 벤치마킹 샵', value: `${qoo10Shops}곳`, note: qoo10 ? `${qoo10.cadence || ''} 확인` : '채널 데이터 없음' }
   ];
 
   return `
     <div class="grid-4">
       ${metrics.map(m => `
         <div class="card metric-card">
-          <div class="metric-icon">${m.icon}</div>
-          <div class="metric-value">${m.value}</div>
-          <div class="metric-label">${m.label}</div>
-          <div class="metric-note">${m.note}</div>
+          <div class="metric-icon">${esc(m.icon)}</div>
+          <div class="metric-value">${esc(m.value)}</div>
+          <div class="metric-label">${esc(m.label)}</div>
+          <div class="metric-note">${esc(m.note)}</div>
         </div>
       `).join('')}
     </div>
   `;
+}
+
+// 섹션 제목줄 (빈 상태에서도 섹션 자리가 사라지지 않도록 공통화)
+function sectionDivider(icon, title, extra = '') {
+  return `
+    <div class="section-divider">
+      <span class="section-divider-icon">${icon}</span>
+      <span class="section-divider-title">${title}</span>
+      ${extra}
+      <span class="section-divider-line"></span>
+    </div>`;
 }
 
 // ── Section 1: 데일리 업로드 ──
@@ -116,7 +133,7 @@ function renderUploadSection(uploads, currentDay) {
       </div>`;
   }).join('');
 
-  const detailHtml = currentDay ? renderUploadDetail(currentDay) : '<p style="color:var(--text-muted);font-size:13px;">업로드 데이터가 없습니다.</p>';
+  const detailHtml = currentDay ? renderUploadDetail(currentDay) : emptyState('이번 주 업로드 계획이 없습니다. data/weekly-uploads.json 을 확인하세요.');
 
   return `
     <div class="section-divider">
@@ -273,12 +290,12 @@ function renderTrendSignalRadar() {
     <div class="grid-4">
       ${signals.map(signal => `
         <div class="card signal-card">
-          <div class="signal-title">${signal.title}</div>
-          <div class="signal-source">${signal.source}</div>
+          <div class="signal-title">${esc(signal.title)}</div>
+          <div class="signal-source">${esc(signal.source)}</div>
           <ul class="signal-evidence">
-            ${signal.evidence.map(item => `<li>${item}</li>`).join('')}
+            ${signal.evidence.map(item => `<li>${esc(item)}</li>`).join('')}
           </ul>
-          <div class="signal-action">다음 액션: ${signal.action}</div>
+          <div class="signal-action">다음 액션: ${esc(signal.action)}</div>
         </div>
       `).join('')}
     </div>
@@ -289,19 +306,19 @@ function renderTrendSignalRadar() {
 
 function renderTrendsSection() {
   const trends = DataStore.weeklyTrends || [];
-  if (trends.length === 0) return '';
+  if (trends.length === 0) return sectionDivider('🔥', '이번 주 트렌드') + emptyState('이번 주 트렌드 데이터가 없습니다. data/weekly-trends.json 을 확인하세요.');
 
   const cardsHtml = trends.map((t, idx) => {
     const tagsHtml = (t.tags || []).map(tag => {
       const cls = tag.includes('트렌드') ? 'tag-trend' : tag.includes('스테디') ? 'tag-steady' : tag.includes('시즌') ? 'tag-season' : 'tag-hot';
-      return `<span class="tag ${cls}">${tag}</span>`;
+      return `<span class="tag ${cls}">${esc(tag)}</span>`;
     }).join('');
 
     const linksHtml = normalizeLinks(t.links).map(l => extLink(l.url, l.label)).join('');
 
-    const imageUrl = t.image || t.imageUrl;
+    const imageUrl = esc(safeUrl(t.image || t.imageUrl));
     const img = imageUrl
-      ? `<img class="trend-card-image" src="${imageUrl}" alt="${t.name || ''}">`
+      ? `<img class="trend-card-image" src="${imageUrl}" alt="${esc(t.name || '')}">`
       : `<div class="trend-card-image"></div>`;
 
     const toggles = [
@@ -312,11 +329,11 @@ function renderTrendsSection() {
 
     const togglesHtml = toggles.map(tgl => `
       <div class="toggle-section">
-        <div class="toggle-header" data-toggle="${tgl.id}">
+        <div class="toggle-header" data-toggle="${esc(tgl.id)}">
           <span class="toggle-arrow">▶</span>
-          <span>${tgl.label}</span>
+          <span>${esc(tgl.label)}</span>
         </div>
-        <div class="toggle-content" id="${tgl.id}">${tgl.content}</div>
+        <div class="toggle-content" id="${esc(tgl.id)}">${tgl.content}</div>
       </div>
     `).join('');
 
@@ -326,8 +343,8 @@ function renderTrendsSection() {
         <div class="trend-card-body">
           <div class="trend-card-header">
             <div>
-              <div class="trend-card-brand">${t.brand || ''}</div>
-              <div class="trend-card-name">${t.name || '—'}</div>
+              <div class="trend-card-brand">${esc(t.brand || '')}</div>
+              <div class="trend-card-name">${esc(t.name || '—')}</div>
             </div>
           </div>
           <div class="trend-card-tags">${tagsHtml}</div>
@@ -351,33 +368,33 @@ function renderTrendsSection() {
 
 function renderPlatformBenchmarkSection() {
   const channels = DataStore.platformChannels || [];
-  if (channels.length === 0) return '';
+  if (channels.length === 0) return sectionDivider('🏢', '플랫폼별 벤치마킹 채널') + emptyState('벤치마킹 채널 데이터가 없습니다. data/platform-channels.json 을 확인하세요.');
 
   const cardsHtml = channels
     .slice()
     .sort((a, b) => (a.priority || 99) - (b.priority || 99))
     .map(channel => {
       const channelTags = (channel.channels || []).slice(0, 5).map(name =>
-        `<span class="tag tag-ingredient">${name}</span>`
+        `<span class="tag tag-ingredient">${esc(name)}</span>`
       ).join('');
       const watchList = (channel.watchPoints || []).slice(0, 5).map(point =>
-        `<li>${point}</li>`
+        `<li>${esc(point)}</li>`
       ).join('');
 
       return `
         <div class="card platform-card">
           <div class="platform-card-head">
             <div>
-              <div class="platform-priority">#${channel.priority || '-'}</div>
-              <div class="platform-name">${channel.platform || '—'}</div>
-              <div class="platform-role">${channel.role || ''}</div>
+              <div class="platform-priority">#${esc(channel.priority || '-')}</div>
+              <div class="platform-name">${esc(channel.platform || '—')}</div>
+              <div class="platform-role">${esc(channel.role || '')}</div>
             </div>
-            <span class="status-badge status-today">${channel.cadence || ''}</span>
+            <span class="status-badge status-today">${esc(channel.cadence || '')}</span>
           </div>
-          <div class="platform-type">${channel.type || ''}</div>
+          <div class="platform-type">${esc(channel.type || '')}</div>
           <div class="mb-8">${channelTags}</div>
           <ul class="platform-watch">${watchList}</ul>
-          <div class="signal-action">다음 액션: ${channel.nextAction || '확인 필요'}</div>
+          <div class="signal-action">다음 액션: ${esc(channel.nextAction || '확인 필요')}</div>
           ${extLink(channel.url, '채널 열기', 'btn btn-outline mt-16')}
         </div>
       `;
@@ -410,7 +427,7 @@ function bindToggleEvents(container) {
 
 function renderSeasonSection() {
   const cal = DataStore.seasonCalendar;
-  if (!cal || typeof cal !== 'object') return '';
+  if (!cal || typeof cal !== 'object') return sectionDivider('📅', '시즌 캘린더') + emptyState('시즌 캘린더 데이터가 없습니다.');
 
   // season-calendar.json 의 실제 키는 currentMonth.categories / upcoming.categories / lastYear.rankings.
   // 예전 코드는 current.items / upcoming.items / lastYear.items 를 읽어서 시즌 캘린더가 거의 비어 있었음 → 둘 다 지원
@@ -486,14 +503,19 @@ function renderSeasonSection() {
     `);
   }
 
-  if (cards.length === 0) return '';
+  if (cards.length === 0) return sectionDivider('📅', '시즌 캘린더') + emptyState('시즌 캘린더 데이터가 없습니다. data/season-calendar.json 을 확인하세요.');
+
+  // 데이터 기준 월이 지금과 다르면 경고 (예: 11월에 열었는데 7월 데이터 → '지금 뜨는 카테고리 = 선크림')
+  const now = new Date();
+  const dataMonth = current && parseInt(String(current.month || '').replace(/\D/g, ''), 10);
+  const dataYear = current && Number(current.year);
+  const stale = dataMonth && (dataMonth !== now.getMonth() + 1 || (dataYear && dataYear !== now.getFullYear()));
+  const staleBadge = stale
+    ? `<span class="stale-badge" title="season-calendar.json 을 이번 달 기준으로 갱신해야 합니다">⚠️ ${esc(dataYear ? `${dataYear}년 ` : '')}${dataMonth}월 데이터 — 현재 ${now.getMonth() + 1}월</span>`
+    : '';
 
   return `
-    <div class="section-divider">
-      <span class="section-divider-icon">📅</span>
-      <span class="section-divider-title">시즌 캘린더</span>
-      <span class="section-divider-line"></span>
-    </div>
+    ${sectionDivider('📅', '시즌 캘린더', staleBadge)}
     <div class="grid-3">${cards.join('')}</div>
   `;
 }
@@ -502,7 +524,7 @@ function renderSeasonSection() {
 
 function renderActionsSection() {
   const actions = DataStore.actions || [];
-  if (actions.length === 0) return '';
+  if (actions.length === 0) return sectionDivider('✅', '할 일 체크리스트') + emptyState('등록된 할 일이 없습니다. data/actions.json 을 확인하세요.');
 
   const statusOptions = ['미완료', '진행중', '완료', '보류'];
   const statusClasses = {
@@ -521,16 +543,16 @@ function renderActionsSection() {
     ).join('');
 
     return `
-      <div class="card action-card mb-16" data-action-id="${a.id}" data-status="${state}">
+      <div class="card action-card mb-16" data-action-id="${esc(a.id)}" data-status="${state}">
         <div class="flex-between mb-8">
-          <div class="card-title" style="margin-bottom:0;">${a.task || '—'}</div>
-          <select class="filter-select action-status-select" data-action-id="${a.id}">
+          <div class="card-title" style="margin-bottom:0;">${esc(a.task || '—')}</div>
+          <select class="filter-select action-status-select" data-action-id="${esc(a.id)}">
             ${optionsHtml}
           </select>
         </div>
-        ${a.targetSku ? `<div style="font-size:13px;margin-bottom:4px;">📦 <strong>${a.targetSku}</strong></div>` : ''}
-        ${a.channel ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">📢 ${a.channel}</div>` : ''}
-        ${a.purpose ? `<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">🎯 ${a.purpose}</div>` : ''}
+        ${a.targetSku ? `<div style="font-size:13px;margin-bottom:4px;">📦 <strong>${esc(a.targetSku)}</strong></div>` : ''}
+        ${a.channel ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">📢 ${esc(a.channel)}</div>` : ''}
+        ${a.purpose ? `<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">🎯 ${esc(a.purpose)}</div>` : ''}
         <div>${linksHtml}</div>
       </div>`;
   }).join('');

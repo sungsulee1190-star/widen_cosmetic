@@ -1249,3 +1249,71 @@ label.checklist-item { cursor: pointer; }
   outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
+
+/* ===== 2026-11-10 2차: 빈 화면 / 검색 / 필터 ===== */
+.empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 28px 16px;
+  border: 1px dashed var(--border-default);
+  background: transparent;
+  box-shadow: none;
+  margin-bottom: 20px;
+}
+.result-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 4px 0 12px;
+  font-size: 12px;
+}
+.result-count { font-weight: 700; color: var(--text-secondary); }
+.result-empty {
+  flex-basis: 100%;
+  margin: 8px 0 0;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-default);
+  border-radius: 12px;
+}
+.pill-count {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.7;
+  margin-left: 2px;
+}
+.category-pill.is-empty { opacity: 0.45; }
+.filter-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.sku-card { cursor: pointer; }
+.sku-card.is-selected { outline: 2px solid var(--accent-primary); outline-offset: -2px; }
+.expr-chip.is-match { outline: 2px solid currentColor; outline-offset: 1px; }
+.stale-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--accent-orange-light, #fff7ed);
+  color: var(--accent-orange, #c2410c);
+  cursor: help;
+}
+.img-broken {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  font-size: 11px;
+  min-height: 60px;
+}

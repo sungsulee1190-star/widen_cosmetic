@@ -167,3 +167,50 @@ const MD_REPORT_TEMPLATE = `# [제품명] Qoo10 JP 경쟁 분석 MD 리포트
 - 따라할 것:
 - 변형할 것:
 - 버릴 것:`;
+
+// ── 검색 ──
+// 검색 규칙 (모든 화면 공통):
+//  1) 대소문자 무시, 전각/반각 통일(NFKC) — 'ＰＤＲＮ', 'pdrn', 'PDRN' 모두 같은 것으로
+//  2) 띄어쓰기로 나눈 단어가 "모두" 들어 있어야 일치 (AND) — 'VT 세럼' = VT 이면서 세럼
+//     (예전엔 입력 전체를 한 덩어리로 찾아서 'VT 세럼' 은 아무것도 안 나왔음)
+//  3) 띄어쓰기 차이 무시 — '리들샷100' 으로 쳐도 '리들샷 100' 이 나옴
+function normalizeSearchText(text) {
+  return String(text || '').normalize('NFKC').toLowerCase();
+}
+
+function matchesQuery(haystack, query) {
+  const text = normalizeSearchText(haystack);
+  const compact = text.replace(/\s+/g, '');
+  const tokens = normalizeSearchText(query).split(/\s+/).filter(Boolean);
+  return tokens.every(t => text.includes(t) || compact.includes(t));
+}
+
+// 화면을 옮겼다 돌아와도 검색어·필터가 유지되도록 (탭을 닫으면 초기화)
+function readSession(key, fallback) {
+  try {
+    const raw = sessionStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function writeSession(key, value) {
+  try { sessionStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* ignore */ }
+}
+
+// 결과 개수 안내 + 0건일 때 빈 화면 대신 안내 문구
+function renderResultCount(el, shown, total, emptyText) {
+  if (!el) return;
+  el.textContent = shown === total ? `전체 ${total}개` : `${total}개 중 ${shown}개 표시`;
+  const empty = el.parentElement && el.parentElement.querySelector('.result-empty');
+  if (empty) {
+    empty.textContent = emptyText;
+    empty.classList.toggle('hidden', shown > 0);
+  }
+}
+
+// 데이터가 비었을 때 섹션을 통째로 숨기지 말고 이유를 보여줌 (예전엔 섹션이 조용히 사라져 빈 화면처럼 보였음)
+function emptyState(message) {
+  return `<div class="card empty-state">${esc(message)}</div>`;
+}

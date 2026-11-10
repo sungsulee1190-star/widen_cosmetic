@@ -51,13 +51,13 @@ function renderCompetitorSection() {
 
   const cardsHtml = competitors.map(c => {
     const obsHtml = c.observations.map(o =>
-      `<li style="font-size:13px;color:var(--text-secondary);line-height:1.8;">${o}</li>`
+      `<li style="font-size:13px;color:var(--text-secondary);line-height:1.8;">${esc(o)}</li>`
     ).join('');
 
     return `
       <div class="card">
-        <div class="card-title">${c.name}</div>
-        <div class="card-meta">📍 ${c.platform}</div>
+        <div class="card-title">${esc(c.name)}</div>
+        <div class="card-meta">📍 ${esc(c.platform)}</div>
         <div class="mt-8">
           <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">주요 관찰 사항</div>
           <ul style="margin-left:16px;">${obsHtml}</ul>
@@ -110,15 +110,15 @@ function renderInfluencerSection() {
 
   const cardsHtml = influencers.map(inf => {
     const skusHtml = inf.mentionedSkus.map(s =>
-      `<span class="tag tag-ingredient">${s}</span>`
+      `<span class="tag tag-ingredient">${esc(s)}</span>`
     ).join('');
 
     return `
       <div class="card">
-        <div class="card-title">${inf.platformIcon} ${inf.name}</div>
-        <div class="card-meta">${inf.platform} · ${inf.contentType}</div>
+        <div class="card-title">${esc(inf.platformIcon)} ${esc(inf.name)}</div>
+        <div class="card-meta">${esc(inf.platform)} · ${esc(inf.contentType)}</div>
         <div class="mt-8">${skusHtml}</div>
-        ${inf.keyExpression ? `<div style="font-size:12px;color:var(--accent-secondary);margin-top:8px;font-style:italic;">💬 ${inf.keyExpression}</div>` : ''}
+        ${inf.keyExpression ? `<div style="font-size:12px;color:var(--accent-secondary);margin-top:8px;font-style:italic;">💬 ${esc(inf.keyExpression)}</div>` : ''}
         ${extLink(inf.link, '프로필 보기', 'btn btn-outline mt-16')}
       </div>`;
   }).join('');

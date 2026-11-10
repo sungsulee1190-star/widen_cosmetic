@@ -30,26 +30,26 @@ function renderCopycatView() {
 // ── Section 1: 벤치마킹 편집샵 ──
 
 function renderCopycatShops(shops) {
-  if (shops.length === 0) return '';
+  if (shops.length === 0) return `<div class="section-divider"><span class="section-divider-icon">🏪</span><span class="section-divider-title">벤치마킹 편집샵</span><span class="section-divider-line"></span></div>` + emptyState('벤치마킹 샵 데이터가 없습니다. data/copycat-shops.json 을 확인하세요.');
 
   const cardsHtml = shops.map((shop, idx) => {
     const aestheticScore = shop.aestheticScore || shop.aesthetic || 0;
     const brands = shop.mainBrands || shop.brands || [];
     const starsHtml = stars(aestheticScore); // 0~5 로 고정 — 6 이상이면 예전 코드는 RangeError 로 화면 전체가 멈춤
-    const brandsHtml = brands.map(b => `<span class="tag tag-ingredient">${b}</span>`).join('');
-    const strengthsHtml = (shop.strengths || []).map(s => `<li style="color:var(--accent-green);"><span style="color:var(--text-secondary);">${s}</span></li>`).join('');
-    const weaknessesHtml = (shop.weaknesses || []).map(w => `<li style="color:var(--accent-red);"><span style="color:var(--text-secondary);">${w}</span></li>`).join('');
+    const brandsHtml = brands.map(b => `<span class="tag tag-ingredient">${esc(b)}</span>`).join('');
+    const strengthsHtml = (shop.strengths || []).map(s => `<li style="color:var(--accent-green);"><span style="color:var(--text-secondary);">${esc(s)}</span></li>`).join('');
+    const weaknessesHtml = (shop.weaknesses || []).map(w => `<li style="color:var(--accent-red);"><span style="color:var(--text-secondary);">${esc(w)}</span></li>`).join('');
 
     return `
       <div class="card">
         <div class="shop-card-rank">#${shop.rank || (idx + 1)}</div>
-        <div class="card-title" style="font-size:16px;">${shop.name || '—'}</div>
-        <div class="shop-card-type">${shop.type || ''}</div>
+        <div class="card-title" style="font-size:16px;">${esc(shop.name || '—')}</div>
+        <div class="shop-card-type">${esc(shop.type || '')}</div>
         <div class="mb-8">${brandsHtml}</div>
-        ${shop.assortment ? `<div class="shop-card-detail">🧭 구성: ${shop.assortment}</div>` : ''}
-        ${shop.marketingFeatures ? `<div class="shop-card-detail">📣 벤치마킹: ${shop.marketingFeatures}</div>` : ''}
+        ${shop.assortment ? `<div class="shop-card-detail">🧭 구성: ${esc(shop.assortment)}</div>` : ''}
+        ${shop.marketingFeatures ? `<div class="shop-card-detail">📣 벤치마킹: ${esc(shop.marketingFeatures)}</div>` : ''}
         <div class="shop-card-stars">디자인 완성도: ${starsHtml}</div>
-        ${shop.targetCustomer ? `<div class="shop-card-detail">🎯 타겟 고객: ${shop.targetCustomer}</div>` : ''}
+        ${shop.targetCustomer ? `<div class="shop-card-detail">🎯 타겟 고객: ${esc(shop.targetCustomer)}</div>` : ''}
         ${strengthsHtml ? `<div class="shop-card-detail"><strong>강점</strong><ul style="margin:4px 0 0 16px;">${strengthsHtml}</ul></div>` : ''}
         ${weaknessesHtml ? `<div class="shop-card-detail"><strong>약점</strong><ul style="margin:4px 0 0 16px;">${weaknessesHtml}</ul></div>` : ''}
         ${extLink(shop.qoo10Url, 'Qoo10 매장 보기', 'btn btn-outline mt-8')}
@@ -114,8 +114,8 @@ function renderMdChecklist() {
 
   const itemsHtml = checkItems.map((item, i) => `
     <div class="checklist-item">
-      <input type="checkbox" id="md-check-${i}">
-      <label for="md-check-${i}">${item}</label>
+      <input type="checkbox" id="md-check-${i}" data-md-check="${esc(item)}">
+      <label for="md-check-${i}">${esc(item)}</label>
     </div>
   `).join('');
 
@@ -128,7 +128,8 @@ function renderMdChecklist() {
     <div class="card">
       ${itemsHtml}
       <div class="mt-16">
-        <button class="btn btn-primary" id="copy-md-template">📄 MD 리포트 템플릿 복사</button>
+        <button class="btn btn-primary" id="copy-md-template">📄 체크 결과 포함해서 MD 리포트 복사</button>
+        <p class="card-meta mt-8">위에서 체크한 항목은 [x], 안 한 항목은 [ ] 로 리포트 맨 아래에 붙습니다.</p>
       </div>
     </div>
   `;
@@ -137,5 +138,10 @@ function renderMdChecklist() {
 // MD 리포트 템플릿은 js/utils.js 의 MD_REPORT_TEMPLATE 하나로 통일
 // (예전엔 이 파일과 view-reference.js 에 똑같은 템플릿이 복붙돼 있어서 한쪽만 고치면 어긋날 위험)
 function bindCopycatEvents(container) {
-  bindCopyButton(container.querySelector('#copy-md-template'), () => MD_REPORT_TEMPLATE);
+  // 예전엔 체크리스트를 체크해도 아무 데도 반영되지 않았음 → 복사할 때 체크 결과를 리포트에 포함
+  bindCopyButton(container.querySelector('#copy-md-template'), () => {
+    const checks = [...container.querySelectorAll('[data-md-check]')]
+      .map(cb => `- [${cb.checked ? 'x' : ' '}] ${cb.dataset.mdCheck}`).join('\n');
+    return `${MD_REPORT_TEMPLATE}\n\n## 판매 페이지 체크리스트\n${checks}`;
+  });
 }

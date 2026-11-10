@@ -81,6 +81,22 @@ function showLoadErrors() {
   main.insertBefore(banner, main.firstChild);
 }
 
+// 이미지가 안 뜨면(올리브영 CDN 차단·주소 변경 등) 깨진 아이콘 대신 회색 자리로 바꿈
+// 이미지는 화면마다 innerHTML 로 새로 그려지므로 document 한 곳에서 capture 로 처리
+document.addEventListener('error', (e) => {
+  const img = e.target;
+  if (!(img instanceof HTMLImageElement) || img.dataset.broken) return;
+  img.dataset.broken = '1';
+  // 같은 클래스(크기·모양)를 유지한 자리표시자로 교체 → 레이아웃이 깨지지 않고 이유가 보임
+  // (2026-11-10 확인: data/*.json 의 올리브영 이미지 주소가 전부 403 으로 막혀 있음)
+  const ph = document.createElement('div');
+  ph.className = `${img.className} img-broken`;
+  ph.setAttribute('style', img.getAttribute('style') || '');
+  ph.textContent = '이미지 없음';
+  ph.title = `이미지를 불러오지 못했습니다: ${img.alt || ''}`;
+  img.replaceWith(ph);
+}, true);
+
 async function initApp() {
   await DataStore.load();
   showLoadErrors();
