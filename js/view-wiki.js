@@ -18,7 +18,7 @@ function renderWikiView() {
 
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>
-      <input type="text" class="search-input" id="wiki-search" placeholder="성분명 검색...">
+      <input type="text" class="search-input" id="wiki-search" placeholder="성분명, 효능, 대표 SKU 검색...">
     </div>
 
     <div class="grid-2" id="wiki-grid">
@@ -29,6 +29,29 @@ function renderWikiView() {
   bindWikiEvents(container);
 }
 
+// ingredients.json 의 suitability 는 { japan: 5, taiwan: 4 } 객체인데
+// 예전 코드는 배열로 가정하고 .map() 을 호출 → TypeError 로 '성분/트렌드' 화면 전체가 렌더되지 않았음.
+// 객체/배열 둘 다 받아서 [{flag, country, stars}] 로 통일.
+const COUNTRY_META = {
+  japan: { flag: '🇯🇵', name: '일본' },
+  taiwan: { flag: '🇹🇼', name: '대만' },
+  korea: { flag: '🇰🇷', name: '한국' },
+  china: { flag: '🇨🇳', name: '중국' },
+  usa: { flag: '🇺🇸', name: '미국' },
+};
+
+function normalizeSuitability(suitability) {
+  if (!suitability) return [];
+  if (Array.isArray(suitability)) {
+    return suitability.map(s => ({ flag: s.flag || '', country: s.country || '', stars: s.stars || 0 }));
+  }
+  return Object.entries(suitability).map(([key, score]) => ({
+    flag: (COUNTRY_META[key] || {}).flag || '',
+    country: (COUNTRY_META[key] || {}).name || key,
+    stars: score,
+  }));
+}
+
 function renderIngredientCards(ingredients) {
   if (ingredients.length === 0) {
     return '<p class="text-center" style="grid-column:1/-1;color:var(--text-muted);padding:40px;">성분 데이터가 없습니다.</p>';
@@ -36,10 +59,9 @@ function renderIngredientCards(ingredients) {
 
   return ingredients.map(ing => {
     // Suitability stars
-    const suitabilityHtml = (ing.suitability || []).map(s => {
-      const stars = '★'.repeat(s.stars || 0) + '☆'.repeat(5 - (s.stars || 0));
-      return `<span class="wiki-suitability-item">${s.flag || ''} ${s.country || ''} ${stars}</span>`;
-    }).join('');
+    const suitabilityHtml = normalizeSuitability(ing.suitability).map(s =>
+      `<span class="wiki-suitability-item">${s.flag} ${esc(s.country)} ${stars(s.stars)}</span>`
+    ).join('');
 
     // Representative SKUs
     const skusHtml = (ing.representativeSkus || []).map(s =>
@@ -56,12 +78,13 @@ function renderIngredientCards(ingredients) {
       `<span style="display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:var(--accent-red-light);color:var(--accent-red);margin:2px;">${expr}</span>`
     ).join('');
 
-    const qoo10Link = ing.qoo10SearchKeyword
-      ? `<a href="https://www.qoo10.jp/s/${encodeURIComponent(ing.qoo10SearchKeyword)}" target="_blank" class="ext-link mt-8">🔍 Qoo10 검색</a>`
-      : '';
+    // JSON 은 qoo10SearchUrl(완성된 URL)을 갖고 있는데 예전 코드는 qoo10SearchKeyword 만 읽어서 링크가 안 나왔음
+    const qoo10Url = ing.qoo10SearchUrl
+      || (ing.qoo10SearchKeyword ? `https://www.qoo10.jp/s/${encodeURIComponent(ing.qoo10SearchKeyword)}` : '');
+    const qoo10Link = extLink(qoo10Url, 'Qoo10 검색', 'ext-link mt-8', '🔍 ');
 
     return `
-      <div class="card wiki-card" data-name="${(ing.name || '').toLowerCase()}" data-fullname="${(ing.fullName || '').toLowerCase()}">
+      <div class="card wiki-card" data-search="${esc([ing.name, ing.fullName, ing.description, ing.whyTrending, ...(ing.representativeSkus || [])].filter(Boolean).join(' ').toLowerCase())}">
         <div class="wiki-card-header">
           <div class="wiki-card-icon">${ing.icon || '🧪'}</div>
           <div>
@@ -92,9 +115,8 @@ function bindWikiEvents(container) {
     searchInput.addEventListener('input', () => {
       const query = searchInput.value.toLowerCase().trim();
       container.querySelectorAll('.wiki-card').forEach(card => {
-        const name = card.dataset.name || '';
-        const fullName = card.dataset.fullname || '';
-        const visible = !query || name.includes(query) || fullName.includes(query);
+        // 성분명뿐 아니라 설명·대표 SKU 로도 검색 (예: '리들샷' → PDRN, 스피큘)
+        const visible = !query || (card.dataset.search || '').includes(query);
         card.classList.toggle('hidden', !visible);
       });
     });
@@ -127,14 +149,17 @@ function renderCountryCards(countries) {
   }
 
   return countries.map(country => {
-    const sectionsHtml = (country.sections || []).map(section => {
+    const sectionsHtml = (country.sections || []).map((section, sIdx) => {
       const isChecklist = section.title && section.title.includes('체크리스트');
 
       if (isChecklist) {
+        // countries.json 엔 code 가 없어서 예전엔 모든 나라 체크박스 id 가 'country--0' 으로 겹쳤음
+        // → 대만 항목 라벨을 누르면 일본 체크박스가 체크되는 버그. id 기반으로 고유하게.
+        const checkId = `country-${country.id || country.code || country.name}-${sIdx}`;
         const itemsHtml = (section.items || []).map((item, i) => `
           <div class="checklist-item">
-            <input type="checkbox" id="country-${country.code || ''}-${i}">
-            <label for="country-${country.code || ''}-${i}">${item}</label>
+            <input type="checkbox" id="${checkId}-${i}">
+            <label for="${checkId}-${i}">${item}</label>
           </div>
         `).join('');
         return `

@@ -62,7 +62,7 @@ function renderCompetitorSection() {
           <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">주요 관찰 사항</div>
           <ul style="margin-left:16px;">${obsHtml}</ul>
         </div>
-        <a href="${c.link}" target="_blank" class="btn btn-outline mt-16">🔗 매장 방문</a>
+        ${extLink(c.link, '매장 방문', 'btn btn-outline mt-16')}
       </div>`;
   }).join('');
 
@@ -70,6 +70,7 @@ function renderCompetitorSection() {
     <div class="section-divider">
       <span class="section-divider-icon">🏢</span>
       <span class="section-divider-title">경쟁사 레퍼런스</span>
+      <span class="sample-badge" title="코드에 하드코딩된 예시입니다. 링크도 Qoo10 메인으로만 연결됩니다.">샘플 데이터</span>
       <span class="section-divider-line"></span>
     </div>
     <div class="grid-3">${cardsHtml}</div>
@@ -118,7 +119,7 @@ function renderInfluencerSection() {
         <div class="card-meta">${inf.platform} · ${inf.contentType}</div>
         <div class="mt-8">${skusHtml}</div>
         ${inf.keyExpression ? `<div style="font-size:12px;color:var(--accent-secondary);margin-top:8px;font-style:italic;">💬 ${inf.keyExpression}</div>` : ''}
-        <a href="${inf.link}" target="_blank" class="btn btn-outline mt-16">🔗 프로필 보기</a>
+        ${extLink(inf.link, '프로필 보기', 'btn btn-outline mt-16')}
       </div>`;
   }).join('');
 
@@ -126,6 +127,7 @@ function renderInfluencerSection() {
     <div class="section-divider">
       <span class="section-divider-icon">🌟</span>
       <span class="section-divider-title">인플루언서 레퍼런스</span>
+      <span class="sample-badge" title="실제 계정이 아닌 예시 핸들입니다. 링크도 각 플랫폼 메인으로만 연결됩니다.">샘플 데이터</span>
       <span class="section-divider-line"></span>
     </div>
     <div class="grid-3">${cardsHtml}</div>
@@ -146,54 +148,15 @@ function renderRefMdTemplate() {
   `;
 }
 
-function getRefMdTemplate() {
-  return `# [제품명] Qoo10 JP 경쟁 분석 MD 리포트
-
-## 기본 정보
-- 분석 날짜:
-- 분석 대상 URL:
-- 셀러명:
-
-## 제목 분석
-- 첫 키워드:
-- 공식/정품 표현:
-- 제목 전체:
-
-## 이미지 분석
-- 대표 이미지 구성:
-- 강조 문구:
-
-## 가격/쿠폰/세트
-- 단품 가격:
-- 세트 구성:
-- 쿠폰:
-
-## 리뷰 분석
-- 리뷰 수:
-- 반복 구매 이유:
-
-## 액션 아이템
-- 따라할 것:
-- 변형할 것:
-- 버릴 것:`;
-}
-
 function bindRefEvents(container) {
-  const copyBtn = container.querySelector('#ref-copy-md-template');
-  if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(getRefMdTemplate()).then(() => {
-        const originalText = copyBtn.textContent;
-        copyBtn.textContent = '✅ 복사 완료!';
-        setTimeout(() => { copyBtn.textContent = originalText; }, 2000);
-      }).catch(() => {
-        alert('클립보드 복사에 실패했습니다. 브라우저 권한을 확인하세요.');
-      });
-    });
-  }
+  bindCopyButton(container.querySelector('#ref-copy-md-template'), () => MD_REPORT_TEMPLATE);
 }
 
 // ── Page 8: Notion / Drive DB ──
+
+// 실제 워크스페이스 주소 — 바뀌면 여기 한 곳만 수정
+const NOTION_URL = 'https://app.notion.com/p/37744d5ca46c817db9f0e04cbf8b7c2c';
+const DRIVE_URL = 'https://drive.google.com/drive/folders/10d_wFsMKYxc8lPJ9AhtU8PF-u15IHp9e';
 
 function renderLinksView() {
   const container = document.getElementById('view-links');
@@ -210,7 +173,7 @@ function renderLinksView() {
       <div class="card">
         <div class="card-title" style="font-size:18px;">📒 Notion 데이터베이스</div>
         <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">모든 운영 데이터의 원본이 관리되는 Notion 워크스페이스</p>
-        <a href="https://app.notion.com/p/37744d5ca46c817db9f0e04cbf8b7c2c" target="_blank" class="btn btn-primary mb-16">🔗 Notion 열기</a>
+        ${extLink(NOTION_URL, 'Notion 열기', 'btn btn-primary mb-16')}
         <div class="mt-16">
           <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">포함된 DB</div>
           <div class="season-item"><span class="season-icon">📦</span><span class="season-name">SKU DB</span></div>
@@ -225,7 +188,7 @@ function renderLinksView() {
       <div class="card">
         <div class="card-title" style="font-size:18px;">📁 Google Drive 저장소</div>
         <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">이미지, 문서, 스크린샷 등 파일 기반 자료 저장소</p>
-        <a href="https://drive.google.com/drive/folders/10d_wFsMKYxc8lPJ9AhtU8PF-u15IHp9e" target="_blank" class="btn btn-primary mb-16">🔗 Drive 열기</a>
+        ${extLink(DRIVE_URL, 'Drive 열기', 'btn btn-primary mb-16')}
         <div class="mt-16">
           <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">폴더 구조</div>
           <div class="season-item"><span class="season-icon">📂</span><span class="season-name">01_SKU</span></div>

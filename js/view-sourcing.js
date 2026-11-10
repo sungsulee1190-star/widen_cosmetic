@@ -68,7 +68,7 @@ function renderRouteCards(routes) {
 
 function renderVisitForm(routes) {
   const routeOptions = routes.map(r =>
-    `<option value="${r.name || ''}">${r.name || ''}</option>`
+    `<option value="${esc(r.name)}">${esc(r.name)}</option>`
   ).join('');
 
   return `
@@ -116,7 +116,7 @@ function renderVisitForm(routes) {
         </div>
         <div class="visit-form-group full-width">
           <label>사진 링크</label>
-          <input type="text" id="visit-photo" placeholder="Google Drive 또는 이미지 URL">
+          <input type="url" id="visit-photo" placeholder="https:// Google Drive 또는 이미지 URL">
         </div>
         <div class="visit-form-group full-width">
           <button type="submit" class="btn btn-primary">📝 기록 추가</button>
@@ -128,30 +128,42 @@ function renderVisitForm(routes) {
 
 // ── 최근 방문 기록 ──
 
+// 방문 기록은 사용자가 직접 입력한 값이라 반드시 esc() 로 이스케이프
+// (예전엔 그대로 innerHTML 에 넣어서 메모에 <img onerror=…> 같은 걸 넣으면 스크립트가 실행됐음)
+// 예전엔 가격·메모·사진 링크를 저장만 하고 화면에 안 보여줬음 → 함께 표시
+function renderVisitLogItems(logs) {
+  if (logs.length === 0) {
+    return '<p style="color:var(--text-muted);font-size:13px;padding:16px 0;">아직 방문 기록이 없습니다.</p>';
+  }
+  return logs.map(log => {
+    const stockColor = log.stock === '품절' ? 'var(--accent-red)' : log.stock === '소량' ? 'var(--accent-orange)' : 'var(--accent-green)';
+    const extras = [
+      log.price ? `💰 ${esc(log.price)}` : '',
+      log.memo ? `📝 ${esc(log.memo)}` : '',
+      extLink(log.photoLink, '사진', 'ext-link', '📷 '),
+    ].filter(Boolean).join(' &nbsp;·&nbsp; ');
+    return `
+      <div class="visit-log-item" style="flex-wrap:wrap;">
+        <span class="visit-log-date">${esc(log.date || '—')}</span>
+        <span style="font-weight:600;color:var(--text-main);min-width:80px;">${esc(log.route)}</span>
+        <span style="min-width:80px;">${esc(log.store)}</span>
+        <span style="flex:1;">${esc(log.sku)}</span>
+        <span style="font-weight:600;color:${stockColor};">${esc(log.stock)}</span>
+        <button type="button" class="btn btn-outline visit-log-delete" data-log-id="${esc(log.id)}" title="이 기록 삭제" style="padding:2px 8px;font-size:11px;">삭제</button>
+        ${extras ? `<div style="flex-basis:100%;font-size:12px;color:var(--text-secondary);margin-top:4px;">${extras}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
 function renderVisitLogs() {
-  const logs = DataStore.getVisitLogs();
-
-  const logsHtml = logs.length === 0
-    ? '<p style="color:var(--text-muted);font-size:13px;padding:16px 0;">아직 방문 기록이 없습니다.</p>'
-    : logs.map(log => {
-        const stockColor = log.stock === '품절' ? 'var(--accent-red)' : log.stock === '소량' ? 'var(--accent-orange)' : 'var(--accent-green)';
-        return `
-          <div class="visit-log-item">
-            <span class="visit-log-date">${log.date || '—'}</span>
-            <span style="font-weight:600;color:var(--text-main);min-width:80px;">${log.route || ''}</span>
-            <span style="min-width:80px;">${log.store || ''}</span>
-            <span style="flex:1;">${log.sku || ''}</span>
-            <span style="font-weight:600;color:${stockColor};">${log.stock || ''}</span>
-          </div>`;
-      }).join('');
-
   return `
     <div class="section-divider">
       <span class="section-divider-icon">📊</span>
       <span class="section-divider-title">최근 방문 기록</span>
       <span class="section-divider-line"></span>
     </div>
-    <div class="card" id="visit-logs-container">${logsHtml}</div>
+    <p class="card-meta" style="margin-bottom:8px;">⚠️ 방문 기록은 이 브라우저(LocalStorage)에만 저장됩니다. 다른 PC·브라우저와 공유되지 않고, 브라우저 데이터를 지우면 사라집니다.</p>
+    <div class="card" id="visit-logs-container">${renderVisitLogItems(DataStore.getVisitLogs())}</div>
   `;
 }
 
@@ -159,51 +171,43 @@ function bindSourcingEvents(container, routes) {
   const form = container.querySelector('#visit-form');
   if (!form) return;
 
-  // Set today as default date
+  // 오늘 날짜 기본값 — toISOString() 은 UTC 라 한국 오전 9시 전엔 어제 날짜가 들어갔음
   const dateInput = form.querySelector('#visit-date');
-  if (dateInput) {
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.value = today;
-  }
+  if (dateInput) dateInput.value = localDateISO();
+
+  const logsContainer = container.querySelector('#visit-logs-container');
+  const refreshLogs = () => {
+    if (logsContainer) logsContainer.innerHTML = renderVisitLogItems(DataStore.getVisitLogs());
+  };
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const log = {
-      date: form.querySelector('#visit-date').value,
-      route: form.querySelector('#visit-route').value,
-      store: form.querySelector('#visit-store').value,
-      sku: form.querySelector('#visit-sku').value,
-      price: form.querySelector('#visit-price').value,
-      stock: form.querySelector('#visit-stock').value,
-      memo: form.querySelector('#visit-memo').value,
-      photoLink: form.querySelector('#visit-photo').value,
-    };
+    const value = (sel) => form.querySelector(sel).value.trim();
+    DataStore.addVisitLog({
+      date: value('#visit-date'),
+      route: value('#visit-route'),
+      store: value('#visit-store'),
+      sku: value('#visit-sku'),
+      price: value('#visit-price'),
+      stock: value('#visit-stock'),
+      memo: value('#visit-memo'),
+      photoLink: value('#visit-photo'),
+    });
 
-    DataStore.addVisitLog(log);
-
-    // Clear form
     form.reset();
-    if (dateInput) {
-      const today = new Date().toISOString().split('T')[0];
-      dateInput.value = today;
-    }
-
-    // Re-render visit logs section
-    const logsContainer = container.querySelector('#visit-logs-container');
-    if (logsContainer) {
-      const logs = DataStore.getVisitLogs();
-      logsContainer.innerHTML = logs.map(l => {
-        const stockColor = l.stock === '품절' ? 'var(--accent-red)' : l.stock === '소량' ? 'var(--accent-orange)' : 'var(--accent-green)';
-        return `
-          <div class="visit-log-item">
-            <span class="visit-log-date">${l.date || '—'}</span>
-            <span style="font-weight:600;color:var(--text-main);min-width:80px;">${l.route || ''}</span>
-            <span style="min-width:80px;">${l.store || ''}</span>
-            <span style="flex:1;">${l.sku || ''}</span>
-            <span style="font-weight:600;color:${stockColor};">${l.stock || ''}</span>
-          </div>`;
-      }).join('');
-    }
+    if (dateInput) dateInput.value = localDateISO();
+    refreshLogs();
   });
+
+  // 삭제 (이벤트 위임 — 목록이 다시 그려져도 동작)
+  if (logsContainer) {
+    logsContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('.visit-log-delete');
+      if (!btn) return;
+      if (!confirm('이 방문 기록을 삭제할까요? 되돌릴 수 없습니다.')) return;
+      DataStore.deleteVisitLog(btn.dataset.logId);
+      refreshLogs();
+    });
+  }
 }

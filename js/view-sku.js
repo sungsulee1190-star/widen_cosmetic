@@ -18,7 +18,12 @@ const SKU_CATEGORIES = [
   { key: '쉐이빙/제모', icon: '🪒' }
 ];
 
-const WEEK_OPTIONS = ['전체', '2026-W27', '2026-W28', '2026-W29'];
+// 주차 옵션은 데이터(weeklyHistory)에서 뽑음 — 하드코딩하면 W30 이후 데이터가 들어와도 필터에 안 보임
+function getWeekOptions(skus) {
+  const weeks = new Set();
+  skus.forEach(sku => normalizeSku(sku).weeklyHistory.forEach(w => w.week && weeks.add(w.week)));
+  return ['전체', ...[...weeks].sort()];
+}
 const DEFAULT_WEIGHTS = {
   ranking: 25,
   reactions: 15,
@@ -42,7 +47,7 @@ function renderSkuView() {
     </div>
 
     ${renderCategoryRail()}
-    ${renderProductControls()}
+    ${renderProductControls(skus)}
     ${renderPopularityScalePanel()}
 
     <div id="sku-detail-panel">
@@ -71,7 +76,7 @@ function renderCategoryRail() {
   `;
 }
 
-function renderProductControls() {
+function renderProductControls(skus) {
   return `
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>
@@ -80,7 +85,7 @@ function renderProductControls() {
 
     <div class="filter-bar" id="sku-filters">
       <select class="filter-select" id="sku-filter-week">
-        ${WEEK_OPTIONS.map(w => `<option value="${w}">주차: ${w}</option>`).join('')}
+        ${getWeekOptions(skus).map(w => `<option value="${esc(w)}">주차: ${esc(w)}</option>`).join('')}
       </select>
       <select class="filter-select" id="sku-filter-platform">
         <option value="전체">플랫폼: 전체</option>
@@ -164,14 +169,24 @@ function toMajorCategory(category) {
   if (['세럼', '세럼/앰플', '토너', '패드', '에센스'].includes(category)) return '스킨케어';
   if (category === '선크림') return '선케어';
   if (category === '클렌징') return '클렌징/필링';
-  if (['립', '베이스', '향수', '아이메이크업', '바디케어', '헤어케어', '디바이스', '헬스/푸드', '쉐이빙/제모'].includes(category)) return category;
-  return category;
+  return category; // 그 외(립, 베이스, 향수 …)는 이미 대분류 이름이므로 그대로
 }
 
 function formatPrice(value, currency) {
   if (value === undefined || value === null || value === '') return '—';
   if (currency === 'JPY') return `¥${Number(value).toLocaleString('ja-JP')}`;
   return `₩${Number(value).toLocaleString('ko-KR')}`;
+}
+
+// 이 SKU 를 실제로 볼 수 있는 플랫폼 목록 — 예전엔 모든 카드에 'Qoo10 JP' 를 무조건 붙이고
+// Shopee 는 절대 안 붙여서, 플랫폼 필터가 의미가 없었음
+function getSkuPlatforms(sku) {
+  const platforms = [];
+  if (sku.domesticSource) platforms.push(sku.domesticSource);
+  if (sku.qoo10SearchUrl || sku.qoo10Price) platforms.push('Qoo10 JP');
+  if (sku.shopeeSearchUrl || sku.shopeePrice) platforms.push('Shopee TW');
+  (sku.platforms || []).forEach(p => platforms.includes(p) || platforms.push(p));
+  return platforms;
 }
 
 function buildSkuLinks(sku) {
@@ -197,7 +212,9 @@ function buildPros(sku) {
   const pros = [];
   if (sku.status === '트렌드') pros.push('최근 트렌드 신호가 강해 테스트 등록 후보로 적합');
   if (sku.status === '스테디') pros.push('반복 노출되는 스테디 후보라 누적 판매 판단에 유리');
-  if ((sku.estimatedMargin || '').includes('10')) pros.push('마진 가능성이 비교적 좋아 단품/세트 테스트 여지 있음');
+  // 예전엔 문자열에 '10' 이 들어있는지로 판단 → "5~10%" 가 장점(마진 좋음)과 단점(마진 얇음)에 동시에 걸렸음
+  const margin = parseMarginRange(sku.estimatedMargin || sku.margin);
+  if (margin >= 10) pros.push('마진 가능성이 비교적 좋아 단품/세트 테스트 여지 있음');
   if ((sku.ingredientTags || []).length) pros.push(`${sku.ingredientTags.join(', ')} 성분/키워드로 상세페이지 카피 확장 가능`);
   return pros.length ? pros : ['제품 사진과 판매 링크가 있어 비교 조사 시작이 쉬움'];
 }
@@ -205,13 +222,15 @@ function buildPros(sku) {
 function buildCons(sku) {
   const cons = [];
   if ((sku.competitorCount || 0) >= 35) cons.push('경쟁 판매자가 많아 가격 경쟁과 상세페이지 차별화가 필요');
-  if ((sku.estimatedMargin || '').startsWith('5')) cons.push('마진 폭이 얇아 세트 구성이나 쿠폰 전략 검토 필요');
+  const margin = parseMarginRange(sku.estimatedMargin || sku.margin);
+  if (margin > 0 && margin < 10) cons.push('마진 폭이 얇아 세트 구성이나 쿠폰 전략 검토 필요');
   if (!sku.notionLink) cons.push('Notion 상세 DB 연결이 아직 없어 누적 기록 보강 필요');
   return cons.length ? cons : ['규제 표현과 해외 리뷰 반응은 추가 확인 필요'];
 }
 
 function calculatePopularityScore(sku, weights) {
-  const marginNum = parseFloat(sku.margin) || 0;
+  // "5~10%" 를 parseFloat 하면 5 만 읽힘 → 범위 평균(7.5)으로
+  const marginNum = parseMarginRange(sku.margin);
   const competitorCount = Number(sku.competitorCount || 0);
   const rankingScore = sku.status === '트렌드' ? 92 : sku.status === '스테디' ? 78 : 66;
   const reactionScore = Math.min(95, 55 + (sku.ingredients.length * 8) + (sku.status === '트렌드' ? 18 : 8));
@@ -251,21 +270,18 @@ function renderSkuCards(skus) {
       : sku.status === '스테디' ? 'tag-steady'
       : sku.status === '시즌성' ? 'tag-season' : 'tag-hot';
     const tagsHtml = sku.ingredients.map(ing => `<span class="tag tag-ingredient">${ing}</span>`).join('');
-    const linksHtml = sku.links.slice(0, 3).map(l =>
-      `<a href="${l.url}" target="_blank" class="ext-link" onclick="event.stopPropagation();">🔗 ${l.label}</a>`
-    ).join('');
+    const linksHtml = sku.links.slice(0, 3).map(l => extLink(l.url, l.label)).join('');
     const img = sku.image
-      ? `<img class="sku-card-image" src="${sku.image}" alt="${sku.name || ''}">`
+      ? `<img class="sku-card-image" src="${esc(sku.image)}" alt="${esc(sku.name)}" loading="lazy">`
       : `<div class="sku-card-image"></div>`;
 
     return `
       <div class="card sku-card"
            data-sku-id="${sku.id}"
-           data-name="${(sku.name || '').toLowerCase()}"
-           data-brand="${(sku.brand || '').toLowerCase()}"
+           data-search="${esc([sku.name, sku.brand, sku.category, sku.majorCategory, sku.status, ...sku.ingredients].filter(Boolean).join(' ').toLowerCase())}"
            data-category="${sku.majorCategory}"
            data-status="${sku.status || ''}"
-           data-platforms="${[sku.domesticSource, 'Qoo10 JP'].filter(Boolean).join('|')}"
+           data-platforms="${esc(getSkuPlatforms(sku).join('|'))}"
            data-week="${sku.weeklyHistory.map(w => w.week).join('|')}"
            data-score="0">
         ${img}
@@ -307,7 +323,7 @@ function renderProductDetailPanel(originalSku) {
   `).join('');
   const prosHtml = sku.pros.map(item => `<li>${item}</li>`).join('');
   const consHtml = sku.cons.map(item => `<li>${item}</li>`).join('');
-  const linksHtml = sku.links.map(l => `<a href="${l.url}" target="_blank" class="btn btn-outline">🔗 ${l.label}</a>`).join('');
+  const linksHtml = sku.links.map(l => extLink(l.url, l.label, 'btn btn-outline')).join('');
 
   return `
     <div class="card product-detail-panel">
@@ -423,8 +439,7 @@ function applySkuFilters(container) {
   const minScore = Number(container.querySelector('#sku-filter-score')?.value || 0);
 
   container.querySelectorAll('.sku-card').forEach(card => {
-    const name = card.dataset.name || '';
-    const brand = card.dataset.brand || '';
+    const searchText = card.dataset.search || '';
     const category = card.dataset.category || '';
     const platforms = card.dataset.platforms || '';
     const weeks = card.dataset.week || '';
@@ -432,13 +447,30 @@ function applySkuFilters(container) {
     const score = Number(card.dataset.score || 0);
     let visible = true;
 
-    if (query && !name.includes(query) && !brand.includes(query)) visible = false;
+    // 검색창 안내문대로 제품명·브랜드뿐 아니라 성분·카테고리·상태(트렌드 등)까지 검색
+    if (query && !searchText.includes(query)) visible = false;
     if (activeCategory !== '전체' && category !== activeCategory) visible = false;
-    if (week !== '전체' && !weeks.includes(week)) visible = false;
-    if (platform !== '전체' && !platforms.includes(platform)) visible = false;
+    if (week !== '전체' && !weeks.split('|').includes(week)) visible = false;
+    if (platform !== '전체' && !platforms.split('|').includes(platform)) visible = false;
     if (status !== '전체' && cardStatus !== status) visible = false;
     if (score < minScore) visible = false;
 
     card.classList.toggle('hidden', !visible);
   });
+
+  // 필터 결과가 0개면 빈 화면 대신 안내
+  const grid = container.querySelector('#sku-grid');
+  if (grid) {
+    const anyVisible = grid.querySelector('.sku-card:not(.hidden)');
+    let empty = grid.querySelector('.sku-empty');
+    if (!anyVisible && !empty) {
+      empty = document.createElement('p');
+      empty.className = 'sku-empty text-center';
+      empty.style.cssText = 'grid-column:1/-1;color:var(--text-muted);padding:40px;';
+      empty.textContent = '조건에 맞는 제품이 없습니다. 필터를 조정해 보세요.';
+      grid.appendChild(empty);
+    } else if (anyVisible && empty) {
+      empty.remove();
+    }
+  }
 }

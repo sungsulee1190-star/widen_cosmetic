@@ -12,7 +12,9 @@ const app = read('js/app.js');
 
 assert.match(cockpit, /renderTrendSignalRadar/, 'cockpit renders trend signal radar');
 assert.match(cockpit, /renderPlatformBenchmarkSection/, 'cockpit renders platform benchmark channels');
-assert.match(cockpit, /normalizeLinks/, 'cockpit normalizes object and array links');
+assert.match(read('js/utils.js'), /function normalizeLinks/, 'utils normalizes object and array links');
+assert.match(html, /js\/utils\.js[\s\S]*js\/data-store\.js/, 'utils.js loads before data-store.js');
+assert.doesNotMatch(read('js/view-copycat.js') + read('js/view-reference.js'), /## 가격\/쿠폰\/세트/, 'MD template lives only in utils.js');
 assert.match(store, /platformChannels/, 'DataStore loads platform benchmark channel data');
 assert.ok(existsSync('data/platform-channels.json'), 'platform channel JSON exists');
 assert.match(app, /renderCountryView/, 'country view stays routable');

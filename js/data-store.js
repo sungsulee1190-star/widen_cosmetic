@@ -13,6 +13,7 @@ const DataStore = {
   copycatShops: [],
   platformChannels: [],
   sourcingRoutes: [],
+  loadErrors: [],
 
   // ── Load all JSON data ──
   async load() {
@@ -29,10 +30,20 @@ const DataStore = {
       sourcingRoutes: 'data/sourcing-routes.json',
     };
 
+    this.loadErrors = [];
     const entries = Object.entries(files);
     const results = await Promise.all(
-      entries.map(([, url]) =>
-        fetch(url).then(r => r.json()).catch(() => [])
+      entries.map(([key, url]) =>
+        fetch(url)
+          .then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+          })
+          .catch(err => {
+            // 실패를 조용히 삼키지 않고 기록 → app.js 가 화면 상단에 안내
+            this.loadErrors.push({ file: url, message: err.message });
+            return Array.isArray(this[key]) ? [] : {};
+          })
       )
     );
     entries.forEach(([key], i) => {
@@ -42,37 +53,46 @@ const DataStore = {
 
   // ── Action states (LocalStorage) ──
   getActionState(actionId) {
-    const states = JSON.parse(localStorage.getItem('widen-action-states') || '{}');
+    const states = readStore('widen-action-states', {});
     return states[actionId] || '미완료';
   },
   setActionState(actionId, state) {
-    const states = JSON.parse(localStorage.getItem('widen-action-states') || '{}');
+    const states = readStore('widen-action-states', {});
     states[actionId] = state;
-    localStorage.setItem('widen-action-states', JSON.stringify(states));
+    writeStore('widen-action-states', states);
+  },
+  // "남은 액션" 정의를 한 곳에서 관리 (예전엔 사이드바 배지와 요약 카드 기준이 달랐음)
+  // 미완료 + 진행중 = 남은 일. 완료·보류는 제외.
+  countOpenActions() {
+    return (this.actions || []).filter(a => {
+      const state = this.getActionState(a.id);
+      return state === '미완료' || state === '진행중';
+    }).length;
   },
 
   // ── Upload checklist (LocalStorage) ──
   getUploadChecks(day) {
-    const checks = JSON.parse(localStorage.getItem('widen-upload-checks') || '{}');
+    const checks = readStore('widen-upload-checks', {});
     return checks[day] || {};
   },
   setUploadCheck(day, key, checked) {
-    const checks = JSON.parse(localStorage.getItem('widen-upload-checks') || '{}');
+    const checks = readStore('widen-upload-checks', {});
     if (!checks[day]) checks[day] = {};
     checks[day][key] = checked;
-    localStorage.setItem('widen-upload-checks', JSON.stringify(checks));
+    writeStore('widen-upload-checks', checks);
   },
 
   // ── Favorites (LocalStorage) ──
   getFavorites() {
-    return JSON.parse(localStorage.getItem('widen-favorites') || '[]');
+    const favs = readStore('widen-favorites', []);
+    return Array.isArray(favs) ? favs : [];
   },
   toggleFavorite(skuId) {
     const favs = this.getFavorites();
     const idx = favs.indexOf(skuId);
     if (idx === -1) favs.push(skuId);
     else favs.splice(idx, 1);
-    localStorage.setItem('widen-favorites', JSON.stringify(favs));
+    writeStore('widen-favorites', favs);
   },
   isFavorite(skuId) {
     return this.getFavorites().includes(skuId);
@@ -80,12 +100,16 @@ const DataStore = {
 
   // ── Visit logs (LocalStorage) ──
   getVisitLogs() {
-    return JSON.parse(localStorage.getItem('widen-visit-logs') || '[]');
+    const logs = readStore('widen-visit-logs', []);
+    return Array.isArray(logs) ? logs : [];
   },
   addVisitLog(log) {
     const logs = this.getVisitLogs();
     log.id = Date.now().toString();
     logs.unshift(log);
-    localStorage.setItem('widen-visit-logs', JSON.stringify(logs));
+    writeStore('widen-visit-logs', logs);
+  },
+  deleteVisitLog(logId) {
+    writeStore('widen-visit-logs', this.getVisitLogs().filter(l => l.id !== logId));
   },
 };

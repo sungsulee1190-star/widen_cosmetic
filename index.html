@@ -12,7 +12,7 @@
   <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar" id="sidebar">
     <div class="logo-area">
-      <button class="sidebar-toggle" id="sidebar-toggle" title="사이드바 접기/펼치기">☰</button>
+      <button class="sidebar-toggle" id="sidebar-toggle" title="사이드바 접기/펼치기" aria-label="사이드바 접기/펼치기" aria-controls="sidebar">☰</button>
       <div>
         <div class="logo-text">WIDEN</div>
         <div class="logo-sub">SKU Intelligence Dashboard</div>
@@ -24,17 +24,17 @@
       <li class="nav-item active" data-view="view-cockpit">
         <span class="nav-icon">⚡</span>
         <span class="nav-label">이번주 할일</span>
-        <span class="nav-badge" id="badge-actions">0</span>
+        <span class="nav-badge" id="badge-actions" title="남은 액션 (미완료+진행중)"></span>
       </li>
       <li class="nav-item" data-view="view-sku">
         <span class="nav-icon">📦</span>
         <span class="nav-label">카테고리/제품</span>
-        <span class="nav-badge" id="badge-sku">0</span>
+        <span class="nav-badge" id="badge-sku"></span>
       </li>
       <li class="nav-item" data-view="view-copycat">
         <span class="nav-icon">🔍</span>
         <span class="nav-label">벤치마킹샵</span>
-        <span class="nav-badge" id="badge-copycat">0</span>
+        <span class="nav-badge" id="badge-copycat"></span>
       </li>
 
       <li class="nav-section-label">지식</li>
@@ -80,6 +80,7 @@
   </main>
 
   <!-- ========== SCRIPTS ========== -->
+  <script src="js/utils.js"></script>
   <script src="js/data-store.js"></script>
   <script src="js/view-cockpit.js"></script>
   <script src="js/view-sku.js"></script>
