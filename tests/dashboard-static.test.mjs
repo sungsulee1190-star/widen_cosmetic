@@ -28,4 +28,7 @@ assert.match(skuView, /renderProductDetailPanel/, 'SKU page renders product deta
 assert.match(skuView, /imageUrl/, 'SKU page reads imageUrl data field');
 assert.match(skuView, /qoo10SearchUrl/, 'SKU page links Qoo10 search data field');
 
+assert.doesNotMatch(read('js/view-reference.js'), /K-Beauty Official/, 'reference samples live in data/references.json, not code');
+assert.match(store, /references\.json/, 'DataStore loads references.json');
+
 console.log('dashboard static checks passed');

@@ -92,17 +92,6 @@ function renderExecutiveSummary() {
   `;
 }
 
-// 섹션 제목줄 (빈 상태에서도 섹션 자리가 사라지지 않도록 공통화)
-function sectionDivider(icon, title, extra = '') {
-  return `
-    <div class="section-divider">
-      <span class="section-divider-icon">${icon}</span>
-      <span class="section-divider-title">${title}</span>
-      ${extra}
-      <span class="section-divider-line"></span>
-    </div>`;
-}
-
 // ── Section 1: 데일리 업로드 ──
 
 function renderUploadSection(uploads, currentDay) {
@@ -120,7 +109,7 @@ function renderUploadSection(uploads, currentDay) {
         ? '<span class="status-badge status-done">완료</span>'
         : '<span class="status-badge status-upcoming">예정</span>';
     const name = uploadName(u);
-    const thumbUrl = safeUrl(u.thumbnail || u.imageUrl || u.image);
+    const thumbUrl = safeImageSrc(u.thumbnail || u.imageUrl || u.image);
     const thumb = thumbUrl
       ? `<img class="timeline-day-thumb" src="${esc(thumbUrl)}" alt="${esc(name)}" loading="lazy">`
       : `<div class="timeline-day-thumb"></div>`;
@@ -173,7 +162,7 @@ function renderUploadDetail(day) {
   const checks = DataStore.getUploadChecks(day.day);
   const checklistItems = normalizeChecklist(day.checklist);
   const name = uploadName(day);
-  const imageUrl = safeUrl(day.image || day.imageUrl);
+  const imageUrl = safeImageSrc(day.image || day.imageUrl);
   const margin = day.margin || day.estimatedMargin;
 
   const img = imageUrl
@@ -316,7 +305,7 @@ function renderTrendsSection() {
 
     const linksHtml = normalizeLinks(t.links).map(l => extLink(l.url, l.label)).join('');
 
-    const imageUrl = esc(safeUrl(t.image || t.imageUrl));
+    const imageUrl = esc(safeImageSrc(t.image || t.imageUrl));
     const img = imageUrl
       ? `<img class="trend-card-image" src="${imageUrl}" alt="${esc(t.name || '')}">`
       : `<div class="trend-card-image"></div>`;

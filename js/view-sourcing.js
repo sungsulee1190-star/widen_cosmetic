@@ -162,7 +162,10 @@ function renderVisitLogs() {
       <span class="section-divider-title">최근 방문 기록</span>
       <span class="section-divider-line"></span>
     </div>
-    <p class="card-meta" style="margin-bottom:8px;">⚠️ 방문 기록은 이 브라우저(LocalStorage)에만 저장됩니다. 다른 PC·브라우저와 공유되지 않고, 브라우저 데이터를 지우면 사라집니다.</p>
+    <div class="flex-between" style="margin-bottom:8px;gap:12px;flex-wrap:wrap;">
+      <p class="card-meta" style="margin:0;">⚠️ 방문 기록은 이 브라우저(LocalStorage)에만 저장됩니다. 다른 PC·브라우저와 공유되지 않고, 브라우저 데이터를 지우면 사라집니다. 주기적으로 CSV 로 백업하세요.</p>
+      <button type="button" class="btn btn-outline" id="visit-export-csv">⬇️ CSV 내보내기</button>
+    </div>
     <div class="card" id="visit-logs-container">${renderVisitLogItems(DataStore.getVisitLogs())}</div>
   `;
 }
@@ -199,6 +202,24 @@ function bindSourcingEvents(container, routes) {
     if (dateInput) dateInput.value = localDateISO();
     refreshLogs();
   });
+
+  // CSV 내보내기 — 브라우저에만 있는 기록을 엑셀/구글 시트로 옮기거나 백업하기 위함
+  const exportBtn = container.querySelector('#visit-export-csv');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      const logs = DataStore.getVisitLogs();
+      if (logs.length === 0) {
+        alert('내보낼 방문 기록이 없습니다.');
+        return;
+      }
+      const csv = toCSV(logs, [
+        { key: 'date', label: '날짜' }, { key: 'route', label: '루트' }, { key: 'store', label: '매장' },
+        { key: 'sku', label: 'SKU' }, { key: 'price', label: '가격' }, { key: 'stock', label: '재고' },
+        { key: 'memo', label: '메모' }, { key: 'photoLink', label: '사진 링크' },
+      ]);
+      downloadText(`widen-방문기록-${localDateISO()}.csv`, csv);
+    });
+  }
 
   // 삭제 (이벤트 위임 — 목록이 다시 그려져도 동작)
   if (logsContainer) {

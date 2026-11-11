@@ -33,7 +33,7 @@ npm test
 | 🧪 성분/트렌드 | `js/view-wiki.js` | ingredients |
 | 🌏 국가별 규제 | `js/view-wiki.js` | countries |
 | 🏪 오프라인 소싱 | `js/view-sourcing.js` | sourcing-routes (+ 방문 기록은 LocalStorage) |
-| 📋 경쟁페이지 분석 | `js/view-reference.js` | ⚠️ 코드에 하드코딩된 **샘플 데이터** |
+| 📋 경쟁페이지 분석 | `js/view-reference.js` | references (`"sample": true` 항목은 샘플 배지) |
 | 🔗 데이터 관리 | `js/view-reference.js` | Notion / Drive 링크 (상수 `NOTION_URL`, `DRIVE_URL`) |
 
 공통: `js/utils.js`(HTML 이스케이프, 링크, 날짜, 클립보드 등) → `js/data-store.js`(JSON 로딩 + LocalStorage) → 각 view → `js/app.js`(라우터) 순서로 로드됩니다.
@@ -48,8 +48,9 @@ npm test
 ## 저장 위치
 
 - **원본 데이터**: `data/*.json` (git 으로 관리)
+- **제품 이미지**: 외부 `https://` 주소 또는 `images/` 폴더 (사용법: `images/README.md`)
 - **체크 상태 · 즐겨찾기 · 방문 기록 · 국가별 체크리스트**: 브라우저 LocalStorage (`widen-*` 키).
-  이 브라우저에만 저장되고 다른 PC·사람과 공유되지 않습니다. 브라우저 데이터를 지우면 사라집니다.
+  이 브라우저에만 저장되고 다른 PC·사람과 공유되지 않습니다. 브라우저 데이터를 지우면 사라집니다. 방문 기록은 `⬇️ CSV 내보내기` 로 백업하세요.
 - **검색어 · 필터**: sessionStorage — 다른 메뉴에 갔다 와도 유지되고, 탭을 닫으면 초기화.
 
 ## 문서

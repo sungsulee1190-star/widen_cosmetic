@@ -10,7 +10,7 @@ const json = (p) => JSON.parse(readFileSync(p, 'utf8'));
 // ── 1. utils.js 순수 함수 ──
 const ctx = {};
 vm.createContext(ctx);
-vm.runInContext(readFileSync('js/utils.js', 'utf8') + '\n;Object.assign(globalThis,{esc,safeUrl,stars,parseMarginRange,normalizeLinks,localDateISO,todayDayKey,matchesQuery});', ctx);
+vm.runInContext(readFileSync('js/utils.js', 'utf8') + '\n;Object.assign(globalThis,{esc,safeUrl,stars,parseMarginRange,normalizeLinks,localDateISO,todayDayKey,matchesQuery,safeImageSrc,toCSV});', ctx);
 
 assert.equal(ctx.esc('<img onerror="x">'), '&lt;img onerror=&quot;x&quot;&gt;', 'esc escapes HTML');
 assert.equal(ctx.safeUrl('javascript:alert(1)'), '', 'safeUrl blocks javascript:');
@@ -35,6 +35,18 @@ assert.ok(ctx.matchesQuery(hay, 'VT PDRN'), 'multi-word AND');
 assert.ok(!ctx.matchesQuery(hay, 'VT 레티놀'), 'AND: every word must match');
 assert.ok(ctx.matchesQuery(hay, '리들샷100'), 'space-insensitive');
 assert.ok(ctx.matchesQuery(hay, '  '), 'blank query matches all');
+
+// 이미지 경로: 외부 https + 저장소 images/ 만 허용
+assert.equal(ctx.safeImageSrc('images/sku-a.jpg'), 'images/sku-a.jpg');
+assert.equal(ctx.safeImageSrc('./images/sku-a.jpg'), './images/sku-a.jpg');
+assert.equal(ctx.safeImageSrc('images/../index.html'), '', 'no parent traversal');
+assert.equal(ctx.safeImageSrc('javascript:alert(1)'), '');
+assert.equal(ctx.safeImageSrc('data/x.jpg'), '', 'only images/ folder');
+
+// CSV: 쉼표·따옴표·줄바꿈 이스케이프 + 엑셀 한글용 BOM
+const csv = ctx.toCSV([{ a: '명동, 1층', b: '그는 "좋다"\n함' }], [{ key: 'a', label: '매장' }, { key: 'b', label: '메모' }]);
+assert.ok(csv.startsWith('\uFEFF매장,메모'), 'csv header with BOM');
+assert.ok(csv.includes('"명동, 1층"') && csv.includes('"그는 ""좋다""\n함"'), 'csv escaping');
 
 // ── 2. JSON 구조 ──
 const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
@@ -76,4 +88,15 @@ assert.equal(new Set(skus.map(s => s.id)).size, skus.length, 'sku ids unique');
 const skuIds = new Set(skus.map(s => s.id));
 uploads.filter(u => u.skuId).forEach(u => assert.ok(skuIds.has(u.skuId), `upload ${u.day} skuId "${u.skuId}" exists in sku-list`));
 
-console.log('data contract checks passed');
+const refs = json('data/references.json');
+assert.ok(Array.isArray(refs.competitors) && Array.isArray(refs.influencers), 'references has competitors[] and influencers[]');
+[...refs.competitors, ...refs.influencers].forEach(r => assert.ok(r.name, 'reference needs name'));
+
+// 로컬 이미지 경로를 쓰면 실제 파일이 있어야 함
+import('node:fs').then(({ existsSync }) => {
+  [...skus, ...json('data/weekly-trends.json'), ...uploads].forEach(item => {
+    const src = item.imageUrl || item.image;
+    if (src && !/^https?:/.test(src)) assert.ok(existsSync(src.replace(/^\.\//, '')), `image file missing: ${src}`);
+  });
+  console.log('data contract checks passed');
+});

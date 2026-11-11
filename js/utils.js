@@ -22,6 +22,17 @@ function safeUrl(url) {
   return /^https?:\/\//i.test(trimmed) ? trimmed : '';
 }
 
+// 이미지 주소 — 외부 http(s) 주소 + 저장소 안 images/ 폴더의 상대 경로 허용
+// (외부 이미지(올리브영 CDN)가 403 으로 막혀서, 사진을 images/ 에 저장해 쓰는 방식을 지원하기 위함.
+//  '..' 로 상위 폴더를 가리키거나 다른 스킴을 쓰는 경로는 막음)
+function safeImageSrc(url) {
+  if (typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (/^(\.\/)?images\/[^:?#]+$/.test(trimmed) && !trimmed.includes('..')) return trimmed;
+  return '';
+}
+
 // LocalStorage JSON 읽기/쓰기 — 값이 깨져 있어도 앱 전체가 죽지 않도록
 function readStore(key, fallback) {
   try {
@@ -210,7 +221,40 @@ function renderResultCount(el, shown, total, emptyText) {
   }
 }
 
+// 섹션 제목줄 (여러 화면 공통 — 빈 상태에서도 섹션 자리가 사라지지 않도록)
+function sectionDivider(icon, title, extra = '') {
+  return `
+    <div class="section-divider">
+      <span class="section-divider-icon">${icon}</span>
+      <span class="section-divider-title">${title}</span>
+      ${extra}
+      <span class="section-divider-line"></span>
+    </div>`;
+}
+
 // 데이터가 비었을 때 섹션을 통째로 숨기지 말고 이유를 보여줌 (예전엔 섹션이 조용히 사라져 빈 화면처럼 보였음)
 function emptyState(message) {
   return `<div class="card empty-state">${esc(message)}</div>`;
+}
+
+// CSV 내보내기 — 엑셀에서 한글이 깨지지 않도록 BOM(\uFEFF) 포함, 따옴표·줄바꿈 이스케이프
+function toCSV(rows, columns) {
+  const cell = (v) => {
+    const text = String(v ?? '');
+    return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  };
+  const header = columns.map(c => cell(c.label)).join(',');
+  const body = rows.map(r => columns.map(c => cell(r[c.key])).join(',')).join('\r\n');
+  return '\uFEFF' + header + '\r\n' + body;
+}
+
+function downloadText(filename, text, type = 'text/csv;charset=utf-8') {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

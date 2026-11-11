@@ -28,29 +28,14 @@ function renderReferenceView() {
 }
 
 function renderCompetitorSection() {
-  const competitors = [
-    {
-      name: 'K-Beauty Official',
-      platform: 'Qoo10 JP',
-      observations: ['세트 구성 중심 판매 전략', '쿠폰 + 타임세일 적극 활용', '리뷰 수 3,000+ 확보'],
-      link: 'https://www.qoo10.jp'
-    },
-    {
-      name: 'Seoul Cosmetics JP',
-      platform: 'Qoo10 JP',
-      observations: ['신제품 빠른 입점 (출시 후 1주 이내)', '일본어 네이티브 상세페이지', '인플루언서 콜라보 기획전'],
-      link: 'https://www.qoo10.jp'
-    },
-    {
-      name: 'OLIVE YOUNG Global',
-      platform: 'Qoo10 JP / 자사몰',
-      observations: ['올리브영 랭킹 활용 마케팅', '대량 SKU 운영 (500+)', '공식 브랜드 인증 강조'],
-      link: 'https://www.qoo10.jp'
-    }
-  ];
+  // 예전엔 이 목록이 코드에 하드코딩돼 있었음 → data/references.json 으로 이동 (코드 수정 없이 내용만 교체 가능)
+  const competitors = (DataStore.references || {}).competitors || [];
+  if (competitors.length === 0) {
+    return sectionDivider('🏢', '경쟁사 레퍼런스') + emptyState('경쟁사 데이터가 없습니다. data/references.json 의 competitors 에 추가하세요.');
+  }
 
   const cardsHtml = competitors.map(c => {
-    const obsHtml = c.observations.map(o =>
+    const obsHtml = (c.observations || []).map(o =>
       `<li style="font-size:13px;color:var(--text-secondary);line-height:1.8;">${esc(o)}</li>`
     ).join('');
 
@@ -70,7 +55,7 @@ function renderCompetitorSection() {
     <div class="section-divider">
       <span class="section-divider-icon">🏢</span>
       <span class="section-divider-title">경쟁사 레퍼런스</span>
-      <span class="sample-badge" title="코드에 하드코딩된 예시입니다. 링크도 Qoo10 메인으로만 연결됩니다.">샘플 데이터</span>
+      ${competitors.some(c => c.sample) ? '<span class="sample-badge" title="sample:true 인 예시 항목이 있습니다. 링크도 Qoo10 메인으로만 연결됩니다.">샘플 데이터</span>' : ''}
       <span class="section-divider-line"></span>
     </div>
     <div class="grid-3">${cardsHtml}</div>
@@ -78,38 +63,13 @@ function renderCompetitorSection() {
 }
 
 function renderInfluencerSection() {
-  const influencers = [
-    {
-      platformIcon: '📺',
-      name: '@kbeauty_jp_review',
-      platform: 'YouTube',
-      contentType: '제품 리뷰 / 비교 영상',
-      mentionedSkus: ['VT 리들샷', 'ANUA 어성초 토너', 'Torriden 다이브인 세럼'],
-      keyExpression: '「毎日使える低刺激セラム」— 매일 사용할 수 있는 저자극 세럼',
-      link: 'https://youtube.com'
-    },
-    {
-      platformIcon: '📸',
-      name: '@skincare_tokyo',
-      platform: 'Instagram',
-      contentType: '스킨케어 루틴 / 비포&애프터',
-      mentionedSkus: ['COSRX 스네일 뮤신', 'numbuzin 3번 세럼'],
-      keyExpression: '「韓国スキンケアの底力」— 한국 스킨케어의 저력',
-      link: 'https://instagram.com'
-    },
-    {
-      platformIcon: '🎵',
-      name: '@cosme_trend_jp',
-      platform: 'TikTok',
-      contentType: '트렌드 제품 숏폼 / 1분 리뷰',
-      mentionedSkus: ['TIRTIR 마스크핏 쿠션', 'rom&nd 글래스팅 틴트'],
-      keyExpression: '「バズコスメ」— 버즈 코스메(입소문 화장품)',
-      link: 'https://tiktok.com'
-    }
-  ];
+  const influencers = (DataStore.references || {}).influencers || [];
+  if (influencers.length === 0) {
+    return sectionDivider('🌟', '인플루언서 레퍼런스') + emptyState('인플루언서 데이터가 없습니다. data/references.json 의 influencers 에 추가하세요.');
+  }
 
   const cardsHtml = influencers.map(inf => {
-    const skusHtml = inf.mentionedSkus.map(s =>
+    const skusHtml = (inf.mentionedSkus || []).map(s =>
       `<span class="tag tag-ingredient">${esc(s)}</span>`
     ).join('');
 
@@ -127,7 +87,7 @@ function renderInfluencerSection() {
     <div class="section-divider">
       <span class="section-divider-icon">🌟</span>
       <span class="section-divider-title">인플루언서 레퍼런스</span>
-      <span class="sample-badge" title="실제 계정이 아닌 예시 핸들입니다. 링크도 각 플랫폼 메인으로만 연결됩니다.">샘플 데이터</span>
+      ${influencers.some(i => i.sample) ? '<span class="sample-badge" title="sample:true 인 예시 항목이 있습니다. 실제 계정이 아닌 예시 핸들입니다.">샘플 데이터</span>' : ''}
       <span class="section-divider-line"></span>
     </div>
     <div class="grid-3">${cardsHtml}</div>

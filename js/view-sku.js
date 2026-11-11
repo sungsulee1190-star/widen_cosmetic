@@ -224,7 +224,7 @@ function normalizeSku(sku) {
     ...sku,
     __normalized: true,
     majorCategory: category,
-    image: safeUrl(sku.image || sku.imageUrl),
+    image: safeImageSrc(sku.image || sku.imageUrl),
     ingredients,
     margin: marginText,
     domesticPriceText: formatPrice(sku.domesticPrice, 'KRW'),

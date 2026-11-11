@@ -13,6 +13,7 @@ const DataStore = {
   copycatShops: [],
   platformChannels: [],
   sourcingRoutes: [],
+  references: {},
   loadErrors: [],
 
   // ── Load all JSON data ──
@@ -28,6 +29,7 @@ const DataStore = {
       copycatShops: 'data/copycat-shops.json',
       platformChannels: 'data/platform-channels.json',
       sourcingRoutes: 'data/sourcing-routes.json',
+      references: 'data/references.json',
     };
 
     this.loadErrors = [];
