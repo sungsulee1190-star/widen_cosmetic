@@ -30,29 +30,29 @@ function renderCopycatView() {
 // ── Section 1: 벤치마킹 편집샵 ──
 
 function renderCopycatShops(shops) {
-  if (shops.length === 0) return '';
+  if (shops.length === 0) return `<div class="section-divider"><span class="section-divider-icon">🏪</span><span class="section-divider-title">벤치마킹 편집샵</span><span class="section-divider-line"></span></div>` + emptyState('벤치마킹 샵 데이터가 없습니다. data/copycat-shops.json 을 확인하세요.');
 
   const cardsHtml = shops.map((shop, idx) => {
     const aestheticScore = shop.aestheticScore || shop.aesthetic || 0;
     const brands = shop.mainBrands || shop.brands || [];
-    const starsHtml = '★'.repeat(aestheticScore) + '☆'.repeat(5 - aestheticScore);
-    const brandsHtml = brands.map(b => `<span class="tag tag-ingredient">${b}</span>`).join('');
-    const strengthsHtml = (shop.strengths || []).map(s => `<li style="color:var(--accent-green);"><span style="color:var(--text-secondary);">${s}</span></li>`).join('');
-    const weaknessesHtml = (shop.weaknesses || []).map(w => `<li style="color:var(--accent-red);"><span style="color:var(--text-secondary);">${w}</span></li>`).join('');
+    const starsHtml = stars(aestheticScore); // 0~5 로 고정 — 6 이상이면 예전 코드는 RangeError 로 화면 전체가 멈춤
+    const brandsHtml = brands.map(b => `<span class="tag tag-ingredient">${esc(b)}</span>`).join('');
+    const strengthsHtml = (shop.strengths || []).map(s => `<li style="color:var(--accent-green);"><span style="color:var(--text-secondary);">${esc(s)}</span></li>`).join('');
+    const weaknessesHtml = (shop.weaknesses || []).map(w => `<li style="color:var(--accent-red);"><span style="color:var(--text-secondary);">${esc(w)}</span></li>`).join('');
 
     return `
       <div class="card">
         <div class="shop-card-rank">#${shop.rank || (idx + 1)}</div>
-        <div class="card-title" style="font-size:16px;">${shop.name || '—'}</div>
-        <div class="shop-card-type">${shop.type || ''}</div>
+        <div class="card-title" style="font-size:16px;">${esc(shop.name || '—')}</div>
+        <div class="shop-card-type">${esc(shop.type || '')}</div>
         <div class="mb-8">${brandsHtml}</div>
-        ${shop.assortment ? `<div class="shop-card-detail">🧭 구성: ${shop.assortment}</div>` : ''}
-        ${shop.marketingFeatures ? `<div class="shop-card-detail">📣 벤치마킹: ${shop.marketingFeatures}</div>` : ''}
+        ${shop.assortment ? `<div class="shop-card-detail">🧭 구성: ${esc(shop.assortment)}</div>` : ''}
+        ${shop.marketingFeatures ? `<div class="shop-card-detail">📣 벤치마킹: ${esc(shop.marketingFeatures)}</div>` : ''}
         <div class="shop-card-stars">디자인 완성도: ${starsHtml}</div>
-        ${shop.targetCustomer ? `<div class="shop-card-detail">🎯 타겟 고객: ${shop.targetCustomer}</div>` : ''}
+        ${shop.targetCustomer ? `<div class="shop-card-detail">🎯 타겟 고객: ${esc(shop.targetCustomer)}</div>` : ''}
         ${strengthsHtml ? `<div class="shop-card-detail"><strong>강점</strong><ul style="margin:4px 0 0 16px;">${strengthsHtml}</ul></div>` : ''}
         ${weaknessesHtml ? `<div class="shop-card-detail"><strong>약점</strong><ul style="margin:4px 0 0 16px;">${weaknessesHtml}</ul></div>` : ''}
-        ${shop.qoo10Url ? `<a href="${shop.qoo10Url}" target="_blank" class="btn btn-outline mt-8">🔗 Qoo10 매장 보기</a>` : ''}
+        ${extLink(shop.qoo10Url, 'Qoo10 매장 보기', 'btn btn-outline mt-8')}
       </div>`;
   }).join('');
 
@@ -75,7 +75,7 @@ function renderSearchTags() {
 
   function tagsRow(label, keywords) {
     const tags = keywords.map(kw =>
-      `<a href="https://www.qoo10.jp/s/${encodeURIComponent(kw)}" target="_blank" class="search-tag">${kw}</a>`
+      `<a href="https://www.qoo10.jp/s/${encodeURIComponent(kw)}" target="_blank" rel="noopener noreferrer" class="search-tag">${esc(kw)}</a>`
     ).join('');
     return `
       <div class="mb-16">
@@ -114,8 +114,8 @@ function renderMdChecklist() {
 
   const itemsHtml = checkItems.map((item, i) => `
     <div class="checklist-item">
-      <input type="checkbox" id="md-check-${i}">
-      <label for="md-check-${i}">${item}</label>
+      <input type="checkbox" id="md-check-${i}" data-md-check="${esc(item)}">
+      <label for="md-check-${i}">${esc(item)}</label>
     </div>
   `).join('');
 
@@ -128,55 +128,20 @@ function renderMdChecklist() {
     <div class="card">
       ${itemsHtml}
       <div class="mt-16">
-        <button class="btn btn-primary" id="copy-md-template">📄 MD 리포트 템플릿 복사</button>
+        <button class="btn btn-primary" id="copy-md-template">📄 체크 결과 포함해서 MD 리포트 복사</button>
+        <p class="card-meta mt-8">위에서 체크한 항목은 [x], 안 한 항목은 [ ] 로 리포트 맨 아래에 붙습니다.</p>
       </div>
     </div>
   `;
 }
 
-function getMdTemplate() {
-  return `# [제품명] Qoo10 JP 경쟁 분석 MD 리포트
-
-## 기본 정보
-- 분석 날짜:
-- 분석 대상 URL:
-- 셀러명:
-
-## 제목 분석
-- 첫 키워드:
-- 공식/정품 표현:
-- 제목 전체:
-
-## 이미지 분석
-- 대표 이미지 구성:
-- 강조 문구:
-
-## 가격/쿠폰/세트
-- 단품 가격:
-- 세트 구성:
-- 쿠폰:
-
-## 리뷰 분석
-- 리뷰 수:
-- 반복 구매 이유:
-
-## 액션 아이템
-- 따라할 것:
-- 변형할 것:
-- 버릴 것:`;
-}
-
+// MD 리포트 템플릿은 js/utils.js 의 MD_REPORT_TEMPLATE 하나로 통일
+// (예전엔 이 파일과 view-reference.js 에 똑같은 템플릿이 복붙돼 있어서 한쪽만 고치면 어긋날 위험)
 function bindCopycatEvents(container) {
-  const copyBtn = container.querySelector('#copy-md-template');
-  if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(getMdTemplate()).then(() => {
-        const originalText = copyBtn.textContent;
-        copyBtn.textContent = '✅ 복사 완료!';
-        setTimeout(() => { copyBtn.textContent = originalText; }, 2000);
-      }).catch(() => {
-        alert('클립보드 복사에 실패했습니다. 브라우저 권한을 확인하세요.');
-      });
-    });
-  }
+  // 예전엔 체크리스트를 체크해도 아무 데도 반영되지 않았음 → 복사할 때 체크 결과를 리포트에 포함
+  bindCopyButton(container.querySelector('#copy-md-template'), () => {
+    const checks = [...container.querySelectorAll('[data-md-check]')]
+      .map(cb => `- [${cb.checked ? 'x' : ' '}] ${cb.dataset.mdCheck}`).join('\n');
+    return `${MD_REPORT_TEMPLATE}\n\n## 판매 페이지 체크리스트\n${checks}`;
+  });
 }

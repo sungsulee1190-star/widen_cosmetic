@@ -1206,3 +1206,114 @@ body {
 .gap-8 { gap: 8px; }
 .gap-12 { gap: 12px; }
 .hidden { display: none !important; }
+
+/* ===== 2026-11-10 리뷰 추가분 ===== */
+
+/* 데이터 로딩 실패 / 화면 렌더 오류 안내 배너 */
+.load-error {
+  border: 1px solid var(--accent-red);
+  background: var(--accent-red-light);
+  color: var(--text-main);
+  margin-bottom: 20px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.load-error code {
+  background: var(--bg-subtle);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* 하드코딩된 예시 데이터임을 표시 */
+.sample-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  border: 1px dashed var(--border-default);
+  cursor: help;
+}
+
+/* 체크리스트 행 전체를 클릭 가능하게 (label 로 감쌈) */
+label.checklist-item { cursor: pointer; }
+
+/* 키보드 탐색 시 포커스 표시 */
+.nav-item:focus-visible,
+.btn:focus-visible,
+.category-pill:focus-visible,
+.filter-tab:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* ===== 2026-11-10 2차: 빈 화면 / 검색 / 필터 ===== */
+.empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 28px 16px;
+  border: 1px dashed var(--border-default);
+  background: transparent;
+  box-shadow: none;
+  margin-bottom: 20px;
+}
+.result-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 4px 0 12px;
+  font-size: 12px;
+}
+.result-count { font-weight: 700; color: var(--text-secondary); }
+.result-empty {
+  flex-basis: 100%;
+  margin: 8px 0 0;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-default);
+  border-radius: 12px;
+}
+.pill-count {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.7;
+  margin-left: 2px;
+}
+.category-pill.is-empty { opacity: 0.45; }
+.filter-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.sku-card { cursor: pointer; }
+.sku-card.is-selected { outline: 2px solid var(--accent-primary); outline-offset: -2px; }
+.expr-chip.is-match { outline: 2px solid currentColor; outline-offset: 1px; }
+.stale-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--accent-orange-light, #fff7ed);
+  color: var(--accent-orange, #c2410c);
+  cursor: help;
+}
+.img-broken {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  font-size: 11px;
+  min-height: 60px;
+}

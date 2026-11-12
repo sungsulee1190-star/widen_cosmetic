@@ -2,17 +2,11 @@
 // WIDEN — view-cockpit.js · 이번 주 콕핏 (Page 1)
 // ============================================================
 
-function normalizeLinks(links) {
-  if (!links) return [];
-  if (Array.isArray(links)) return links.filter(l => l && l.url);
-  return Object.entries(links)
-    .filter(([, url]) => typeof url === 'string' && url.trim())
-    .map(([label, url]) => ({ label, url }));
-}
+// normalizeLinks / extLink / esc 는 js/utils.js 에 있음
 
 function listContent(content) {
   if (Array.isArray(content)) {
-    return `<ul style="margin-left:16px;">${content.map(item => `<li>${item}</li>`).join('')}</ul>`;
+    return `<ul style="margin-left:16px;">${content.map(item => `<li>${esc(item)}</li>`).join('')}</ul>`;
   }
   return content || '정보 없음';
 }
@@ -21,12 +15,12 @@ function renderCockpitView() {
   const container = document.getElementById('view-cockpit');
   if (!container) return;
 
-  // Determine current day
+  // Determine current day — 실제 오늘 요일 우선, 없으면 데이터의 status:'today', 그것도 없으면 첫째 날
+  // (예전엔 JSON 에 목요일이 'today' 로 박혀 있어서 무슨 요일에 열어도 목요일이 '오늘'로 표시됨)
   const uploads = DataStore.weeklyUploads || [];
-  let currentDay = uploads.find(u => u.status === 'today');
-  if (!currentDay && uploads.length > 0) {
-    currentDay = uploads.find(u => u.day === 'thu') || uploads[0];
-  }
+  const currentDay = uploads.find(u => u.day === todayDayKey())
+    || uploads.find(u => u.status === 'today')
+    || uploads[0];
 
   container.innerHTML = `
     <div class="page-header">
@@ -67,25 +61,31 @@ function renderExecutiveSummary() {
   const skus = DataStore.skus || [];
   const trends = DataStore.weeklyTrends || [];
   const channels = DataStore.platformChannels || [];
-  const incomplete = actions.filter(a => DataStore.getActionState(a.id) !== '완료').length;
-  const qoo10Targets = channels.filter(c => c.platform && c.platform.includes('Qoo10')).length;
-  const hotSignals = trends.reduce((sum, t) => sum + ((t.whyTrending || []).length || 1), 0);
+  const incomplete = DataStore.countOpenActions();
+  // 요약 숫자의 뜻을 실제 계산과 일치시킴
+  //  - 예전 'Qoo10 우선 채널' 은 플랫폼 이름에 Qoo10 이 들어간 개수(=항상 1)라 의미가 없었음
+  //    → Qoo10 JP 에서 실제로 벤치마킹할 샵 수로 변경
+  //  - 예전 '트렌드 신호 / 국내+해외+성분' 은 실제로는 트렌드 SKU 들의 '왜 뜨는가' 근거 개수 합계였음 → 이름·설명 수정
+  //  - '추적 SKU / 주간/월간 누적' 은 월간 데이터가 없음 → 출처를 그대로 표기
+  const qoo10 = channels.find(c => (c.platform || '').includes('Qoo10'));
+  const qoo10Shops = qoo10 ? (qoo10.channels || []).length : 0;
+  const trendReasons = trends.reduce((sum, t) => sum + (t.whyTrending || []).length, 0);
 
   const metrics = [
-    { icon: '✅', label: '미완료 액션', value: `${incomplete}건`, note: '오늘 체크 필요' },
-    { icon: '📦', label: '추적 SKU', value: `${skus.length}개`, note: '주간/월간 누적' },
-    { icon: '🔥', label: '트렌드 신호', value: `${hotSignals}개`, note: '국내+해외+성분' },
-    { icon: '🔍', label: 'Qoo10 우선 채널', value: `${qoo10Targets}개`, note: 'Fast copycat' }
+    { icon: '✅', label: '남은 액션', value: `${incomplete}건`, note: '미완료 + 진행중' },
+    { icon: '📦', label: '추적 SKU', value: `${skus.length}개`, note: 'sku-list.json 등록 기준' },
+    { icon: '🔥', label: '이번 주 트렌드 SKU', value: `${trends.length}개`, note: `상승 근거 ${trendReasons}건` },
+    { icon: '🔍', label: 'Qoo10 벤치마킹 샵', value: `${qoo10Shops}곳`, note: qoo10 ? `${qoo10.cadence || ''} 확인` : '채널 데이터 없음' }
   ];
 
   return `
     <div class="grid-4">
       ${metrics.map(m => `
         <div class="card metric-card">
-          <div class="metric-icon">${m.icon}</div>
-          <div class="metric-value">${m.value}</div>
-          <div class="metric-label">${m.label}</div>
-          <div class="metric-note">${m.note}</div>
+          <div class="metric-icon">${esc(m.icon)}</div>
+          <div class="metric-value">${esc(m.value)}</div>
+          <div class="metric-label">${esc(m.label)}</div>
+          <div class="metric-note">${esc(m.note)}</div>
         </div>
       `).join('')}
     </div>
@@ -97,27 +97,32 @@ function renderExecutiveSummary() {
 function renderUploadSection(uploads, currentDay) {
   const dayLabels = { mon: '월', tue: '화', wed: '수', thu: '목', fri: '금', sat: '토', sun: '일' };
 
+  const realToday = todayDayKey();
+
   const timelineHtml = uploads.map(u => {
     const isActive = currentDay && u.day === currentDay.day;
     const statusClass = u.status === 'completed' ? 'completed' : '';
-    const statusBadge = u.status === 'completed'
-      ? '<span class="status-badge status-done">완료</span>'
-      : u.status === 'today'
-        ? '<span class="status-badge status-today">오늘</span>'
+    // '오늘' 배지는 실제 요일 기준. 데이터에 박힌 status:'today' 는 '예정'으로 취급
+    const statusBadge = u.day === realToday
+      ? '<span class="status-badge status-today">오늘</span>'
+      : u.status === 'completed'
+        ? '<span class="status-badge status-done">완료</span>'
         : '<span class="status-badge status-upcoming">예정</span>';
-    const thumb = u.thumbnail
-      ? `<img class="timeline-day-thumb" src="${u.thumbnail}" alt="${u.skuName || ''}">`
+    const name = uploadName(u);
+    const thumbUrl = safeImageSrc(u.thumbnail || u.imageUrl || u.image);
+    const thumb = thumbUrl
+      ? `<img class="timeline-day-thumb" src="${esc(thumbUrl)}" alt="${esc(name)}" loading="lazy">`
       : `<div class="timeline-day-thumb"></div>`;
     return `
-      <div class="timeline-day ${isActive ? 'active' : ''} ${statusClass}" data-day="${u.day}">
-        <div class="timeline-day-label">${dayLabels[u.day] || u.day}</div>
+      <div class="timeline-day ${isActive ? 'active' : ''} ${statusClass}" data-day="${esc(u.day)}" title="${esc(name)}">
+        <div class="timeline-day-label">${dayLabels[u.day] || esc(u.dayLabel || u.day)}</div>
         ${thumb}
-        <div class="timeline-day-name">${(u.skuName || '—').substring(0, 8)}</div>
+        <div class="timeline-day-name">${esc(name.length > 8 ? name.substring(0, 8) + '…' : name)}</div>
         ${statusBadge}
       </div>`;
   }).join('');
 
-  const detailHtml = currentDay ? renderUploadDetail(currentDay) : '<p style="color:var(--text-muted);font-size:13px;">업로드 데이터가 없습니다.</p>';
+  const detailHtml = currentDay ? renderUploadDetail(currentDay) : emptyState('이번 주 업로드 계획이 없습니다. data/weekly-uploads.json 을 확인하세요.');
 
   return `
     <div class="section-divider">
@@ -130,39 +135,56 @@ function renderUploadSection(uploads, currentDay) {
   `;
 }
 
+// weekly-uploads.json 은 name/imageUrl/estimatedMargin 을 쓰고, 예전 코드는 skuName/image/margin 을 읽어서
+// 타임라인 이름·사진·마진이 전부 비어 보였음 → 두 이름 모두 받아줌
+function uploadName(u) {
+  return u.skuName || u.name || '—';
+}
+
+function formatUploadPrice(value, currency) {
+  if (value === undefined || value === null || value === '') return '—';
+  if (typeof value === 'string') return value;
+  return currency === 'JPY' ? `¥${value.toLocaleString('ja-JP')}` : `₩${value.toLocaleString('ko-KR')}`;
+}
+
+const DEFAULT_UPLOAD_CHECKLIST = ['상품 사진 촬영 완료', '제목 키워드 최적화', '가격 설정 확인', '상세페이지 등록', '쿠폰/프로모션 설정'];
+
+// 체크리스트는 문자열 배열(현재 JSON) 또는 {key,label} 배열 둘 다 지원
+// (예전엔 문자열 배열이 들어오면 라벨이 'undefined' 로 나오고 모든 체크박스가 같은 key 를 공유했음)
+function normalizeChecklist(list) {
+  return (list && list.length ? list : DEFAULT_UPLOAD_CHECKLIST).map((item, i) =>
+    typeof item === 'string' ? { key: `item-${i}-${item}`, label: item } : { key: item.key || `item-${i}`, label: item.label || '' }
+  );
+}
+
 function renderUploadDetail(day) {
   if (!day) return '';
   const checks = DataStore.getUploadChecks(day.day);
-  const checklistItems = (day.checklist || [
-    { key: 'photo', label: '상품 사진 촬영 완료' },
-    { key: 'title', label: '제목 키워드 최적화' },
-    { key: 'price', label: '가격 설정 확인' },
-    { key: 'description', label: '상세페이지 등록' },
-    { key: 'coupon', label: '쿠폰/프로모션 설정' }
-  ]);
+  const checklistItems = normalizeChecklist(day.checklist);
+  const name = uploadName(day);
+  const imageUrl = safeImageSrc(day.image || day.imageUrl);
+  const margin = day.margin || day.estimatedMargin;
 
-  const img = day.image
-    ? `<img src="${day.image}" alt="${day.skuName || ''}" style="width:120px;height:120px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--bg-subtle);border:1px solid var(--border-default);">`
+  const img = imageUrl
+    ? `<img src="${esc(imageUrl)}" alt="${esc(name)}" style="width:120px;height:120px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--bg-subtle);border:1px solid var(--border-default);">`
     : '';
 
-  const linksHtml = normalizeLinks(day.links).map(l =>
-    `<a href="${l.url}" target="_blank" class="ext-link">🔗 ${l.label}</a>`
-  ).join('');
+  const linksHtml = normalizeLinks(day.links).map(l => extLink(l.url, l.label)).join('');
 
   return `
     <div class="card" style="display:flex;gap:20px;margin-bottom:20px;">
       ${img}
       <div style="flex:1;">
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">${day.category || ''}</div>
-        <div style="font-size:16px;font-weight:700;color:var(--text-main);margin-bottom:6px;">${day.skuName || '—'}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">${esc([day.brand, day.category].filter(Boolean).join(' · '))}</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text-main);margin-bottom:6px;">${esc(name)}</div>
         <div class="sku-card-prices">
           <span class="sku-card-price-label">국내가</span>
-          <span class="sku-card-price-value">${day.domesticPrice || '—'}</span>
+          <span class="sku-card-price-value">${formatUploadPrice(day.domesticPrice, 'KRW')}</span>
           <span class="sku-card-price-label">Qoo10가</span>
-          <span class="sku-card-price-value">${day.qoo10Price || '—'}</span>
+          <span class="sku-card-price-value">${formatUploadPrice(day.qoo10Price, day.qoo10Currency || 'JPY')}</span>
         </div>
-        ${day.margin ? `<span class="sku-card-margin" style="background:var(--accent-green-light);color:var(--accent-green);">마진 ${day.margin}</span>` : ''}
-        ${day.reason ? `<p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">📝 ${day.reason}</p>` : ''}
+        ${margin ? `<span class="sku-card-margin" style="background:var(--accent-green-light);color:var(--accent-green);">마진 ${esc(margin)}</span>` : ''}
+        ${day.reason ? `<p style="font-size:13px;color:var(--text-secondary);margin-top:8px;">📝 ${esc(day.reason)}</p>` : ''}
         <div style="margin-top:8px;">${linksHtml}</div>
       </div>
     </div>
@@ -170,10 +192,10 @@ function renderUploadDetail(day) {
       <div class="card-title">✅ 업로드 체크리스트</div>
       ${checklistItems.map(item => {
         const isChecked = checks[item.key] === true;
-        return `<div class="checklist-item ${isChecked ? 'checked' : ''}">
-          <input type="checkbox" data-day="${day.day}" data-key="${item.key}" ${isChecked ? 'checked' : ''}>
-          <span>${item.label}</span>
-        </div>`;
+        return `<label class="checklist-item ${isChecked ? 'checked' : ''}">
+          <input type="checkbox" data-day="${esc(day.day)}" data-key="${esc(item.key)}" ${isChecked ? 'checked' : ''}>
+          <span>${esc(item.label)}</span>
+        </label>`;
       }).join('')}
     </div>
   `;
@@ -257,12 +279,12 @@ function renderTrendSignalRadar() {
     <div class="grid-4">
       ${signals.map(signal => `
         <div class="card signal-card">
-          <div class="signal-title">${signal.title}</div>
-          <div class="signal-source">${signal.source}</div>
+          <div class="signal-title">${esc(signal.title)}</div>
+          <div class="signal-source">${esc(signal.source)}</div>
           <ul class="signal-evidence">
-            ${signal.evidence.map(item => `<li>${item}</li>`).join('')}
+            ${signal.evidence.map(item => `<li>${esc(item)}</li>`).join('')}
           </ul>
-          <div class="signal-action">다음 액션: ${signal.action}</div>
+          <div class="signal-action">다음 액션: ${esc(signal.action)}</div>
         </div>
       `).join('')}
     </div>
@@ -273,21 +295,19 @@ function renderTrendSignalRadar() {
 
 function renderTrendsSection() {
   const trends = DataStore.weeklyTrends || [];
-  if (trends.length === 0) return '';
+  if (trends.length === 0) return sectionDivider('🔥', '이번 주 트렌드') + emptyState('이번 주 트렌드 데이터가 없습니다. data/weekly-trends.json 을 확인하세요.');
 
   const cardsHtml = trends.map((t, idx) => {
     const tagsHtml = (t.tags || []).map(tag => {
       const cls = tag.includes('트렌드') ? 'tag-trend' : tag.includes('스테디') ? 'tag-steady' : tag.includes('시즌') ? 'tag-season' : 'tag-hot';
-      return `<span class="tag ${cls}">${tag}</span>`;
+      return `<span class="tag ${cls}">${esc(tag)}</span>`;
     }).join('');
 
-    const linksHtml = normalizeLinks(t.links).map(l =>
-      `<a href="${l.url}" target="_blank" class="ext-link">🔗 ${l.label}</a>`
-    ).join('');
+    const linksHtml = normalizeLinks(t.links).map(l => extLink(l.url, l.label)).join('');
 
-    const imageUrl = t.image || t.imageUrl;
+    const imageUrl = esc(safeImageSrc(t.image || t.imageUrl));
     const img = imageUrl
-      ? `<img class="trend-card-image" src="${imageUrl}" alt="${t.name || ''}">`
+      ? `<img class="trend-card-image" src="${imageUrl}" alt="${esc(t.name || '')}">`
       : `<div class="trend-card-image"></div>`;
 
     const toggles = [
@@ -298,11 +318,11 @@ function renderTrendsSection() {
 
     const togglesHtml = toggles.map(tgl => `
       <div class="toggle-section">
-        <div class="toggle-header" data-toggle="${tgl.id}">
+        <div class="toggle-header" data-toggle="${esc(tgl.id)}">
           <span class="toggle-arrow">▶</span>
-          <span>${tgl.label}</span>
+          <span>${esc(tgl.label)}</span>
         </div>
-        <div class="toggle-content" id="${tgl.id}">${tgl.content}</div>
+        <div class="toggle-content" id="${esc(tgl.id)}">${tgl.content}</div>
       </div>
     `).join('');
 
@@ -312,8 +332,8 @@ function renderTrendsSection() {
         <div class="trend-card-body">
           <div class="trend-card-header">
             <div>
-              <div class="trend-card-brand">${t.brand || ''}</div>
-              <div class="trend-card-name">${t.name || '—'}</div>
+              <div class="trend-card-brand">${esc(t.brand || '')}</div>
+              <div class="trend-card-name">${esc(t.name || '—')}</div>
             </div>
           </div>
           <div class="trend-card-tags">${tagsHtml}</div>
@@ -337,34 +357,34 @@ function renderTrendsSection() {
 
 function renderPlatformBenchmarkSection() {
   const channels = DataStore.platformChannels || [];
-  if (channels.length === 0) return '';
+  if (channels.length === 0) return sectionDivider('🏢', '플랫폼별 벤치마킹 채널') + emptyState('벤치마킹 채널 데이터가 없습니다. data/platform-channels.json 을 확인하세요.');
 
   const cardsHtml = channels
     .slice()
     .sort((a, b) => (a.priority || 99) - (b.priority || 99))
     .map(channel => {
       const channelTags = (channel.channels || []).slice(0, 5).map(name =>
-        `<span class="tag tag-ingredient">${name}</span>`
+        `<span class="tag tag-ingredient">${esc(name)}</span>`
       ).join('');
       const watchList = (channel.watchPoints || []).slice(0, 5).map(point =>
-        `<li>${point}</li>`
+        `<li>${esc(point)}</li>`
       ).join('');
 
       return `
         <div class="card platform-card">
           <div class="platform-card-head">
             <div>
-              <div class="platform-priority">#${channel.priority || '-'}</div>
-              <div class="platform-name">${channel.platform || '—'}</div>
-              <div class="platform-role">${channel.role || ''}</div>
+              <div class="platform-priority">#${esc(channel.priority || '-')}</div>
+              <div class="platform-name">${esc(channel.platform || '—')}</div>
+              <div class="platform-role">${esc(channel.role || '')}</div>
             </div>
-            <span class="status-badge status-today">${channel.cadence || ''}</span>
+            <span class="status-badge status-today">${esc(channel.cadence || '')}</span>
           </div>
-          <div class="platform-type">${channel.type || ''}</div>
+          <div class="platform-type">${esc(channel.type || '')}</div>
           <div class="mb-8">${channelTags}</div>
           <ul class="platform-watch">${watchList}</ul>
-          <div class="signal-action">다음 액션: ${channel.nextAction || '확인 필요'}</div>
-          ${channel.url ? `<a href="${channel.url}" target="_blank" class="btn btn-outline mt-16">🔗 채널 열기</a>` : ''}
+          <div class="signal-action">다음 액션: ${esc(channel.nextAction || '확인 필요')}</div>
+          ${extLink(channel.url, '채널 열기', 'btn btn-outline mt-16')}
         </div>
       `;
     }).join('');
@@ -396,73 +416,95 @@ function bindToggleEvents(container) {
 
 function renderSeasonSection() {
   const cal = DataStore.seasonCalendar;
-  if (!cal || typeof cal !== 'object') return '';
+  if (!cal || typeof cal !== 'object') return sectionDivider('📅', '시즌 캘린더') + emptyState('시즌 캘린더 데이터가 없습니다.');
+
+  // season-calendar.json 의 실제 키는 currentMonth.categories / upcoming.categories / lastYear.rankings.
+  // 예전 코드는 current.items / upcoming.items / lastYear.items 를 읽어서 시즌 캘린더가 거의 비어 있었음 → 둘 다 지원
+  const current = cal.currentMonth || cal.current;
+  const upcoming = cal.upcoming;
+  const lastYear = cal.lastYear;
+  const itemsOf = (block, ...keys) => {
+    for (const k of keys) if (block && Array.isArray(block[k])) return block[k];
+    return [];
+  };
+  const periodOf = (block) => block.period || [block.year && `${block.year}년`, block.month].filter(Boolean).join(' ');
+  const linksOf = (block) => {
+    const html = normalizeLinks(block.links).map(l => extLink(l.url, l.label)).join('');
+    return html ? `<div class="mt-8">${html}</div>` : '';
+  };
 
   const cards = [];
 
   // Card 1: 지금 뜨는 카테고리
-  if (cal.current) {
-    const itemsHtml = (cal.current.items || []).map(item => `
+  if (current) {
+    const itemsHtml = itemsOf(current, 'categories', 'items').map(item => `
       <div class="season-item">
-        <span class="season-icon">${item.icon || '📦'}</span>
-        <span class="season-name">${item.name || ''}</span>
-        <span class="season-metric ${item.direction === 'up' ? 'season-up' : 'season-stable'}">${item.metric || ''}</span>
+        <span class="season-icon">${esc(item.icon || '📦')}</span>
+        <span class="season-name">${esc(item.name)}</span>
+        <span class="season-metric ${item.direction === 'up' ? 'season-up' : 'season-stable'}">${esc(item.metric)}</span>
       </div>
     `).join('');
     cards.push(`
       <div class="card">
         <div class="card-title">🔥 지금 뜨는 카테고리</div>
-        <div class="card-meta">${cal.current.period || ''}</div>
+        <div class="card-meta">${esc(periodOf(current))}</div>
         ${itemsHtml}
+        ${linksOf(current)}
       </div>
     `);
   }
 
   // Card 2: 준비할 카테고리
-  if (cal.upcoming) {
-    const itemsHtml = (cal.upcoming.items || []).map(item => `
+  if (upcoming) {
+    const itemsHtml = itemsOf(upcoming, 'categories', 'items').map(item => `
       <div class="season-item">
-        <span class="season-icon">${item.icon || '📦'}</span>
-        <span class="season-name">${item.name || ''}</span>
-        <span class="season-metric season-stable">${item.note || ''}</span>
+        <span class="season-icon">${esc(item.icon || '📦')}</span>
+        <span class="season-name">${esc(item.name)}</span>
+        <span class="season-metric season-stable">${esc(item.note)}</span>
       </div>
     `).join('');
     cards.push(`
       <div class="card">
         <div class="card-title">📅 준비할 카테고리</div>
-        <div class="card-meta">${cal.upcoming.period || ''}</div>
+        <div class="card-meta">${esc(periodOf(upcoming))}</div>
         ${itemsHtml}
-        ${cal.upcoming.tip ? `<p style="font-size:12px;color:var(--accent-primary);margin-top:10px;">💡 ${cal.upcoming.tip}</p>` : ''}
+        ${upcoming.tip ? `<p style="font-size:12px;color:var(--accent-primary);margin-top:10px;">💡 ${esc(upcoming.tip)}</p>` : ''}
       </div>
     `);
   }
 
   // Card 3: 작년 이맘때
-  if (cal.lastYear) {
-    const itemsHtml = (cal.lastYear.items || []).map((item, i) => `
+  if (lastYear) {
+    const itemsHtml = itemsOf(lastYear, 'rankings', 'items').map((item, i) => `
       <div class="season-item">
-        <span class="season-icon" style="font-weight:700;color:var(--text-muted);">${i + 1}</span>
-        <span class="season-name">${item.name || ''}</span>
-        ${item.link ? `<a href="${item.link}" target="_blank" class="ext-link">링크</a>` : ''}
+        <span class="season-icon" style="font-weight:700;color:var(--text-muted);">${esc(item.rank || i + 1)}</span>
+        <span class="season-name">${esc(item.name)}${item.note ? `<br><small style="color:var(--text-muted);">${esc(item.note)}</small>` : ''}</span>
+        ${extLink(item.link, '링크', 'ext-link', '')}
       </div>
     `).join('');
     cards.push(`
       <div class="card">
         <div class="card-title">📊 작년 이맘때</div>
-        <div class="card-meta">${cal.lastYear.period || ''}</div>
+        <div class="card-meta">${esc(periodOf(lastYear))}</div>
         ${itemsHtml}
+        ${linksOf(lastYear)}
       </div>
     `);
   }
 
-  if (cards.length === 0) return '';
+  if (cards.length === 0) return sectionDivider('📅', '시즌 캘린더') + emptyState('시즌 캘린더 데이터가 없습니다. data/season-calendar.json 을 확인하세요.');
+
+  // 데이터 기준 월이 지금과 다르면 경고 (예: 11월에 열었는데 7월 데이터 → '지금 뜨는 카테고리 = 선크림')
+  const now = new Date();
+  const dataMonth = current && parseInt(String(current.month || '').replace(/\D/g, ''), 10);
+  const dataYear = current && Number(current.year);
+  const stale = dataMonth && (dataMonth !== now.getMonth() + 1 || (dataYear && dataYear !== now.getFullYear()));
+  const staleBadge = stale
+    ? `<span class="stale-badge" title="season-calendar.json 을 이번 달 기준으로 갱신해야 합니다">⚠️ ${esc(dataYear ? `${dataYear}년 ` : '')}${dataMonth}월 데이터 — 현재 ${now.getMonth() + 1}월</span>`
+    : '';
 
   return `
-    <div class="section-divider">
-      <span class="section-divider-icon">📅</span>
-      <span class="section-divider-title">시즌 캘린더</span>
-      <span class="section-divider-line"></span>
-    </div>
+    ${sectionDivider('📅', '시즌 캘린더', staleBadge)}
     <div class="grid-3">${cards.join('')}</div>
   `;
 }
@@ -471,7 +513,7 @@ function renderSeasonSection() {
 
 function renderActionsSection() {
   const actions = DataStore.actions || [];
-  if (actions.length === 0) return '';
+  if (actions.length === 0) return sectionDivider('✅', '할 일 체크리스트') + emptyState('등록된 할 일이 없습니다. data/actions.json 을 확인하세요.');
 
   const statusOptions = ['미완료', '진행중', '완료', '보류'];
   const statusClasses = {
@@ -483,25 +525,23 @@ function renderActionsSection() {
 
   const cardsHtml = actions.map(a => {
     const state = DataStore.getActionState(a.id);
-    const linksHtml = normalizeLinks(a.links).map(l =>
-      `<a href="${l.url}" target="_blank" class="ext-link">🔗 ${l.label}</a>`
-    ).join('');
+    const linksHtml = normalizeLinks(a.links).map(l => extLink(l.url, l.label)).join('');
 
     const optionsHtml = statusOptions.map(s =>
       `<option value="${s}" ${s === state ? 'selected' : ''}>${s}</option>`
     ).join('');
 
     return `
-      <div class="card action-card mb-16" data-action-id="${a.id}" data-status="${state}">
+      <div class="card action-card mb-16" data-action-id="${esc(a.id)}" data-status="${state}">
         <div class="flex-between mb-8">
-          <div class="card-title" style="margin-bottom:0;">${a.task || '—'}</div>
-          <select class="filter-select action-status-select" data-action-id="${a.id}">
+          <div class="card-title" style="margin-bottom:0;">${esc(a.task || '—')}</div>
+          <select class="filter-select action-status-select" data-action-id="${esc(a.id)}">
             ${optionsHtml}
           </select>
         </div>
-        ${a.targetSku ? `<div style="font-size:13px;margin-bottom:4px;">📦 <strong>${a.targetSku}</strong></div>` : ''}
-        ${a.channel ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">📢 ${a.channel}</div>` : ''}
-        ${a.purpose ? `<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">🎯 ${a.purpose}</div>` : ''}
+        ${a.targetSku ? `<div style="font-size:13px;margin-bottom:4px;">📦 <strong>${esc(a.targetSku)}</strong></div>` : ''}
+        ${a.channel ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">📢 ${esc(a.channel)}</div>` : ''}
+        ${a.purpose ? `<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">🎯 ${esc(a.purpose)}</div>` : ''}
         <div>${linksHtml}</div>
       </div>`;
   }).join('');
@@ -539,6 +579,9 @@ function bindActionEvents(container) {
       DataStore.setActionState(actionId, value);
       const card = e.target.closest('.action-card');
       if (card) card.dataset.status = value;
+      // 예전엔 상태를 바꿔도 탭 숫자(미완료 3 등)와 현재 필터가 갱신되지 않았음
+      refreshActionTabs(container);
+      applyActionFilter(container);
       updateActionBadge();
     });
   });
@@ -548,20 +591,33 @@ function bindActionEvents(container) {
     tab.addEventListener('click', () => {
       container.querySelectorAll('#action-filter-tabs .filter-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      const filter = tab.dataset.filter;
-      container.querySelectorAll('.action-card').forEach(card => {
-        if (filter === '전체') {
-          card.classList.remove('hidden');
-        } else {
-          card.classList.toggle('hidden', card.dataset.status !== filter);
-        }
-      });
+      applyActionFilter(container);
     });
   });
 }
 
+function applyActionFilter(container) {
+  const active = container.querySelector('#action-filter-tabs .filter-tab.active');
+  const filter = active ? active.dataset.filter : '전체';
+  container.querySelectorAll('.action-card').forEach(card => {
+    card.classList.toggle('hidden', filter !== '전체' && card.dataset.status !== filter);
+  });
+}
+
+function refreshActionTabs(container) {
+  const cards = [...container.querySelectorAll('.action-card')];
+  container.querySelectorAll('#action-filter-tabs .filter-tab').forEach(tab => {
+    const filter = tab.dataset.filter;
+    const count = filter === '전체' ? cards.length : cards.filter(c => c.dataset.status === filter).length;
+    const label = tab.querySelector('.tab-count');
+    if (label) label.textContent = `(${count})`;
+  });
+}
+
 function updateActionBadge() {
-  const incompleteActions = (DataStore.actions || []).filter(a => DataStore.getActionState(a.id) === '미완료').length;
   const el = document.getElementById('badge-actions');
-  if (el) el.textContent = incompleteActions || '';
+  if (el) el.textContent = DataStore.countOpenActions() || '';
+  // 상단 요약 카드의 '남은 액션' 숫자도 같이 갱신
+  const metric = document.querySelector('#view-cockpit .metric-card .metric-value');
+  if (metric) metric.textContent = `${DataStore.countOpenActions()}건`;
 }
