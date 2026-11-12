@@ -4,7 +4,10 @@
     "name": "VT 리들샷 100",
     "brand": "VT Cosmetics",
     "category": "세럼/앰플",
-    "ingredientTags": ["스피큘", "PDRN"],
+    "ingredientTags": [
+      "스피큘",
+      "PDRN"
+    ],
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0020/A00000020964711ko.jpg",
     "domesticPrice": 23000,
     "domesticSource": "올리브영",
@@ -18,14 +21,28 @@
     "competitorCount": 50,
     "lastOfflineCheck": "2026-07-03",
     "notionLink": "",
-    "driveLink": ""
+    "driveLink": "",
+    "weeklyHistory": [
+      {
+        "week": "2026-W27",
+        "signal": "트렌드",
+        "summary": "틱톡 'spicule before/after' 조회수 2.3억 돌파"
+      },
+      {
+        "week": "2026-W27",
+        "signal": "업로드",
+        "summary": "월요일 업로드 완료 — Qoo10 JP 검색량 1위, 틱톡 바이럴 지속 중"
+      }
+    ]
   },
   {
     "id": "sku-anua-heartleaf-77-toner",
     "name": "아누아 어성초 77 수딩 토너",
     "brand": "Anua",
     "category": "토너",
-    "ingredientTags": ["어성초"],
+    "ingredientTags": [
+      "어성초"
+    ],
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0018/A00000018931204ko.jpg",
     "domesticPrice": 25000,
     "domesticSource": "올리브영",
@@ -39,14 +56,24 @@
     "competitorCount": 30,
     "lastOfflineCheck": "2026-07-02",
     "notionLink": "",
-    "driveLink": ""
+    "driveLink": "",
+    "weeklyHistory": [
+      {
+        "week": "2026-W27",
+        "signal": "업로드",
+        "summary": "수요일 업로드 완료 — 여름 진정 토너 시즌 수요, 일본 @cosme 랭킹 상위"
+      }
+    ]
   },
   {
     "id": "sku-mediheal-madeca-pad",
     "name": "메디힐 마데카소사이드 흔적 패드",
     "brand": "Mediheal",
     "category": "패드",
-    "ingredientTags": ["시카", "진정"],
+    "ingredientTags": [
+      "시카",
+      "진정"
+    ],
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0021/A00000021537308ko.jpg",
     "domesticPrice": 19000,
     "domesticSource": "올리브영",
@@ -67,7 +94,9 @@
     "name": "토리든 다이브인 저분자 히알루론산 세럼",
     "brand": "Torriden",
     "category": "세럼/앰플",
-    "ingredientTags": ["히알루론산"],
+    "ingredientTags": [
+      "히알루론산"
+    ],
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0019/A00000019285506ko.jpg",
     "domesticPrice": 18000,
     "domesticSource": "올리브영",
@@ -81,14 +110,23 @@
     "competitorCount": 25,
     "lastOfflineCheck": "2026-07-02",
     "notionLink": "",
-    "driveLink": ""
+    "driveLink": "",
+    "weeklyHistory": [
+      {
+        "week": "2026-W27",
+        "signal": "업로드",
+        "summary": "토요일 업로드 계획 — 여름 가벼운 수분 세럼 수요, 일본 드럭스토어 입점 시너지"
+      }
+    ]
   },
   {
     "id": "sku-cosrx-snail-96-essence",
     "name": "COSRX 스네일 96 뮤신 에센스",
     "brand": "COSRX",
     "category": "에센스",
-    "ingredientTags": ["달팽이뮤신"],
+    "ingredientTags": [
+      "달팽이뮤신"
+    ],
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0014/A00000014553107ko.jpg",
     "domesticPrice": 16000,
     "domesticSource": "올리브영",
@@ -102,14 +140,23 @@
     "competitorCount": 35,
     "lastOfflineCheck": "2026-07-01",
     "notionLink": "",
-    "driveLink": ""
+    "driveLink": "",
+    "weeklyHistory": [
+      {
+        "week": "2026-W27",
+        "signal": "업로드",
+        "summary": "일요일 업로드 계획 — 글로벌 스테디셀러, 아마존 US 1위 경력으로 일본에서도 인지도 높음"
+      }
+    ]
   },
   {
     "id": "sku-numbuzin-no3-toner",
     "name": "넘버즈인 3번 결광 에센스 토너",
     "brand": "넘버즈인",
     "category": "토너",
-    "ingredientTags": ["글루타치온"],
+    "ingredientTags": [
+      "글루타치온"
+    ],
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0020/A00000020178903ko.jpg",
     "domesticPrice": 15000,
     "domesticSource": "올리브영",
@@ -123,14 +170,28 @@
     "competitorCount": 15,
     "lastOfflineCheck": "2026-07-03",
     "notionLink": "",
-    "driveLink": ""
+    "driveLink": "",
+    "weeklyHistory": [
+      {
+        "week": "2026-W27",
+        "signal": "트렌드",
+        "summary": "글루타치온 '먹는 미백' → 바르는 스킨케어 전환 트렌드"
+      },
+      {
+        "week": "2026-W27",
+        "signal": "업로드",
+        "summary": "목요일 업로드 계획 — 글루타치온 트렌드 급상승, 경쟁 셀러 적어 선점 기회"
+      }
+    ]
   },
   {
     "id": "sku-romand-juicy-lasting-tint",
     "name": "롬앤 쥬시 래스팅 틴트",
     "brand": "rom&nd",
     "category": "립",
-    "ingredientTags": ["색조"],
+    "ingredientTags": [
+      "색조"
+    ],
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0017/A00000017284602ko.jpg",
     "domesticPrice": 12000,
     "domesticSource": "올리브영",
@@ -151,7 +212,9 @@
     "name": "티르티르 마스크 핏 레드 쿠션",
     "brand": "TIRTIR",
     "category": "베이스",
-    "ingredientTags": ["색조"],
+    "ingredientTags": [
+      "색조"
+    ],
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0021/A00000021083405ko.jpg",
     "domesticPrice": 22000,
     "domesticSource": "올리브영",
@@ -165,14 +228,23 @@
     "competitorCount": 15,
     "lastOfflineCheck": "2026-07-03",
     "notionLink": "",
-    "driveLink": ""
+    "driveLink": "",
+    "weeklyHistory": [
+      {
+        "week": "2026-W27",
+        "signal": "업로드",
+        "summary": "금요일 업로드 계획 — 미국 틱톡 바이럴 → 일본 역수입 트렌드, 색조 카테고리 주목"
+      }
+    ]
   },
   {
     "id": "sku-manyo-pure-cleansing-oil",
     "name": "마녀공장 퓨어 클렌징 오일",
     "brand": "마녀공장",
     "category": "클렌징",
-    "ingredientTags": ["보습"],
+    "ingredientTags": [
+      "보습"
+    ],
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0015/A00000015674203ko.jpg",
     "domesticPrice": 18000,
     "domesticSource": "올리브영",
@@ -193,7 +265,9 @@
     "name": "조선미녀 맑은쌀 선크림",
     "brand": "조선미녀",
     "category": "선크림",
-    "ingredientTags": ["자외선차단"],
+    "ingredientTags": [
+      "자외선차단"
+    ],
     "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0019/A00000019847601ko.jpg",
     "domesticPrice": 18000,
     "domesticSource": "올리브영",
@@ -207,6 +281,84 @@
     "competitorCount": 40,
     "lastOfflineCheck": "2026-07-02",
     "notionLink": "",
-    "driveLink": ""
+    "driveLink": "",
+    "weeklyHistory": [
+      {
+        "week": "2026-W27",
+        "signal": "트렌드",
+        "summary": "여름 시즌 진입 → 선크림 검색량 전월 대비 +62%"
+      },
+      {
+        "week": "2026-W27",
+        "signal": "업로드",
+        "summary": "화요일 업로드 완료 — 여름 시즌 선크림 수요 피크, Qoo10 JP 선크림 카테고리 상위 노출"
+      }
+    ]
+  },
+  {
+    "id": "sku-drrejuall-pdrn-lip-serum",
+    "name": "닥터레주올 어드밴스드 PDRN 리주버네이팅 립 세럼",
+    "brand": "Dr.Reju-All",
+    "category": "립",
+    "ingredientTags": [
+      "PDRN",
+      "립세럼"
+    ],
+    "imageUrl": "",
+    "qoo10SearchUrl": "https://www.qoo10.jp/s/%E3%83%89%E3%82%AF%E3%82%BF%E3%83%BC%E3%83%AC%E3%82%B8%E3%83%A5%E3%82%AA%E3%83%BC%E3%83%AB%20PDRN%20%E3%83%AA%E3%83%83%E3%83%97%E3%82%BB%E3%83%A9%E3%83%A0",
+    "status": "트렌드",
+    "trendType": "trend",
+    "weeklyHistory": [
+      {
+        "week": "2026-W46",
+        "signal": "트렌드",
+        "summary": "Qoo10 2026년 9월 월간 코스메 랭킹(10/21 발표)에서 립크림·밤 부문 판매수량 1위"
+      }
+    ],
+    "_unverified": "국내가·Qoo10가·마진·경쟁 판매자 수 미확인 — 소싱 확인 후 입력"
+  },
+  {
+    "id": "sku-milktouch-silver-veil-lip-tattoo",
+    "name": "밀크터치 실버 베일 티슈 오프 립 타투",
+    "brand": "Milk Touch",
+    "category": "립",
+    "ingredientTags": [
+      "립타투",
+      "티슈오프"
+    ],
+    "imageUrl": "",
+    "qoo10SearchUrl": "https://www.qoo10.jp/s/%E3%83%9F%E3%83%AB%E3%82%AF%E3%82%BF%E3%83%83%E3%83%81%20%E3%83%AA%E3%83%83%E3%83%97%E3%82%BF%E3%83%88%E3%82%A5%E3%83%BC",
+    "status": "트렌드",
+    "trendType": "trend",
+    "weeklyHistory": [
+      {
+        "week": "2026-W46",
+        "signal": "트렌드",
+        "summary": "Qoo10 2026년 9월 월간 코스메 랭킹 립메이크 부문 판매수량 1위 (2위도 밀크터치 젤리핏 틴티드 글로우 틴트)"
+      }
+    ],
+    "_unverified": "국내가·Qoo10가·마진·경쟁 판매자 수 미확인 — 소싱 확인 후 입력"
+  },
+  {
+    "id": "sku-cosrx-rx-alpha-arbutin-serum",
+    "name": "코스알엑스 RX 더 알파 알부틴 세럼",
+    "brand": "COSRX",
+    "category": "세럼/앰플",
+    "ingredientTags": [
+      "알파알부틴",
+      "세럼"
+    ],
+    "imageUrl": "",
+    "qoo10SearchUrl": "https://www.qoo10.jp/s/%E3%82%B3%E3%82%B9%E3%82%A2%E3%83%BC%E3%83%AB%E3%82%A8%E3%83%83%E3%82%AF%E3%82%B9%20%E3%82%A2%E3%83%AB%E3%83%95%E3%82%A1%E3%82%A2%E3%83%AB%E3%83%96%E3%83%81%E3%83%B3%20%E3%82%BB%E3%83%A9%E3%83%A0",
+    "status": "트렌드",
+    "trendType": "trend",
+    "weeklyHistory": [
+      {
+        "week": "2026-W46",
+        "signal": "트렌드",
+        "summary": "Qoo10 MEGA BEAUTY AWARDS 2026 상반기(7월 발표) 종합 1위 (집계기간 2025/12/10~2026/6/11)"
+      }
+    ],
+    "_unverified": "국내가·Qoo10가·마진·경쟁 판매자 수 미확인 — 소싱 확인 후 입력"
   }
 ]

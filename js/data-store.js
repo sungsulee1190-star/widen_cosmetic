@@ -14,6 +14,7 @@ const DataStore = {
   platformChannels: [],
   sourcingRoutes: [],
   references: {},
+  meta: {},
   loadErrors: [],
 
   // ── Load all JSON data ──
@@ -30,6 +31,7 @@ const DataStore = {
       platformChannels: 'data/platform-channels.json',
       sourcingRoutes: 'data/sourcing-routes.json',
       references: 'data/references.json',
+      meta: 'data/meta.json',
     };
 
     this.loadErrors = [];

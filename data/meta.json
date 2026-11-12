@@ -1,0 +1,61 @@
+{
+  "_note": "주간 데이터 기준 정보. scripts/weekly-rollover.mjs 가 매주 갱신합니다. 직접 고칠 필요 없음.",
+  "week": "2026-W46",
+  "weekStart": "2026-11-09",
+  "updatedAt": "2026-11-12",
+  "updatedBy": "Claude (리서치 + 출처 직접 확인)",
+  "sources": [
+    {
+      "title": "2026年9月Qoo10月間コスメランキング発表",
+      "url": "https://netshop.impress.co.jp/r/prtimes/items/000001016.000022933",
+      "date": "2026-10-21"
+    },
+    {
+      "title": "DR.REJU-ALL Advanced PDRN Rejuvenating Lip Serum 10ml (LOOKFANTASTIC)",
+      "url": "https://www.lookfantastic.com/p/dr.reju-all-advanced-pdrn-rejuvenating-lip-serum-10ml/18050087/",
+      "date": "2026-11-12"
+    },
+    {
+      "title": "milktouch(ミルクタッチ) 株式会社Coogee (maquia)",
+      "url": "https://maquia.hpplus.jp/cosme/178294/",
+      "date": "2026-08-01"
+    },
+    {
+      "title": "「Qoo10 MEGA BEAUTY AWARDS 2026 上半期」発表 (ecnomikata)",
+      "url": "https://ecnomikata.com/ecnews/51193/",
+      "date": "2026-07-27"
+    },
+    {
+      "title": "Qoo10 mega beauty award 2026 July (FASHIONSNAP)",
+      "url": "https://www.fashionsnap.com/article/2026-08-12/qoo10-mega-beauty-award-26-july/",
+      "date": "2026-08-12"
+    },
+    {
+      "title": "WWD Japan - Qoo10 MEGA BEAUTY AWARDS 2025 (초개최, 종합 TOP10)",
+      "url": "https://www.wwdjapan.com/articles/2288785",
+      "date": "2025-12-30"
+    },
+    {
+      "title": "2025年11月 Qoo10月間コスメランキング (패드/립/아이섀도/치크 TOP5)",
+      "url": "https://www.value-press.com/pressrelease/367103",
+      "date": "2025-12-19"
+    },
+    {
+      "title": "2025年12月 Qoo10月間コスメランキング (세럼/립/아이섀도/치크 TOP5)",
+      "url": "https://www.value-press.com/pressrelease/368710",
+      "date": "2026-01-28"
+    },
+    {
+      "title": "maquia - メガ割おすすめ 2025年冬 (2025년 11월 메가와리 일정 11/21~12/3)",
+      "url": "https://maquia.hpplus.jp/blog/senna1_maquia/114264/",
+      "date": "2025-11-21"
+    },
+    {
+      "title": "hubmedia - Qoo10メガポ2026年11月 (11/1~6, 메가와리는 11월 중순~하순 예상, 미확정)",
+      "url": "https://hubmedia.co.jp/ec/qoo10/qoo10-megapo-2026-november/",
+      "date": "2026-10-22"
+    }
+  ],
+  "researchPending": false,
+  "previousWeek": "2026-W27"
+}

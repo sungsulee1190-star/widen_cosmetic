@@ -258,3 +258,21 @@ function downloadText(filename, text, type = 'text/csv;charset=utf-8') {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+// ── 주차 (ISO 8601: 월요일 시작, 1월 4일이 든 주가 W01) ──
+// 대시보드 데이터는 주 단위로 갱신되므로 "지금 몇 주차인지"와 "데이터가 몇 주차 기준인지"를 비교하는 데 사용
+// (scripts/weekly-rollover.mjs 도 같은 규칙을 씀)
+function isoWeek(date = new Date()) {
+  const t = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const year = t.getUTCFullYear();
+  const week = Math.ceil(((t - Date.UTC(year, 0, 1)) / 864e5 + 1) / 7);
+  return `${year}-W${String(week).padStart(2, '0')}`;
+}
+
+// "2026-W46" 끼리 몇 주 차이인지 (b - a). 연도가 바뀌어도 대략 맞게 52주 기준
+function weekDiff(a, b) {
+  const parse = (w) => { const m = /^(\d{4})-W(\d{2})$/.exec(w || ''); return m ? Number(m[1]) * 52 + Number(m[2]) : NaN; };
+  return parse(b) - parse(a);
+}

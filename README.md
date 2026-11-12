@@ -14,6 +14,11 @@ python3 -m http.server 8000
 
 브라우저에서 `http://localhost:8000` 접속. (`npm start` 도 같은 명령입니다.)
 
+## 매주 데이터 업데이트
+
+매주 월요일 08:47(한국시간) 예약 작업이 `docs/WEEKLY_UPDATE.md` 절차대로 리서치해서 `data: <주차> 주간 업데이트` PR 을 올립니다. 리뷰 후 머지하세요.
+직접 할 때는 `npm run weekly`(롤오버) → 데이터 갱신 → `npm test`. 데이터 기준 주차는 첫 화면 제목 아래와 사이드바 하단에 표시됩니다.
+
 ## 테스트
 
 ```bash
@@ -55,6 +60,7 @@ npm test
 
 ## 문서
 
+- `docs/WEEKLY_UPDATE.md` — 주간 데이터 업데이트 절차
 - `docs/CHANGELOG_리뷰_2026-11-10.md` — 2026-11-10 코드 리뷰에서 고친 것과 이유
 - `docs/widen-kbeauty-dashboard-planning-v0.1.md` — 초기 기획
 - `docs/benchmarking_strategy.md` — 벤치마킹 전략
