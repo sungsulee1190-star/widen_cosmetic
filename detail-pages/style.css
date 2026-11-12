@@ -1,0 +1,117 @@
+/* WIDEN Qoo10 JP 상세페이지 시안 공통 스타일 */
+:root{
+  --bg:#f6f4f1; --paper:#fff; --ink:#2b2b2b; --muted:#8a8a8a; --line:#e8e4de;
+  --accent:#d9728a; --accent-soft:#fbeef1; --orange:#f08a24;
+  --memo-bg:#fff6c8; --memo-line:#e2c94b; --ph:#e3e3e3;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.7;font-size:15px;
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+.page{max-width:860px;margin:0 auto;background:var(--paper);padding:0 0 40px}
+img{max-width:100%}
+h1,h2,h3,p,ul,table{margin:0}
+.sec{padding:36px 18px;border-bottom:1px solid var(--line)}
+.sec-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;margin-bottom:18px}
+.sec-h .num{color:var(--accent);font-weight:700;font-size:20px}
+.sec-h h2{font-size:20px;line-height:1.4}
+.sec-h h2 small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+.draft-tag{margin-left:auto;font-size:11px;color:#8a6d00;background:var(--memo-bg);border:1px solid var(--memo-line);padding:1px 8px;border-radius:10px}
+.w-slim .draft-tag{background:#eee;border-color:#ccc;color:#777}
+
+/* 일본어 / 한국어 검토 줄 */
+.ja{font-size:15px;color:var(--ink)}
+.ko{font-size:12px;color:var(--muted);margin-bottom:8px}
+.ja.lead{font-size:20px;font-weight:700;line-height:1.5}
+.ja.lead + .ko{font-size:12px}
+.draft-only,.ko{font-family:"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+
+/* 작업 메모 (판매 페이지에 넣지 않음) */
+.work-memo{background:var(--memo-bg);border:2px dashed var(--memo-line);margin:0;padding:16px 18px;font-size:13px;line-height:1.7;
+  font-family:"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+.work-memo h2{font-size:15px;margin-bottom:2px}
+.work-memo .no-sell{display:inline-block;background:#c0392b;color:#fff;font-size:11px;font-weight:700;padding:1px 8px;border-radius:3px;margin-bottom:8px}
+.work-memo h3{font-size:13px;margin:12px 0 2px;color:#6b5600}
+.work-memo ul{padding-left:18px}
+.work-memo li{margin:1px 0}
+.work-memo.inline{margin:10px 0;padding:8px 12px;font-size:12px}
+.blank{background:#ffe0b2;border-radius:3px;padding:0 3px;font-family:Menlo,Consolas,monospace;font-size:.92em;color:#a04b00}
+
+/* 사진 자리 */
+.photo{position:relative;background:var(--ph);border-radius:8px;display:flex;align-items:center;justify-content:center;
+  min-height:220px;color:#777;font-size:12px;text-align:center;padding:36px 12px 12px;margin:10px 0}
+.photo.tall{min-height:340px}
+.photo.wide{min-height:170px}
+.photo .label{position:absolute;top:8px;left:8px;background:var(--orange);color:#fff;font-weight:700;font-size:11px;padding:2px 8px;border-radius:3px;
+  font-family:"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+.photo-row{display:grid;grid-template-columns:1fr;gap:10px}
+
+/* 배지 */
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.badge{display:inline-block;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);font-size:12px;font-weight:700;padding:3px 12px;border-radius:14px}
+.rank-ribbon{background:var(--ink);color:#fff;border-radius:8px;padding:10px 14px;margin:12px 0;font-size:13px;line-height:1.5}
+.rank-ribbon small{display:block;color:#bbb;font-size:11px;margin-top:2px}
+
+/* 첫 화면 */
+.hero{padding:28px 18px 32px;border-bottom:1px solid var(--line)}
+.brand-line{font-size:12px;letter-spacing:.08em;color:var(--accent);font-weight:700}
+.hero h1{font-size:22px;line-height:1.4;margin:4px 0 10px}
+.hero h1 small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+
+/* 3 POINT 카드 */
+.cards3{display:grid;grid-template-columns:1fr;gap:12px}
+.point-card{border:1px solid var(--line);border-radius:10px;padding:16px;background:#fff}
+.point-card .pt-num{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.1em}
+.point-card .icon{display:inline-flex;width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent);align-items:center;justify-content:center;font-size:16px;margin:6px 0}
+.point-card h3{font-size:16px;line-height:1.4}
+.point-card .claim{margin-top:6px}
+
+/* 성분 카드 */
+.ing-list{display:grid;grid-template-columns:1fr;gap:12px}
+.ing-card{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0;padding:14px 16px}
+.ing-card h3{font-size:17px;color:var(--ink)}
+.ing-card h3 small{display:block;font-size:12px;color:var(--muted);font-weight:400}
+
+/* 스텝 */
+.steps{list-style:none;padding:0;display:grid;gap:10px;counter-reset:s}
+.step{display:flex;gap:12px;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.step .st{flex:none;background:var(--accent);color:#fff;font-weight:700;font-size:12px;border-radius:6px;padding:2px 8px;height:fit-content;letter-spacing:.05em}
+.caution{margin-top:14px;border:1px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:10px 14px}
+
+/* 사용감 칩 */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{border:1px solid var(--line);border-radius:18px;padding:4px 14px;font-size:13px;background:#fff}
+
+/* 옵션 표 */
+.tbl-wrap{overflow-x:auto}
+table.opt,table.info{width:100%;border-collapse:collapse;font-size:14px;background:#fff}
+table.opt th,table.opt td,table.info th,table.info td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}
+table.opt thead th{background:var(--accent-soft);color:var(--accent);font-size:13px}
+table.info th{width:28%;background:#faf8f6;font-weight:700;font-size:13px}
+table.opt td .ko,table.info td .ko,table.info th .ko{margin:0}
+table.info th .ko{font-weight:400}
+
+/* 체크리스트 */
+.checklist{list-style:none;padding:0;display:grid;gap:8px}
+.checklist li{display:flex;gap:10px;border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.checklist li::before{content:"\2713";flex:none;color:#fff;background:var(--accent);width:20px;height:20px;border-radius:50%;text-align:center;font-size:12px;line-height:20px;margin-top:2px}
+.checklist .ko{margin:0}
+
+/* 리뷰 / 신뢰 */
+.review{border:1px dashed #bbb;border-radius:10px;padding:14px 16px;margin:12px 0;background:#fcfcfc}
+.review .stars{color:var(--orange);letter-spacing:2px;font-size:13px}
+.review .who{font-size:12px;color:var(--muted)}
+.trust{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0}
+.trust .item{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.trust .item b{display:block;font-size:13px;color:var(--accent)}
+
+.note-small{font-size:11px;color:var(--muted)}
+.back{display:block;max-width:860px;margin:0 auto;padding:10px 18px;font-size:12px}
+.back a{color:var(--accent)}
+
+@media (min-width:640px){
+  .cards3{grid-template-columns:repeat(3,1fr)}
+  .photo-row{grid-template-columns:1fr 1fr}
+  .trust{grid-template-columns:repeat(3,1fr)}
+  .hero h1{font-size:26px}
+}
