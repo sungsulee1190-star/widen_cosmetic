@@ -1,89 +1,134 @@
 [
   {
-    "id": "trend-001",
-    "name": "VT 리들샷 100",
-    "brand": "VT Cosmetics",
+    "id": "trend-2026w46-1",
+    "name": "닥터레주올 어드밴스드 PDRN 리주버네이팅 립 세럼",
+    "brand": "Dr.Reju-All",
+    "category": "립",
+    "imageUrl": "",
+    "tags": [
+      "트렌드↗",
+      "PDRN",
+      "립세럼",
+      "립케어"
+    ],
+    "whyTrending": [
+      "Qoo10 2026년 9월 월간 코스메 랭킹(10/21 발표)에서 립크림·밤 부문 판매수량 1위",
+      "같은 부문 2위는 rom&nd 글래스팅 멜팅 밤, 3위는 Triden 립 에센스 세트 — 립 트리트먼트 수요가 상위권을 차지",
+      "성분 구성: PDRN 0.01%, 무수(anhydrous) 비끈적 텍스처, 마카다미아·미강유 (해외 리테일러 상품 페이지 기준)"
+    ],
+    "strengths": [
+      "PDRN 스킨케어 트렌드를 립케어로 확장한 포지셔닝",
+      "겨울 건조 시즌과 메가할(11월) 시기에 수요 부합",
+      "10ml 소형으로 배송비·재고 부담 낮음"
+    ],
+    "risks": [
+      "PDRN 함량(0.01%)·효능 표현은 일본 약기법상 광고 문구 제한 가능",
+      "공식 Qoo10 판매자와의 가격 경쟁(정식 입점 브랜드)",
+      "립 제품은 클레임(알레르기·사용기한) 대응 필요"
+    ],
+    "links": {
+      "qoo10": "https://www.qoo10.jp/s/%E3%83%89%E3%82%AF%E3%82%BF%E3%83%BC%E3%83%AC%E3%82%B8%E3%83%A5%E3%82%AA%E3%83%BC%E3%83%AB%20PDRN%20%E3%83%AA%E3%83%83%E3%83%97%E3%82%BB%E3%83%A9%E3%83%A0"
+    },
+    "sources": [
+      {
+        "title": "2026年9月Qoo10月間コスメランキング発表",
+        "url": "https://netshop.impress.co.jp/r/prtimes/items/000001016.000022933",
+        "date": "2026-10-21"
+      },
+      {
+        "title": "DR.REJU-ALL Advanced PDRN Rejuvenating Lip Serum 10ml (LOOKFANTASTIC)",
+        "url": "https://www.lookfantastic.com/p/dr.reju-all-advanced-pdrn-rejuvenating-lip-serum-10ml/18050087/",
+        "date": "2026-11-12"
+      }
+    ],
+    "skuId": "sku-drrejuall-pdrn-lip-serum"
+  },
+  {
+    "id": "trend-2026w46-2",
+    "name": "밀크터치 실버 베일 티슈 오프 립 타투",
+    "brand": "Milk Touch",
+    "category": "립",
+    "imageUrl": "",
+    "tags": [
+      "트렌드↗",
+      "립타투",
+      "티슈오프",
+      "신제품"
+    ],
+    "whyTrending": [
+      "Qoo10 2026년 9월 월간 코스메 랭킹 립메이크 부문 판매수량 1위 (2위도 밀크터치 젤리핏 틴티드 글로우 틴트)",
+      "2026년 8월 1일 일본 발매된 신제품으로 약 2개월 만에 부문 1위 (maquia 브랜드 페이지)",
+      "메탈릭 레이어를 닦아내면 발색만 남는 티슈오프 방식, 6색 구성, 가격 1,760엔(세금 포함)"
+    ],
+    "strengths": [
+      "신기한 사용법이라 SNS 영상 콘텐츠로 설명하기 쉬움",
+      "저가(1,760엔)로 메가할 쿠폰 시 충동구매 유도 쉬움",
+      "브랜드가 같은 부문 1·2위 동시 점유"
+    ],
+    "risks": [
+      "일본 법인(Coogee)이 이미 정식 유통, 병행 수입 시 가격·정품 인증 경쟁",
+      "립 틴트 레드오션, 신제품 사이클이 짧아 재고 소진 리스크",
+      "색상 6종 SKU 분산에 따른 재고 부담"
+    ],
+    "links": {
+      "qoo10": "https://www.qoo10.jp/s/%E3%83%9F%E3%83%AB%E3%82%AF%E3%82%BF%E3%83%83%E3%83%81%20%E3%83%AA%E3%83%83%E3%83%97%E3%82%BF%E3%83%88%E3%82%A5%E3%83%BC"
+    },
+    "sources": [
+      {
+        "title": "2026年9月Qoo10月間コスメランキング発表",
+        "url": "https://netshop.impress.co.jp/r/prtimes/items/000001016.000022933",
+        "date": "2026-10-21"
+      },
+      {
+        "title": "milktouch(ミルクタッチ) 株式会社Coogee (maquia)",
+        "url": "https://maquia.hpplus.jp/cosme/178294/",
+        "date": "2026-08-01"
+      }
+    ],
+    "skuId": "sku-milktouch-silver-veil-lip-tattoo"
+  },
+  {
+    "id": "trend-2026w46-3",
+    "name": "코스알엑스 RX 더 알파 알부틴 세럼",
+    "brand": "COSRX",
     "category": "세럼/앰플",
-    "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0020/A00000020964711ko.jpg",
-    "tags": ["트렌드↗", "스피큘", "PDRN"],
+    "imageUrl": "",
+    "tags": [
+      "트렌드↗",
+      "알파알부틴",
+      "미백",
+      "메가할"
+    ],
     "whyTrending": [
-      "틱톡 'spicule before/after' 조회수 2.3억 돌파",
-      "다이소 3000원 엔트리 라인 → 외국인 관광객 폭발적 구매",
-      "Qoo10 JP 'リドルショット' 검색량 전주 대비 +45%",
-      "올리브영 스킨케어 전체 1위 (6주 연속)"
+      "Qoo10 MEGA BEAUTY AWARDS 2026 상반기(7월 발표) 종합 1위 (집계기간 2025/12/10~2026/6/11)",
+      "같은 어워드 2~4위도 한국 브랜드: Anua 비타민10 PORESTRIX 세럼, celimax THE VITA 레티놀 샷 타이트닝 부스터, APRILSKIN 히어로 쿠션",
+      "COSRX는 2021년부터 Qoo10 판매, 일본을 우선 시장으로 두고 현지 맞춤 제품 개발 계획 (fashionsnap)"
     ],
     "strengths": [
-      "독보적 '마이크로스피큘' 체감 효과 — 바르면 따끔한 물리적 피드백",
-      "다이소 라인(3000원) → 정규 라인(23000원) 업셀링 구조",
-      "일본어 'リドルショット' 인지도 이미 형성"
+      "어워드 엠블럼 효과로 전환율 상승 (엠블럼 수상 상품 평균 전환율 12.1%, fashionsnap)",
+      "환절기·연말 미백/잡티 케어 수요와 11월 메가할 시기 일치",
+      "남녀 불문 폭넓은 연령대 소구"
     ],
     "risks": [
-      "경쟁 셀러 50곳 이상 (가격 전쟁 심화)",
-      "마진 5~10% (박리다매 또는 세트 구성 필수)",
-      "민감 피부 부작용 리뷰 다수 — 클레임 리스크"
+      "어워드 근거가 7월 기준이라 최근 4주 신호는 아님",
+      "COSRX 공식샵이 직접 판매, 가격·재고 경쟁 불리",
+      "미백·잡티 표현은 일본 약기법 표현 제한 주의"
     ],
     "links": {
-      "oliveyoung": "https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000209647",
-      "qoo10": "https://www.qoo10.jp/s/VT+リドルショット",
-      "naverTrend": "https://datalab.naver.com/keyword/trendSearch.naver"
-    }
-  },
-  {
-    "id": "trend-002",
-    "name": "넘버즈인 3번 결광 에센스 토너",
-    "brand": "넘버즈인",
-    "category": "토너",
-    "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0020/A00000020178903ko.jpg",
-    "tags": ["트렌드↗", "글루타치온", "톤업"],
-    "whyTrending": [
-      "글루타치온 '먹는 미백' → 바르는 스킨케어 전환 트렌드",
-      "올리브영 토너 카테고리 1위 탈환 (4주 연속)",
-      "일본 유튜버 '美容オタク' 리뷰 영상 120만 뷰 돌파",
-      "가격 대비 용량(200ml) 가성비 어필 — 일본 소비자 호평"
+      "qoo10": "https://www.qoo10.jp/s/%E3%82%B3%E3%82%B9%E3%82%A2%E3%83%BC%E3%83%AB%E3%82%A8%E3%83%83%E3%82%AF%E3%82%B9%20%E3%82%A2%E3%83%AB%E3%83%95%E3%82%A1%E3%82%A2%E3%83%AB%E3%83%96%E3%83%81%E3%83%B3%20%E3%82%BB%E3%83%A9%E3%83%A0"
+    },
+    "sources": [
+      {
+        "title": "「Qoo10 MEGA BEAUTY AWARDS 2026 上半期」発表 (ecnomikata)",
+        "url": "https://ecnomikata.com/ecnews/51193/",
+        "date": "2026-07-27"
+      },
+      {
+        "title": "Qoo10 mega beauty award 2026 July (FASHIONSNAP)",
+        "url": "https://www.fashionsnap.com/article/2026-08-12/qoo10-mega-beauty-award-26-july/",
+        "date": "2026-08-12"
+      }
     ],
-    "strengths": [
-      "경쟁 셀러 15곳 미만 — 선점 기회 큼",
-      "마진 10~15% — 단품으로도 수익 구조 가능",
-      "'글루타치온' 키워드 일본 내 인지도 급상승 중"
-    ],
-    "risks": [
-      "'미백' 효능 표현 일본 약기법 주의 (의약부외품 아니면 불가)",
-      "브랜드 인지도 VT/COSRX 대비 낮음 — 상세페이지 퀄리티가 전환율 좌우",
-      "용량 큰 토너(200ml) 국제배송 시 무게/부피 → 배송비 부담"
-    ],
-    "links": {
-      "oliveyoung": "https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000201789",
-      "qoo10": "https://www.qoo10.jp/s/ナンバーズイン+3番+トナー",
-      "naverTrend": "https://datalab.naver.com/keyword/trendSearch.naver"
-    }
-  },
-  {
-    "id": "trend-003",
-    "name": "조선미녀 맑은쌀 선크림",
-    "brand": "조선미녀",
-    "category": "선크림",
-    "imageUrl": "https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0019/A00000019847601ko.jpg",
-    "tags": ["스테디↑", "자외선차단", "쌀"],
-    "whyTrending": [
-      "여름 시즌 진입 → 선크림 검색량 전월 대비 +62%",
-      "아마존 US 선크림 1위 히스토리 → 일본 소비자 신뢰도 높음",
-      "Qoo10 JP 'Beauty of Joseon' 검색량 전주 대비 +28%",
-      "'쌀(rice)' 성분 한방 이미지 → 일본 소비자 정서에 부합"
-    ],
-    "strengths": [
-      "SPF50+ PA++++ 고기능 자외선 차단",
-      "'조선미녀' 브랜드 한방/전통 컨셉 — 일본 소비자 호감도 높음",
-      "가벼운 텍스처, 백탁 없음 — 일본 리뷰 핵심 호평 포인트"
-    ],
-    "risks": [
-      "경쟁 셀러 40곳 이상 — 가격 경쟁 치열",
-      "마진 5~10% — 세트 구성(토너+선크림) 으로 객단가 확보 필요",
-      "일본 자외선차단제 SPF/PA 표기 규정 준수 확인 필요"
-    ],
-    "links": {
-      "oliveyoung": "https://www.oliveyoung.co.kr/store/goods/getGoodsDetail.do?goodsNo=A000000198476",
-      "qoo10": "https://www.qoo10.jp/s/ビューティーオブジョソン+日焼け止め",
-      "naverTrend": "https://datalab.naver.com/keyword/trendSearch.naver"
-    }
+    "skuId": "sku-cosrx-rx-alpha-arbutin-serum"
   }
 ]

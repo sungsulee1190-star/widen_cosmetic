@@ -125,6 +125,15 @@ async function initApp() {
   // Badges
   updateBadges();
 
+  // 사이드바 하단에 데이터 기준 주차 표시 (어느 화면에서든 데이터가 언제 것인지 보이도록)
+  const footer = document.querySelector('.sidebar-footer-text');
+  const meta = DataStore.meta || {};
+  if (footer && meta.week) {
+    const behind = weekDiff(meta.week, isoWeek());
+    footer.textContent = `데이터 ${meta.week}${behind > 0 ? ` (⚠️ ${behind}주 전)` : ''}`;
+    footer.title = `업데이트: ${meta.updatedAt || '-'} · ${meta.updatedBy || ''}`;
+  }
+
   // Restore last view
   let lastView = DEFAULT_VIEW;
   try { lastView = localStorage.getItem('widen-last-view') || DEFAULT_VIEW; } catch (e) { /* ignore */ }

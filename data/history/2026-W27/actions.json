@@ -1,0 +1,79 @@
+[
+  {
+    "id": "act-001",
+    "task": "Qoo10 JP 경쟁 판매 페이지 5개 캡처 및 MD 리포트 초안",
+    "targetSku": "VT 리들샷 100",
+    "channel": "Qoo10 JP",
+    "purpose": "제목 구조, 대표 이미지, 세트 구성, 가격/쿠폰 전략 분석",
+    "links": {
+      "qoo10": "https://www.qoo10.jp/s/VT+リドルショット",
+      "drive": ""
+    }
+  },
+  {
+    "id": "act-002",
+    "task": "명동 올리브영/다이소 매장 방문 — 외국인 인기 매대 정찰",
+    "targetSku": "전 SKU (현장 확인)",
+    "channel": "오프라인",
+    "purpose": "품절 현황, 외국어 POP, 1+1 행사, 외국인 구매 패턴 관찰",
+    "links": {
+      "qoo10": "",
+      "drive": ""
+    }
+  },
+  {
+    "id": "act-003",
+    "task": "조선미녀 맑은쌀 선크림 Qoo10 상세페이지 초안 작성",
+    "targetSku": "조선미녀 맑은쌀 선크림",
+    "channel": "Qoo10 JP",
+    "purpose": "일본어 상세페이지 레이아웃 및 카피라이팅 초안 (성분/사용법/비교표)",
+    "links": {
+      "qoo10": "https://www.qoo10.jp/s/ビューティーオブジョソン+日焼け止め",
+      "drive": ""
+    }
+  },
+  {
+    "id": "act-004",
+    "task": "성분 위키 업데이트 — PDRN, 글루타치온, 스피큘 항목 보강",
+    "targetSku": "VT 리들샷 100 / 넘버즈인 3번",
+    "channel": "내부 문서",
+    "purpose": "일본 약기법 기준 안전 표현 vs 금지 표현 정리, 마케팅 카피 레퍼런스 추가",
+    "links": {
+      "qoo10": "",
+      "drive": ""
+    }
+  },
+  {
+    "id": "act-005",
+    "task": "주요 SKU 10개 가격 비교표 업데이트 (올리브영 vs Qoo10 vs 아마존 JP)",
+    "targetSku": "전 SKU",
+    "channel": "올리브영 / Qoo10 JP / Amazon JP",
+    "purpose": "실시간 가격 변동 추적, 마진율 재계산, 경쟁가 모니터링",
+    "links": {
+      "qoo10": "https://www.qoo10.jp/s/韓国コスメ",
+      "drive": ""
+    }
+  },
+  {
+    "id": "act-006",
+    "task": "일본 인플루언서 콘텐츠 수집 — 틱톡/유튜브 K-뷰티 리뷰 10개",
+    "targetSku": "VT 리들샷 100 / 토리든 다이브인 / 조선미녀 선크림",
+    "channel": "TikTok / YouTube",
+    "purpose": "일본 소비자 반응 키워드 추출, 상세페이지 리뷰 인용 소스 확보",
+    "links": {
+      "qoo10": "",
+      "drive": ""
+    }
+  },
+  {
+    "id": "act-007",
+    "task": "Notion DB 정리 — SKU 카드 필드 통일 및 링크 연결",
+    "targetSku": "전 SKU",
+    "channel": "Notion",
+    "purpose": "SKU별 올리브영/Qoo10/드라이브 링크 일괄 정리, 상태 태그 업데이트",
+    "links": {
+      "qoo10": "",
+      "drive": ""
+    }
+  }
+]

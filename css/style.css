@@ -1317,3 +1317,19 @@ label.checklist-item { cursor: pointer; }
   font-size: 11px;
   min-height: 60px;
 }
+
+/* ===== 주간 데이터 기준 표시 ===== */
+.data-week-notice {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+}
+.data-week-notice.is-stale {
+  background: var(--accent-orange-light);
+  color: var(--accent-orange);
+  border: 1px solid #fed7aa;
+}

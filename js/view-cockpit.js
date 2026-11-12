@@ -26,6 +26,7 @@ function renderCockpitView() {
     <div class="page-header">
       <h1 class="page-title">⚡ 이번주 할일</h1>
       <p class="page-subtitle">대표 관점에서 이번 주 트렌드 신호, 해야 할 일, SKU 기회, 벤치마킹 채널을 한 화면에서 판단합니다.</p>
+      ${renderDataWeekNotice()}
     </div>
 
     <!-- Section 1: 운영 요약 -->
@@ -54,6 +55,24 @@ function renderCockpitView() {
   bindUploadEvents(container, uploads);
   bindToggleEvents(container);
   bindActionEvents(container);
+}
+
+// 데이터가 몇 주차 기준인지 + 이번 주와 다르면 경고
+// (매주 scripts/weekly-rollover.mjs → 리서치 → data/meta.json 갱신. 절차: docs/WEEKLY_UPDATE.md)
+function renderDataWeekNotice() {
+  const meta = DataStore.meta || {};
+  if (!meta.week) return '';
+  const nowWeek = isoWeek();
+  const behind = weekDiff(meta.week, nowWeek);
+  const updated = meta.updatedAt ? ` · ${esc(meta.updatedAt)} 업데이트` : '';
+  const sources = (meta.sources || []).length ? ` · 출처 ${meta.sources.length}건` : '';
+  if (behind > 0) {
+    return `<div class="data-week-notice is-stale">⚠️ 데이터 기준 <strong>${esc(meta.week)}</strong>${updated} — 이번 주(${nowWeek})보다 <strong>${behind}주</strong> 지났습니다. 주간 업데이트가 필요합니다 (docs/WEEKLY_UPDATE.md).</div>`;
+  }
+  if (meta.researchPending) {
+    return `<div class="data-week-notice is-stale">⏳ <strong>${esc(meta.week)}</strong> 로 넘어갔지만 이번 주 트렌드 리서치가 아직 반영되지 않았습니다. 아래 트렌드는 ${esc(meta.previousWeek || '지난주')} 내용입니다.</div>`;
+  }
+  return `<div class="data-week-notice">📅 데이터 기준 <strong>${esc(meta.week)}</strong>${updated}${sources}</div>`;
 }
 
 function renderExecutiveSummary() {
@@ -448,6 +467,7 @@ function renderSeasonSection() {
       <div class="card">
         <div class="card-title">🔥 지금 뜨는 카테고리</div>
         <div class="card-meta">${esc(periodOf(current))}</div>
+        ${current.basis ? `<div class="card-meta" style="color:var(--accent-orange);">ⓘ ${esc(current.basis)}</div>` : ''}
         ${itemsHtml}
         ${linksOf(current)}
       </div>

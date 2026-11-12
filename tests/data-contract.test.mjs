@@ -10,7 +10,7 @@ const json = (p) => JSON.parse(readFileSync(p, 'utf8'));
 // ── 1. utils.js 순수 함수 ──
 const ctx = {};
 vm.createContext(ctx);
-vm.runInContext(readFileSync('js/utils.js', 'utf8') + '\n;Object.assign(globalThis,{esc,safeUrl,stars,parseMarginRange,normalizeLinks,localDateISO,todayDayKey,matchesQuery,safeImageSrc,toCSV});', ctx);
+vm.runInContext(readFileSync('js/utils.js', 'utf8') + '\n;Object.assign(globalThis,{esc,safeUrl,stars,parseMarginRange,normalizeLinks,localDateISO,todayDayKey,matchesQuery,safeImageSrc,toCSV,isoWeek,weekDiff});', ctx);
 
 assert.equal(ctx.esc('<img onerror="x">'), '&lt;img onerror=&quot;x&quot;&gt;', 'esc escapes HTML');
 assert.equal(ctx.safeUrl('javascript:alert(1)'), '', 'safeUrl blocks javascript:');
@@ -47,6 +47,12 @@ assert.equal(ctx.safeImageSrc('data/x.jpg'), '', 'only images/ folder');
 const csv = ctx.toCSV([{ a: '명동, 1층', b: '그는 "좋다"\n함' }], [{ key: 'a', label: '매장' }, { key: 'b', label: '메모' }]);
 assert.ok(csv.startsWith('\uFEFF매장,메모'), 'csv header with BOM');
 assert.ok(csv.includes('"명동, 1층"') && csv.includes('"그는 ""좋다""\n함"'), 'csv escaping');
+
+// ISO 주차
+assert.equal(ctx.isoWeek(new Date(2026, 10, 12)), '2026-W46');
+assert.equal(ctx.isoWeek(new Date(2027, 0, 1)), '2026-W53', 'Jan 1 2027 belongs to 2026-W53');
+assert.equal(ctx.isoWeek(new Date(2026, 0, 1)), '2026-W01');
+assert.equal(ctx.weekDiff('2026-W27', '2026-W46'), 19);
 
 // ── 2. JSON 구조 ──
 const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
@@ -87,6 +93,21 @@ const skus = json('data/sku-list.json');
 assert.equal(new Set(skus.map(s => s.id)).size, skus.length, 'sku ids unique');
 const skuIds = new Set(skus.map(s => s.id));
 uploads.filter(u => u.skuId).forEach(u => assert.ok(skuIds.has(u.skuId), `upload ${u.day} skuId "${u.skuId}" exists in sku-list`));
+
+// 주간 데이터 기준
+const meta = json('data/meta.json');
+const WEEK = /^\d{4}-W\d{2}$/;
+assert.match(meta.week, WEEK, 'meta.week like 2026-W46');
+if (meta.researchPending === false) {
+  assert.ok((meta.sources || []).length > 0, 'research finished → meta.sources must not be empty');
+  const trendsNow = json('data/weekly-trends.json');
+  trendsNow.forEach(t => assert.ok((t.sources || []).length > 0, `trend "${t.name}" needs sources (no unsourced claims)`));
+}
+skus.forEach(s => (s.weeklyHistory || []).forEach(h => {
+  assert.match(h.week, WEEK, `${s.id} weeklyHistory week format`);
+  assert.ok(ctx.weekDiff(h.week, meta.week) >= 0, `${s.id} history ${h.week} is not after data week ${meta.week}`);
+  assert.ok(h.signal && h.summary, `${s.id} weeklyHistory needs signal + summary`);
+}));
 
 const refs = json('data/references.json');
 assert.ok(Array.isArray(refs.competitors) && Array.isArray(refs.influencers), 'references has competitors[] and influencers[]');

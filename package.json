@@ -4,6 +4,7 @@
   "description": "WIDEN K-Beauty SKU Intelligence Dashboard (정적 SPA, 빌드 없음)",
   "scripts": {
     "start": "python3 -m http.server 8000",
-    "test": "node tests/dashboard-static.test.mjs && node tests/data-contract.test.mjs"
+    "test": "node tests/dashboard-static.test.mjs && node tests/data-contract.test.mjs",
+    "weekly": "node scripts/weekly-rollover.mjs"
   }
 }

@@ -122,7 +122,8 @@ function renderProductControls(skus, state) {
 
   const platformCounts = countBy(skus, getSkuPlatforms);
   const statusCounts = countBy(skus, s => s.status || '관찰');
-  const weekCounts = countBy(skus, s => s.weeklyHistory.filter(w => !w.estimated).map(w => w.week));
+  // 한 제품이 같은 주에 '트렌드'·'업로드' 두 번 기록될 수 있어서 주차는 제품당 한 번만 셈
+  const weekCounts = countBy(skus, s => [...new Set(s.weeklyHistory.filter(w => !w.estimated).map(w => w.week))]);
   const weeks = Object.keys(weekCounts).sort();
   const favCount = DataStore.getFavorites().filter(id => skus.some(s => s.id === id)).length;
 
