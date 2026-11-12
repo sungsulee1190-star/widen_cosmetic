@@ -60,6 +60,7 @@ npm test
 
 ## 문서
 
+- `docs/DETAIL_PAGE_FORMULA.md` — Qoo10 JP 상세페이지 공식 (9구간 + 일본 화장품 효능 56개 규칙). 시안은 `detail-pages/` (`python3 detail-pages/build.py` 로 재생성)
 - `docs/WEEKLY_UPDATE.md` — 주간 데이터 업데이트 절차
 - `docs/CHANGELOG_리뷰_2026-11-10.md` — 2026-11-10 코드 리뷰에서 고친 것과 이유
 - `docs/widen-kbeauty-dashboard-planning-v0.1.md` — 초기 기획

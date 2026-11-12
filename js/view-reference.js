@@ -115,7 +115,8 @@ function bindRefEvents(container) {
 // ── Page 8: Notion / Drive DB ──
 
 // 실제 워크스페이스 주소 — 바뀌면 여기 한 곳만 수정
-const NOTION_URL = 'https://app.notion.com/p/37744d5ca46c817db9f0e04cbf8b7c2c';
+// 2026-11-12: 예전 주소(37744d5c…)는 404 → 실제 허브 '🧴 코스메틱 해외 판매 대시보드' 로 교체
+const NOTION_URL = 'https://app.notion.com/p/38f44d5ca46c81db994ad66b684ff8bc';
 const DRIVE_URL = 'https://drive.google.com/drive/folders/10d_wFsMKYxc8lPJ9AhtU8PF-u15IHp9e';
 
 function renderLinksView() {
